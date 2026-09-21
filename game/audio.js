@@ -140,6 +140,43 @@ export class AudioEngine {
     src.start();
   }
 
+  // Détonation : claquement bruité + « corps » grave, dosés selon l'arme.
+  gunshot(weapon) {
+    if (!this.ctx || this.muted) return;
+    const profiles = {
+      poings: { vol: 0.08, freq: 220, dur: 0.08, body: 90 },
+      pistolet: { vol: 0.2, freq: 1700, dur: 0.14, body: 160 },
+      uzi: { vol: 0.15, freq: 2100, dur: 0.09, body: 190 },
+      pompe: { vol: 0.3, freq: 900, dur: 0.3, body: 80 },
+      fusil: { vol: 0.24, freq: 1500, dur: 0.18, body: 120 },
+      sniper: { vol: 0.34, freq: 700, dur: 0.45, body: 60 },
+    };
+    const p = profiles[weapon] || profiles.pistolet;
+
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.noiseBuffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = p.freq;
+    filter.Q.value = 0.8;
+    const g = this.ctx.createGain();
+    g.gain.value = p.vol;
+    g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + p.dur);
+    src.connect(filter).connect(g).connect(this.master);
+    src.start();
+
+    const o = this.ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(p.body, this.ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(p.body * 0.4, this.ctx.currentTime + p.dur);
+    const og = this.ctx.createGain();
+    og.gain.value = p.vol * 0.8;
+    og.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + p.dur);
+    o.connect(og).connect(this.master);
+    o.start();
+    o.stop(this.ctx.currentTime + p.dur);
+  }
+
   success() {
     [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => this.blip(f, 0.18, 'triangle', 0.1), i * 90));
   }

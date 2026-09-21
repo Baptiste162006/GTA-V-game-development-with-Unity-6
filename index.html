@@ -87,6 +87,26 @@
   #speed-unit { font-size: 12px; letter-spacing: 0.16em; color: var(--ink-dim); }
   #gear { font-size: 20px; font-weight: 700; color: var(--accent); }
 
+  #weapon-box { text-align: center; }
+  #weapon-name { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim); }
+  #ammo { font-size: 26px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  #ammo.low { color: var(--danger); animation: blink 0.7s steps(2, end) infinite; }
+  #ammo.reloading { color: var(--gold); }
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  /* Réticule : quatre traits, qui se resserrent en visée. */
+  #crosshair {
+    position: absolute; top: 50%; left: 50%; width: 26px; height: 26px;
+    transform: translate(-50%, -50%);
+    background:
+      linear-gradient(var(--ink), var(--ink)) 50% 0 / 2px 8px no-repeat,
+      linear-gradient(var(--ink), var(--ink)) 50% 100% / 2px 8px no-repeat,
+      linear-gradient(var(--ink), var(--ink)) 0 50% / 8px 2px no-repeat,
+      linear-gradient(var(--ink), var(--ink)) 100% 50% / 8px 2px no-repeat;
+    opacity: 0.6; transition: width 0.15s, height 0.15s, opacity 0.15s;
+  }
+  #crosshair[data-aim='on'] { width: 14px; height: 14px; opacity: 0.95; }
+
   #prompt { font-size: 15px; letter-spacing: 0.04em; }
   #prompt b { color: var(--accent); }
 
@@ -229,6 +249,10 @@
 
   <div class="corner bc">
     <div id="prompt" class="plate" hidden></div>
+    <div id="weapon-box" class="plate">
+      <div id="weapon-name">Pistolet 9 mm</div>
+      <div id="ammo">12 / 48</div>
+    </div>
     <div id="speed-box" class="plate" hidden>
       <span id="speed">0</span><span id="speed-unit">KM/H</span><span id="gear">1</span>
     </div>
@@ -236,6 +260,7 @@
 
   <div class="corner br"><canvas id="minimap" width="190" height="190"></canvas></div>
 
+  <div id="crosshair" data-aim="off" hidden></div>
   <div id="notifications"></div>
   <div id="big-message" hidden><div id="big-title"></div><div id="big-sub"></div></div>
   <div id="damage-vignette"></div>

@@ -5,6 +5,8 @@ import { Traffic } from './traffic.js';
 import { Police } from './police.js';
 import { MissionManager } from './missions.js';
 import { WeatherSystem } from './weather.js';
+import { WeaponSystem, WEAPONS } from './weapons.js';
+import { Enemies } from './enemies.js';
 import { HUD } from './hud.js';
 import { Input } from './input.js';
 import { AudioEngine } from './audio.js';
@@ -27,6 +29,9 @@ class Game {
       moneyEarned: 0,
       busted: 0,
       wasted: 0,
+      kills: 0,
+      shotsFired: 0,
+      shotsHit: 0,
       ...(restored.stats || {}),
     };
 
@@ -37,6 +42,8 @@ class Game {
     this.traffic = new Traffic(this.scene, this.world);
     this.police = new Police(this.scene, this.world, this.traffic);
     this.weather = new WeatherSystem(this.scene, this.world);
+    this.enemies = new Enemies(this.scene, this.world, this.traffic);
+    this.weapons = new WeaponSystem(this.scene, this.camera, this.player);
     this.audio = new AudioEngine();
     this.input = new Input(this.renderer.domElement);
     this.hud = new HUD();
@@ -104,6 +111,39 @@ class Game {
     this.traffic.onPedHit = () => {
       this.police.addCrime(1, this.playerPos());
       GameEvents.emit(EVENTS.NOTIFY, { text: 'Délit de fuite' });
+    };
+
+    this.police.onOfficerDown = () => {
+      this.police.addCrime(1, this.playerPos());
+      GameEvents.emit(EVENTS.NOTIFY, { text: 'Agent abattu' });
+    };
+
+    this.enemies.onKill = (enemy) => {
+      const loot = 60 + Math.floor(Math.random() * 140);
+      this.player.money += loot;
+      this.stats.moneyEarned += loot;
+      this.stats.kills++;
+      GameEvents.emit(EVENTS.MONEY, this.player.money);
+      GameEvents.emit(EVENTS.NOTIFY, { text: `Ennemi éliminé  ·  + ${loot} $` });
+      // Le milieu ne prévient pas la police : pas d'étoile pour un règlement de comptes.
+      this.traffic.scarePedestrians(enemy.position, 24);
+    };
+    this.enemies.onShoot = () => this.audio.blip(190, 0.05, 'sawtooth', 0.07);
+
+    this.weapons.onShot = (name) => {
+      this.audio.gunshot(name);
+      this.traffic.scarePedestrians(this.player.pos, 26);
+      if (this.police.searching) this.police.searchCenter.copy(this.playerPos());
+    };
+    this.weapons.onDry = () => this.audio.blip(140, 0.05, 'square', 0.06);
+    this.weapons.onHit = (target, damage, head) => {
+      target.applyDamage(damage);
+      this.stats.shotsHit++;
+      if (head) GameEvents.emit(EVENTS.NOTIFY, { text: 'Tir à la tête' });
+      if (target.kind === 'ped') {
+        this.police.addCrime(2, this.playerPos());
+        GameEvents.emit(EVENTS.NOTIFY, { text: 'Meurtre — témoins' });
+      }
     };
 
     GameEvents.on(EVENTS.MISSION_DONE, ({ reward }) => {
@@ -303,7 +343,14 @@ class Game {
       this.audio.updateEngine(true, Math.min(1, Math.abs(vehicle.speed) / vehicle.spec.top), Math.max(0, input.axisY));
     } else {
       this.player.update(dt, input, this.camera3p.yaw);
-      this.camera3p.update(dt, this.player.pos, 1.5);
+      this.combat(dt, input);
+      // Visée : caméra épaule, champ resserré, et le joueur regarde où on vise.
+      const aiming = this.weapons.aiming;
+      if (aiming) this.player.yaw = this.camera3p.yaw;
+      this.camera3p.update(dt, this.player.pos, aiming ? 1.62 : 1.5, aiming ? -2.6 : 0);
+      const fov = aiming ? (this.weapons.spec.scope ? 26 : 48) : 64;
+      this.camera.fov += (fov - this.camera.fov) * (1 - Math.exp(-11 * dt));
+      this.camera.updateProjectionMatrix();
       this.audio.updateEngine(false, 0, 0);
     }
 
@@ -315,6 +362,7 @@ class Game {
 
     this.traffic.update(dt, this.playerPos(), vehicle, this.playerPos());
     this.police.update(dt, this.player);
+    this.enemies.update(dt, this.player, this.playerPos());
     this.missions.update(dt);
     this.world.update(dt, this.playerPos());
     this.audio.updateSiren(this.police.sirenProximity, performance.now() / 1000);
@@ -335,8 +383,38 @@ class Game {
       traffic: this.traffic,
       missions: this.missions,
       weather: this.weather,
+      weapons: this.weapons,
       vehicle,
     });
+  }
+
+  // Toutes les cibles tirables du moment, dans un format commun.
+  combatTargets() {
+    return [
+      ...this.enemies.alive(),
+      ...this.police.officers.filter((o) => o.dead <= 0),
+      ...this.traffic.combatTargets(),
+    ];
+  }
+
+  combat(dt, input) {
+    const w = this.weapons;
+    w.aiming = input.aiming && !w.spec.melee;
+
+    if (input.justPressed('KeyR')) w.reload();
+    if (input.mouse.wheel && !w.aiming) w.cycle(Math.sign(input.mouse.wheel));
+    for (let slot = 0; slot < 6; slot++) {
+      if (input.justPressed(`Digit${slot + 1}`)) w.select(slot);
+    }
+
+    const wantsFire = w.spec.auto ? input.firing : input.justClicked(0);
+    if (wantsFire && w.fire(this.combatTargets(), this.world)) {
+      this.stats.shotsFired++;
+      // Recul : la caméra part vers le haut, le joueur la ramène.
+      this.camera3p.pitch = Math.max(-0.35, this.camera3p.pitch - w.recoil);
+    }
+
+    w.update(dt);
   }
 
   updatePrompt() {

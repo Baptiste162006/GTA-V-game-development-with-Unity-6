@@ -16,7 +16,20 @@ fonctionnent toutes les deux sans réglage.
 | `Espace` | Sauter | |
 | `F` | Monter dans le véhicule le plus proche | Moins de 4,2 m ; sur un véhicule occupé, éjecte le conducteur (+1 étoile) |
 | Souris | Orienter la caméra | Le curseur est capturé au clic |
-| Molette | Zoom caméra | 3 m à 14 m |
+| Molette | Zoom caméra (ou changer d'arme si une arme est sortie) | |
+
+## Combat
+
+| Touche | Action | Détail |
+|---|---|---|
+| Clic gauche | Tirer | Maintenir pour les armes automatiques (UZI, fusil d'assaut) |
+| Clic droit | Viser | Caméra épaule, champ resserré, dispersion divisée par 3 (lunette pour le sniper) |
+| `R` | Recharger | Automatique quand le chargeur est vide |
+| Molette | Arme suivante / précédente | |
+| `1` à `6` | Arme directe | Poings, pistolet, UZI, pompe, fusil, sniper |
+
+Dégâts par zone : **tête ×3**, torse ×1. Tirer sur un civil déclenche 2 étoiles,
+abattre un agent en ajoute une.
 
 ## En véhicule
 
@@ -55,6 +68,8 @@ Les phares s'allument tout seuls à la tombée de la nuit.
 | `tp 120 -60` | Téléporte en x / z |
 | `time 22` | Change l'heure du jeu |
 | `weather rain` | Force la météo (`clear`, `cloudy`, `rain`, `fog`) |
+| `give all` | Débloque tout l'arsenal (ou `give sniper`) |
+| `gang 3` | Fait apparaître 3 ennemis hostiles devant toi |
 | `job` | Propose un nouveau job |
 | `fps` | Affiche le compteur d'images par seconde |
 | `stats` | Dump des statistiques de la partie |

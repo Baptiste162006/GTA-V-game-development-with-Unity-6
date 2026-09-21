@@ -10,6 +10,8 @@ export class Input {
     this.keys = new Set();
     this.pressed = new Set();
     this.mouse = { dx: 0, dy: 0, wheel: 0 };
+    this.buttons = new Set();
+    this.buttonsPressed = new Set();
     this.locked = false;
     this.enabled = true;
 
@@ -39,7 +41,19 @@ export class Input {
         e.preventDefault();
       }
     }, { passive: false });
+
+    addEventListener('mousedown', (e) => {
+      if (!this.locked) return;
+      this.buttons.add(e.button);
+      this.buttonsPressed.add(e.button);
+    });
+    addEventListener('mouseup', (e) => this.buttons.delete(e.button));
+    addEventListener('contextmenu', (e) => this.locked && e.preventDefault());
   }
+
+  get firing() { return this.buttons.has(0); }
+  get aiming() { return this.buttons.has(2); }
+  justClicked(button = 0) { return this.buttonsPressed.has(button); }
 
   any(codes) {
     return codes.some((c) => this.keys.has(c));
@@ -64,6 +78,7 @@ export class Input {
   // Consomme les entrées transitoires : à appeler en fin de frame.
   endFrame() {
     this.pressed.clear();
+    this.buttonsPressed.clear();
     this.mouse.dx = 0;
     this.mouse.dy = 0;
     this.mouse.wheel = 0;

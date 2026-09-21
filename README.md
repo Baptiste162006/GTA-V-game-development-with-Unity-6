@@ -57,6 +57,12 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
 - **Circulation et piétons** — 14 voitures qui suivent la trame des rues, s'arrêtent derrière
   celles qui les précèdent et tournent aux carrefours ; 18 piétons qui marchent, paniquent et
   se font renverser.
+- **Combat** — 6 armes (poings, pistolet, UZI, fusil à pompe, fusil d'assaut, fusil de
+  précision) avec chargeurs, rechargement, recul, visée à l'épaule et dispersion. Dégâts par
+  zone (tête ×3), traçantes et impacts visibles, détonations synthétisées par arme.
+- **Ennemis** — des gangs peuplent la Zone Industrielle et la Vieille Ville : ils gardent
+  leurs distances, ripostent, se préviennent entre eux quand l'un d'eux est touché, et
+  laissent de l'argent en mourant.
 - **Police** — 5 niveaux de recherche, voitures qui poursuivent et évitent les immeubles, agents
   qui descendent de voiture et arrêtent le joueur, tirs à partir de 3 étoiles, zone de recherche
   à quitter pour les semer.

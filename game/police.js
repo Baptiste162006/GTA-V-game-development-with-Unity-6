@@ -178,7 +178,28 @@ export class Police {
     const mesh = buildCharacter({ shirt: 0x1f3a63, pants: 0x1a1d24, hair: 0x14181f });
     mesh.position.copy(fromVehicle.exitPosition());
     this.scene.add(mesh);
-    this.officers.push({ mesh, phase: 0, yaw: fromVehicle.yaw, shootCooldown: 1.5 });
+    const officer = {
+      mesh,
+      position: mesh.position,
+      radius: 0.5,
+      kind: 'cop',
+      health: 100,
+      phase: 0,
+      yaw: fromVehicle.yaw,
+      shootCooldown: 1.5,
+      dead: 0,
+    };
+    officer.applyDamage = (amount) => {
+      if (officer.dead > 0) return;
+      officer.health -= amount;
+      if (officer.health <= 0) {
+        officer.dead = 7;
+        officer.mesh.rotation.z = Math.PI / 2 - 0.15;
+        officer.mesh.position.y = 0.35;
+        if (this.onOfficerDown) this.onOfficerDown(officer);
+      }
+    };
+    this.officers.push(officer);
   }
 
   updateOfficers(dt, player) {

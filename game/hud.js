@@ -13,6 +13,10 @@ export class HUD {
       clock: document.getElementById('clock'),
       district: document.getElementById('district'),
       weather: document.getElementById('weather'),
+      weaponBox: document.getElementById('weapon-box'),
+      weaponName: document.getElementById('weapon-name'),
+      ammo: document.getElementById('ammo'),
+      crosshair: document.getElementById('crosshair'),
       speedBox: document.getElementById('speed-box'),
       speed: document.getElementById('speed'),
       gear: document.getElementById('gear'),
@@ -80,7 +84,7 @@ export class HUD {
   }
 
   update(dt, state) {
-    const { player, world, police, vehicle, weather } = state;
+    const { player, world, police, vehicle, weather, weapons } = state;
 
     this.el.health.style.width = `${Math.max(0, player.health)}%`;
     this.el.armor.style.width = `${Math.max(0, player.armor)}%`;
@@ -104,6 +108,16 @@ export class HUD {
       this.el.speed.textContent = Math.round(vehicle.speedKmh);
       const ratio = vehicle.speedKmh / (vehicle.spec.top * 3.6);
       this.el.gear.textContent = vehicle.speed < -0.5 ? 'R' : Math.max(1, Math.ceil(ratio * 6));
+    }
+
+    if (weapons) {
+      this.el.weaponBox.hidden = !!vehicle;
+      this.el.crosshair.hidden = !!vehicle || weapons.spec.melee;
+      this.el.crosshair.dataset.aim = weapons.aiming ? 'on' : 'off';
+      this.el.weaponName.textContent = weapons.spec.label;
+      this.el.ammo.textContent = weapons.hudAmmo;
+      this.el.ammo.classList.toggle('low', !weapons.spec.melee && weapons.magazine <= 3);
+      this.el.ammo.classList.toggle('reloading', weapons.reloading > 0);
     }
 
     const hurt = 1 - player.health / 100;

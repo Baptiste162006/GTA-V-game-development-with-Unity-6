@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.2** · Étape en cours : **2 (orage et saisons)**
+Dernière mise à jour : 2026-09-21 · Version : **v0.3** · Étape en cours : **2 (orage et saisons)**
 
 ## ✅ Terminé
 
@@ -19,6 +19,8 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.2** · Étape en cours : *
 | Bus d'événements | `game/events.js` | Découple le jeu de l'interface |
 | Console de triche | `game/debug.js` | 14 commandes |
 | Sauvegarde | `game/main.js` | Argent, stats, heure (localStorage) |
+| Combat | `game/weapons.js` | 6 armes, visée, recul, dégâts par zone, traçantes |
+| Ennemis | `game/enemies.js` | Gangs de quartier, IA de tir, butin |
 | Météo dynamique | `game/weather.js` | 4 temps, transitions 18 s, effets sur conduite, police et piétons |
 
 ## 🚧 En cours
@@ -43,6 +45,10 @@ Voir `MILESTONES.md`. Prochaine étape : orage (éclairs, tonnerre) et saisons.
   vraies traînées ; correct à distance, perfectible au premier plan.
 - **Pas de flaques ni d'éclaboussures** — seul le reflet spéculaire du bitume signale le sol mouillé.
 - **Caméra qui peut se coincer dans la carrosserie** quand elle est plaquée contre un véhicule.
+- **Le tir part de la caméra, pas de l'arme** : à bout portant contre un mur, la balle peut
+  traverser l'angle. Visible surtout en visant collé à un obstacle.
+- **Pas de ramassage d'arme au sol** : les ennemis ne lâchent que de l'argent.
+- **Pas de tir depuis un véhicule.**
 
 ## 💡 Idées (hors périmètre v1)
 Feux tricolores et priorités · intérieurs visitables · motos · hélicoptère · métro · radio avec

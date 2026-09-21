@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Vehicle, VEHICLE_SPECS } from './vehicle.js';
+import { WEAPONS } from './weapons.js';
 import { GameEvents, EVENTS } from './events.js';
 
 // Console de triche / debug : touche ² ou ` pour ouvrir.
@@ -55,6 +56,21 @@ export class DebugConsole {
       time: (h) => {
         game.world.hour = THREE.MathUtils.clamp(Number(h) || 0, 0, 24);
         return `Heure : ${game.world.clock}`;
+      },
+      give: (name) => {
+        if (name === 'all' || !name) {
+          for (const w of Object.keys(WEAPONS)) game.weapons.give(w);
+          game.weapons.refreshHeld();
+          return 'Arsenal complet débloqué';
+        }
+        if (!game.weapons.give(name)) return `Armes : ${Object.keys(WEAPONS).join(', ')}`;
+        return `${WEAPONS[name].label} ajoutée`;
+      },
+      gang: (n) => {
+        const count = Math.min(8, parseInt(n, 10) || 3);
+        const p = game.playerPos();
+        game.enemies.spawnSquad(new THREE.Vector3(p.x + 14, 0, p.z + 14), count, true);
+        return `${count} ennemis hostiles devant toi`;
       },
       weather: (name) => {
         if (!name) return `Météo actuelle : ${game.weather.label}`;

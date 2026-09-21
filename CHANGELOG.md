@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v0.3 — 2026-09-21
+
+### Ajouté
+- **Combat** (`game/weapons.js`) : 6 armes réglées par une table de stats — poings, pistolet,
+  UZI, fusil à pompe (8 plombs par tir), fusil d'assaut, fusil de précision.
+  - Clic gauche pour tirer (maintenu sur les automatiques), clic droit pour viser (caméra
+    épaule, champ resserré, dispersion ÷3, lunette au sniper), `R` pour recharger,
+    molette ou touches `1`-`6` pour changer d'arme.
+  - Dégâts par zone : **tête ×3**. Traçantes et impacts réutilisés dans un pool, recul qui
+    pousse la caméra, détonation synthétisée propre à chaque arme.
+- **Ennemis** (`game/enemies.js`) : gangs qui peuplent la Zone Industrielle et la Vieille Ville.
+  Ils approchent jusqu'à 14 m, tiennent leur distance, ripostent, alertent leurs voisins quand
+  l'un d'eux est touché et laissent 60 à 200 $ en mourant.
+- Piétons et agents de police deviennent des cibles : abattre un civil coûte 2 étoiles,
+  un agent 1 de plus.
+- Console : `give all` pour l'arsenal, `gang 3` pour faire apparaître des hostiles.
+
+### Corrigé
+- Le compteur de statistiques suit maintenant les éliminations et la précision au tir.
+
 ## v0.2 — 2026-09-21
 
 ### Ajouté

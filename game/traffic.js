@@ -227,6 +227,26 @@ export class Traffic {
     return new THREE.Vector3(cx + off, 0, cz + along);
   }
 
+  // Cibles tirables : piétons debout uniquement.
+  combatTargets() {
+    return this.peds
+      .filter((p) => p.down <= 0)
+      .map((ped) => ({
+        position: ped.mesh.position,
+        radius: 0.45,
+        kind: 'ped',
+        applyDamage: () => this.killPed(ped),
+      }));
+  }
+
+  killPed(ped) {
+    if (ped.down > 0) return;
+    ped.down = 6;
+    ped.mesh.rotation.z = Math.PI / 2 - 0.2;
+    ped.mesh.position.y = 0.35;
+    this.scarePedestrians(ped.mesh.position, 30);
+  }
+
   hitPedestrians(vehicle, byPlayer) {
     if (Math.abs(vehicle.speed) < 3.5) return;
     for (const ped of this.peds) {

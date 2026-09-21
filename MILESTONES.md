@@ -38,12 +38,13 @@ précédente soit validée.
 - [ ] Banque : solde, historique des transactions
 - [ ] Réglages : volume, qualité graphique
 
-## ⏳ Étape 4 — Combat
-- [ ] Visée à l'épaule, tir au raycast avec dispersion
-- [ ] 3 armes (pistolet, fusil à pompe, fusil d'assaut) + munitions et rechargement
-- [ ] Dégâts par zone (tête ×3), impacts visibles, recul caméra
-- [ ] Ennemis de gang avec IA simple (approche, couverture, tir)
-- [ ] Riposte armée de la police à 3 étoiles et plus
+## ✅ Étape 4 — Combat (terminée, livrée avant les étapes 2 et 3)
+- [x] Visée à l'épaule, tir au raycast avec dispersion
+- [x] 6 armes + munitions et rechargement
+- [x] Dégâts par zone (tête ×3), impacts et traçantes, recul caméra
+- [x] Ennemis de gang avec IA (approche, distance de sécurité, riposte, alerte du groupe)
+- [x] Riposte armée de la police à 3 étoiles et plus
+- [ ] Reste à faire : ramassage d'armes au sol, tir depuis un véhicule, couvertures
 
 ## ⏳ Étape 5 — Contenu et économie
 - [ ] 10 véhicules de plus + customisation (couleur, performances) au garage
