@@ -52,7 +52,8 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
   qui évite les murs.
 - **Véhicules** — 15 types, des deux-roues au bus (citadine, berline, sportive, muscle car,
   luxe, 4×4, pick-up, taxi, camionnette, camion, bus, police, ambulance, pompiers, scooter, moto), physique
-  arcade, frein à main, dégâts de carrosserie, roulis en virage, compteur et rapport de boîte.
+  arcade, frein à main, dégâts de carrosserie, roues qui braquent et roulent vraiment,
+  plongée au freinage, feux stop, traces de pneus et fumée au drift.
 - **Vol de voiture** — voitures garées et carjacking d'un véhicule occupé (le conducteur est
   éjecté, la police est prévenue).
 - **Circulation et piétons** — 14 voitures qui suivent la trame des rues, s'arrêtent derrière

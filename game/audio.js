@@ -74,6 +74,26 @@ export class AudioEngine {
     return buf;
   }
 
+  // Crissement : bruit filtré haut, piloté en volume comme la pluie.
+  skid(intensity) {
+    if (!this.ctx) return;
+    if (!this.skidGain) {
+      this.skidGain = this.ctx.createGain();
+      this.skidGain.gain.value = 0;
+      const f = this.ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 5200;
+      f.Q.value = 2.5;
+      this.skidGain.connect(f).connect(this.master);
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.makeLoopNoise();
+      src.loop = true;
+      src.connect(this.skidGain);
+      src.start();
+    }
+    this.skidGain.gain.setTargetAtTime(intensity * 0.06, this.ctx.currentTime, 0.08);
+  }
+
   updateRain(intensity) {
     if (!this.ctx) return;
     this.rainGain.gain.setTargetAtTime(intensity * 0.085, this.ctx.currentTime, 0.5);

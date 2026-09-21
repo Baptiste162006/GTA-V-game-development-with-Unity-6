@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.6 — 2026-09-21
+
+### Ajouté — sensation de conduite
+- **Vraies roues** : chaque roue avant est portée par un pivot de direction, et le roulement
+  se fait sur l'essieu. Avant, braquage et rotation partageaient le même objet, donc la roue
+  tournait autour d'un axe incliné dès qu'elle était braquée.
+- La rotation vient de la **distance réellement parcourue** et du rayon de roue : à l'arrêt
+  les roues s'arrêtent, en marche arrière elles tournent à l'envers (vérifié : +84,8 rad en
+  avançant, −6,3 en reculant).
+- **Assiette** : la caisse plonge au freinage (−0,039 rad mesuré) et se cabre à
+  l'accélération (+0,034). Elle est désormais un groupe distinct des roues.
+- **Feux stop** rouge vif au freinage, prioritaires sur les feux de position.
+- **Traces de pneus et fumée** au frein à main et au gros freinage : 180 traces et 28 bouffées
+  recyclées en anneau, aucune allocation en jeu (`game/vehicleEffects.js`).
+- **Crissement de pneus** synthétisé, dosé sur le patinage.
+
 ## v0.5 — 2026-09-21
 
 ### Corrigé

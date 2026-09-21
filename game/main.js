@@ -7,6 +7,7 @@ import { MissionManager } from './missions.js';
 import { WeatherSystem } from './weather.js';
 import { WeaponSystem, WEAPONS } from './weapons.js';
 import { Enemies } from './enemies.js';
+import { VehicleEffects } from './vehicleEffects.js';
 import { HUD } from './hud.js';
 import { Input } from './input.js';
 import { AudioEngine } from './audio.js';
@@ -44,6 +45,7 @@ class Game {
     this.weather = new WeatherSystem(this.scene, this.world);
     this.enemies = new Enemies(this.scene, this.world, this.traffic);
     this.weapons = new WeaponSystem(this.scene, this.camera, this.player);
+    this.vehicleFx = new VehicleEffects(this.scene);
     this.audio = new AudioEngine();
     this.input = new Input(this.renderer.domElement);
     this.hud = new HUD();
@@ -234,6 +236,7 @@ class Game {
       GameEvents.emit(EVENTS.NOTIFY, { text: 'Carjacking !' });
     }
     vehicle.claimed = true;
+    vehicle.fx = this.vehicleFx;
     this.player.inVehicle = vehicle;
     this.player.setVisible(false);
     this.stats.vehiclesStolen++;
@@ -254,6 +257,7 @@ class Game {
     this.player.inVehicle = null;
     this.player.setVisible(true);
     v.onCrash = null;
+    v.fx = null;
     this.camera3p.targetDistance = 6.5;
     GameEvents.emit(EVENTS.EXIT_VEHICLE, v);
   }
@@ -377,6 +381,10 @@ class Game {
     this.world.update(dt, this.playerPos());
     this.audio.updateSiren(this.police.sirenProximity, performance.now() / 1000);
     this.audio.updateRain(this.weather.rain);
+    this.vehicleFx.update(dt);
+    // Crissement de pneus quand ça patine vraiment.
+    if (vehicle && vehicle.slip > 0.5) this.audio.skid(vehicle.slip);
+    else this.audio.skid(0);
 
     // Régénération lente hors poursuite.
     if (!this.police.searching && this.player.health < 100) this.player.heal(dt * 1.6);

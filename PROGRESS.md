@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.5** · Étape en cours : **2 (orage et saisons)**
+Dernière mise à jour : 2026-09-21 · Version : **v0.6** · Étape en cours : **2 (orage et saisons)**
 
 ## ✅ Terminé
 
@@ -10,6 +10,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.5** · Étape en cours : *
 | Cycle jour/nuit (24 h en 12 min) | `game/world.js` | Ciel dégradé, étoiles, fenêtres allumées, halos |
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
 | Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, caméra anti-mur |
+| Effets véhicule | `game/vehicleEffects.js` | Traces et fumée recyclées en anneau |
 | Véhicules (15 types) | `game/vehicle.js` | Physique arcade, dégâts, roulis, gyrophares |
 | Circulation et piétons | `game/traffic.js` | 14 voitures, 18 piétons, 12 voitures garées |
 | Police 5 étoiles | `game/police.js` | Poursuite, agents à pied, tirs, arrestation, évasion |
