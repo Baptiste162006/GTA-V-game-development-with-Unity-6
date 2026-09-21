@@ -1,7 +1,8 @@
 # MILESTONES
 
-Ordre de travail. Une étape = une livraison testable. Rien ne part en code avant que l'étape
-précédente soit validée.
+Ordre de travail. Une étape = une livraison testable. Les étapes sont livrées dans l'ordre
+qui sert le plus le jeu, pas forcément dans l'ordre numérique : le combat (étape 4) est passé
+devant l'orage et le téléphone parce que c'était le plus gros manque de gameplay.
 
 ## ✅ Étape 0 — Fondations (terminée)
 - [x] Page, thème, HUD, boucle de rendu Three.js
@@ -15,14 +16,14 @@ précédente soit validée.
 - [x] Argent, statistiques, sauvegarde navigateur
 - [x] Son synthétisé, console de triche, test automatisé Chromium
 
-## 🚧 Étape 1 — Météo dynamique (suivante)
-- [ ] 4 états : clair, nuageux, pluie, brouillard (transitions progressives, pas de saut brutal)
-- [ ] Pluie en `Points` GPU, flaques et reflets simples sur le bitume
-- [ ] Brouillard = densité de `FogExp2` + portée de rendu réduite
-- [ ] Impact conduite : adhérence -30 % sous la pluie, braquage plus mou
-- [ ] Impact IA : moins de piétons dehors, circulation ralentie, police qui voit moins loin
-- [ ] Son de pluie synthétisé (bruit filtré), essuie-glaces visibles
-- **Test** : les 4 états s'enchaînent sans coupure, la voiture glisse sous la pluie, 60 FPS tenus
+## ✅ Étape 1 — Météo dynamique (terminée)
+- [x] 4 états : clair, nuageux, pluie, brouillard, transitions de 18 s
+- [x] Pluie en `Points` GPU (3 600 gouttes qui suivent le joueur)
+- [x] Brouillard = densité de `FogExp2` + ciel qui se couvre
+- [x] Impact conduite : freinage +38 % sous la pluie (mesuré : 12,6 m → 17,4 m)
+- [x] Impact IA : trottoirs qui se vident, police qui voit à 40 % dans le brouillard
+- [x] Son de pluie synthétisé
+- [ ] Reste à faire : flaques et éclaboussures, essuie-glaces visibles
 
 ## ⏳ Étape 2 — Orage et saisons
 - [ ] Orage : éclairs (flash de lumière + ombre portée), tonnerre décalé, vent

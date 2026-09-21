@@ -72,14 +72,15 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
 - **HUD** — mini-carte avec îlots, trafic, police et zone de recherche ; vie, armure, argent,
   étoiles, heure, quartier, objectif, notifications.
 - **Son** — moteur, sirène, klaxon, chocs et jingles entièrement synthétisés (WebAudio), aucun fichier.
-- **Console de triche** — `god`, `money`, `stars`, `spawn`, `tp`, `time`, `heal`, `noclip`, `fps`…
+- **Console de triche** — `god`, `give all`, `gang 3`, `weather rain`, `money`, `stars`,
+  `spawn`, `tp`, `time`, `heal`, `noclip`, `fps`…
 - **Sauvegarde** — argent, statistiques et heure conservés dans le navigateur.
 
 ## Ce qui n'est pas là
 
-Pas d'armes ni de combat à pied, pas de moto/avion/bateau, pas d'intérieurs, pas d'orage ni
-de neige, pas de saisons, pas de téléphone, pas de personnages multiples, pas de customisation
-de véhicule, pas de missions scénarisées.
+Pas de moto, d'avion ni de bateau, pas d'intérieurs visitables, pas d'orage ni de neige,
+pas de saisons, pas de téléphone, pas de personnages multiples, pas de customisation de
+véhicule, pas de missions scénarisées, pas de ramassage d'armes au sol ni de tir en voiture.
 Le détail de la suite est dans [MILESTONES.md](MILESTONES.md), l'état exact dans [PROGRESS.md](PROGRESS.md).
 
 ## Performance
