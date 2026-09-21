@@ -61,7 +61,16 @@ précédente soit validée.
 - [ ] Compétences et argent propres à chacun
 - [ ] Missions à deux ou trois personnages
 
-## ⏳ Étape 8 — Finitions
+## ⏳ Étape 8 — Corps et forme physique
+- [ ] 4 stats qui évoluent : musculation, cardio, poids, forme générale
+- [ ] Le corps change visiblement : largeur d'épaules, torse et ventre pilotés par les stats
+      (le personnage est assemblé en boîtes, donc c'est une mise à l'échelle — pas de morph target)
+- [ ] Salle de sport : un lieu, une séance = temps qui passe + gain de stats
+- [ ] Nourriture : quelques points de vente, calories, effet sur poids et forme
+- [ ] Impact réel : vitesse de course, endurance, PV max, dégâts au corps à corps
+- [ ] Écran de suivi (dans le téléphone de l'étape 3)
+
+## ⏳ Étape 9 — Finitions
 - [ ] Menu principal, réglages de qualité (ombres, distance de rendu)
 - [ ] Musique procédurale par ambiance
 - [ ] Équilibrage économique, passe de bugs, tests sur plusieurs machines
