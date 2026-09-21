@@ -6,7 +6,7 @@ import { buildCharacter } from './player.js';
 const LANE = 3.4; // décalage à droite de l'axe de la route
 const CIVILIAN_TYPES = ['citadine', 'berline', 'sportive', 'taxi', 'van'];
 const MAX_CARS = 14;
-const MAX_PEDS = 18;
+const MAX_PEDS = 14;
 const MAX_PARKED = 12;
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -33,6 +33,8 @@ export class Traffic {
     this.parked = [];
     this.onPedHit = null;
     this.onCarHit = null;
+    this.pedBudget = MAX_PEDS; // la pluie vide les trottoirs
+    this.pedHurry = 1;
   }
 
   // --- circulation ---
@@ -53,7 +55,7 @@ export class Traffic {
     const type = CIVILIAN_TYPES[Math.floor(Math.random() * CIVILIAN_TYPES.length)];
     const vehicle = new Vehicle(this.scene, type, from, Math.atan2(dir.x, dir.z));
     const driver = buildCharacter({ shirt: Math.random() * 0xffffff });
-    driver.scale.setScalar(0.92);
+    driver.scale.setScalar(0.8);
     driver.position.copy(vehicle.seatPosition());
     this.scene.add(driver);
 
@@ -142,7 +144,7 @@ export class Traffic {
       let err = desiredYaw - v.yaw;
       while (err > Math.PI) err -= Math.PI * 2;
       while (err < -Math.PI) err += Math.PI * 2;
-      const steer = THREE.MathUtils.clamp(err * 1.6, -1, 1);
+      const steer = THREE.MathUtils.clamp(-err * 1.6, -1, 1); // steer positif = vers la droite
 
       const gap = this.obstacleAhead(v, this.cars, playerVehicle);
       let throttle;
@@ -261,7 +263,10 @@ export class Traffic {
         continue;
       }
 
-      if (ped.mesh.position.distanceTo(playerPos) > 180) {
+      // Au-dessus du quota (pluie, brouillard), on laisse les trottoirs se vider
+      // en supprimant ceux qui s'éloignent, au lieu d'attendre la limite normale.
+      const despawn = this.peds.length > this.pedBudget ? 45 : 180;
+      if (ped.mesh.position.distanceTo(playerPos) > despawn) {
         this.scene.remove(ped.mesh);
         this.peds.splice(k, 1);
         continue;
@@ -283,7 +288,7 @@ export class Traffic {
         dir.normalize();
       }
 
-      const speed = ped.panic > 0 ? ped.speed * 2.6 : ped.speed;
+      const speed = ped.panic > 0 ? ped.speed * 2.6 : ped.speed * this.pedHurry;
       ped.mesh.position.addScaledVector(dir, speed * dt);
       this.world.collideCircle(ped.mesh.position, 0.4);
 
@@ -300,11 +305,13 @@ export class Traffic {
       const swing = Math.sin(ped.phase) * (ped.panic > 0 ? 1 : 0.55);
       rig.legL.rotation.x = swing;
       rig.legR.rotation.x = -swing;
+      rig.kneeL.rotation.x = Math.max(0, -swing) * 1.1;
+      rig.kneeR.rotation.x = Math.max(0, swing) * 1.1;
       rig.armL.rotation.x = -swing * 0.7;
       rig.armR.rotation.x = swing * 0.7;
     }
 
-    while (this.peds.length < MAX_PEDS) {
+    while (this.peds.length < this.pedBudget) {
       const before = this.peds.length;
       this.spawnPed();
       if (this.peds.length === before) break;

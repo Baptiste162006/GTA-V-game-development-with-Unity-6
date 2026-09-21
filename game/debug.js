@@ -56,6 +56,12 @@ export class DebugConsole {
         game.world.hour = THREE.MathUtils.clamp(Number(h) || 0, 0, 24);
         return `Heure : ${game.world.clock}`;
       },
+      weather: (name) => {
+        if (!name) return `Météo actuelle : ${game.weather.label}`;
+        return game.weather.set(name, true)
+          ? `Météo : ${game.weather.label}`
+          : 'Météos : clear, cloudy, rain, fog';
+      },
       job: () => {
         game.missions.offerJob();
         return 'Nouveau job proposé';

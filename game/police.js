@@ -23,6 +23,7 @@ export class Police {
     this.outOfSight = 0;
     this.arrestTimer = 0;
     this.nearestDistance = Infinity;
+    this.sightMul = 1; // réduit par la pluie et surtout le brouillard
 
     this.onBusted = null;
     this.onStarChange = null;
@@ -74,7 +75,7 @@ export class Police {
     const vehicle = new Vehicle(this.scene, 'police', raw, yaw);
     vehicle.sirenOn = true;
     const driver = buildCharacter({ shirt: 0x1f3a63, pants: 0x1a1d24 });
-    driver.scale.setScalar(0.92);
+    driver.scale.setScalar(0.8);
     this.scene.add(driver);
     this.units.push({ vehicle, driver, stuck: 0, shootCooldown: 1 + Math.random() });
   }
@@ -89,12 +90,13 @@ export class Police {
       }
       return 0;
     };
-    const ahead = probe(0);
-    if (!ahead) return 0;
-    const left = probe(-0.7);
-    const right = probe(0.7);
-    if (left && !right) return 1;
-    if (right && !left) return -1;
+    if (!probe(0)) return 0;
+    // Un angle positif regarde vers la gauche de l'écran ; on renvoie le sens
+    // de braquage à prendre (positif = droite).
+    const leftBlocked = probe(0.7);
+    const rightBlocked = probe(-0.7);
+    if (leftBlocked && !rightBlocked) return 1;
+    if (rightBlocked && !leftBlocked) return -1;
     return Math.random() < 0.5 ? 1 : -1;
   }
 
@@ -119,7 +121,7 @@ export class Police {
       while (err < -Math.PI) err += Math.PI * 2;
 
       const dodge = this.avoidance(v);
-      const steer = THREE.MathUtils.clamp(err * 1.5 + dodge * 0.85, -1, 1);
+      const steer = THREE.MathUtils.clamp(-err * 1.5 + dodge * 0.85, -1, 1);
 
       // On lève le pied en approche pour ne pas tourner en rond autour du joueur.
       let throttle = 1;
@@ -207,6 +209,8 @@ export class Police {
       const swing = Math.sin(off.phase) * (speed > 0 ? 0.9 : 0.05);
       rig.legL.rotation.x = swing;
       rig.legR.rotation.x = -swing;
+      rig.kneeL.rotation.x = Math.max(0, -swing) * 1.1;
+      rig.kneeR.rotation.x = Math.max(0, swing) * 1.1;
       rig.armL.rotation.x = -swing * 0.5;
       rig.armR.rotation.x = swing * 0.5;
 
@@ -244,7 +248,7 @@ export class Police {
         Infinity
       );
 
-      const seen = this.nearestDistance < SIGHT;
+      const seen = this.nearestDistance < SIGHT * this.sightMul;
       const insideZone = playerPos.distanceTo(this.searchCenter) < this.searchRadius;
       if (seen) {
         this.searchCenter.copy(playerPos);

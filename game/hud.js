@@ -12,6 +12,7 @@ export class HUD {
       stars: document.getElementById('stars'),
       clock: document.getElementById('clock'),
       district: document.getElementById('district'),
+      weather: document.getElementById('weather'),
       speedBox: document.getElementById('speed-box'),
       speed: document.getElementById('speed'),
       gear: document.getElementById('gear'),
@@ -79,12 +80,13 @@ export class HUD {
   }
 
   update(dt, state) {
-    const { player, world, police, vehicle } = state;
+    const { player, world, police, vehicle, weather } = state;
 
     this.el.health.style.width = `${Math.max(0, player.health)}%`;
     this.el.armor.style.width = `${Math.max(0, player.armor)}%`;
     this.el.clock.textContent = world.clock;
     this.el.district.textContent = world.districtName(player.pos.x, player.pos.z);
+    if (weather) this.el.weather.textContent = weather.label;
 
     if (this.stars !== police.wanted) {
       this.stars = police.wanted;

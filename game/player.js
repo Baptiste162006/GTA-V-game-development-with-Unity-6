@@ -6,7 +6,9 @@ const SNEAK = 1.1;
 const GRAVITY = -16;
 const JUMP = 5.4;
 
-// Bonhomme low-poly assemblé en boîtes : pas de modèle à télécharger, animation procédurale.
+// Silhouette humaine en volumes galbés (capsules, cylindres coniques, sphères) :
+// aucun modèle à télécharger, et ça ne ressemble pas à un empilement de cubes.
+// Hauteur totale ≈ 1,85 m. Les hanches, genoux et épaules sont de vrais pivots.
 export function buildCharacter({ shirt = 0x2f4f6f, pants = 0x232730, skin = 0xd6a07a, hair = 0x2a211c } = {}) {
   const g = new THREE.Group();
   const matShirt = new THREE.MeshLambertMaterial({ color: shirt });
@@ -22,28 +24,49 @@ export function buildCharacter({ shirt = 0x2f4f6f, pants = 0x232730, skin = 0xd6
     return m;
   };
 
-  const torso = add(g, new THREE.BoxGeometry(0.62, 0.74, 0.34), matShirt, 0, 1.24, 0);
-  add(g, new THREE.BoxGeometry(0.52, 0.22, 0.32), matPants, 0, 0.86, 0);
-  const head = add(g, new THREE.BoxGeometry(0.34, 0.36, 0.32), matSkin, 0, 1.78, 0);
-  add(head, new THREE.BoxGeometry(0.37, 0.12, 0.35), matHair, 0, 0.16, 0);
-  add(head, new THREE.BoxGeometry(0.36, 0.1, 0.06), matHair, 0, 0.02, -0.16);
+  // Buste : cône tronqué large aux épaules, resserré à la taille, aplati de profil.
+  const torso = add(g, new THREE.CylinderGeometry(0.205, 0.15, 0.54, 12), matShirt, 0, 1.32, 0);
+  torso.scale.z = 0.62;
+  add(g, new THREE.CylinderGeometry(0.16, 0.185, 0.2, 12), matPants, 0, 0.99, 0).scale.z = 0.72;
 
-  // Pivots aux épaules / hanches pour que la rotation ait l'air d'une articulation.
+  const head = add(g, new THREE.SphereGeometry(0.13, 14, 12), matSkin, 0, 1.73, 0);
+  head.scale.set(1, 1.2, 1.06);
+  // Calotte de cheveux : demi-sphère posée sur le crâne.
+  const cap = add(head, new THREE.SphereGeometry(0.134, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.58), matHair, 0, 0.012, -0.008);
+  cap.scale.set(1, 1.05, 1.02);
+
+  // Bras : capsule + main. Pivot à l'épaule.
   const armL = new THREE.Group();
-  armL.position.set(-0.4, 1.5, 0);
-  add(armL, new THREE.BoxGeometry(0.16, 0.66, 0.2), matShirt, 0, -0.33, 0);
-  add(armL, new THREE.BoxGeometry(0.17, 0.14, 0.21), matSkin, 0, -0.71, 0);
+  armL.position.set(-0.213, 1.53, 0);
+  add(armL, new THREE.CapsuleGeometry(0.062, 0.34, 4, 8), matShirt, 0, -0.232, 0);
+  add(armL, new THREE.SphereGeometry(0.068, 10, 8), matSkin, 0, -0.5, 0);
   const armR = armL.clone();
-  armR.position.x = 0.4;
+  armR.position.x = 0.213;
+
+  // Jambes : cuisse, puis genou articulé portant le mollet et la chaussure.
   const legL = new THREE.Group();
-  legL.position.set(-0.17, 0.78, 0);
-  add(legL, new THREE.BoxGeometry(0.23, 0.78, 0.26), matPants, 0, -0.39, 0);
-  add(legL, new THREE.BoxGeometry(0.25, 0.14, 0.34), matHair, 0, -0.81, 0.04);
+  legL.position.set(-0.105, 0.9, 0);
+  add(legL, new THREE.CapsuleGeometry(0.093, 0.24, 4, 8), matPants, 0, -0.21, 0);
+  const kneeL = new THREE.Group();
+  kneeL.position.y = -0.42;
+  add(kneeL, new THREE.CapsuleGeometry(0.078, 0.25, 4, 8), matPants, 0, -0.2, 0);
+  const shoe = add(kneeL, new THREE.BoxGeometry(0.135, 0.085, 0.28), matHair, 0, -0.395, 0.045);
+  shoe.geometry.translate(0, 0, 0);
+  legL.add(kneeL);
   const legR = legL.clone();
-  legR.position.x = 0.17;
+  legR.position.x = 0.105;
 
   g.add(armL, armR, legL, legR);
-  g.userData.rig = { torso, head, armL, armR, legL, legR };
+  g.userData.rig = {
+    torso,
+    head,
+    armL,
+    armR,
+    legL,
+    legR,
+    kneeL: legL.children[1],
+    kneeR: legR.children[1],
+  };
   return g;
 }
 
@@ -143,15 +166,21 @@ export class Player {
 
     rig.legL.rotation.x = swing;
     rig.legR.rotation.x = -swing;
+    // Le genou ne plie que quand la jambe part en arrière : ça suffit à effacer
+    // la démarche « pantin raide ».
+    rig.kneeL.rotation.x = Math.max(0, -swing) * 1.15;
+    rig.kneeR.rotation.x = Math.max(0, swing) * 1.15;
     rig.armL.rotation.x = -swing * 0.8;
     rig.armR.rotation.x = swing * 0.8;
     rig.torso.rotation.z = Math.sin(this.phase) * 0.04 * amp;
-    rig.torso.position.y = 1.24 + Math.abs(Math.sin(this.phase)) * 0.045 * amp;
+    rig.torso.position.y = 1.32 + Math.abs(Math.sin(this.phase)) * 0.045 * amp;
     rig.head.rotation.y = Math.sin(this.phase * 0.5) * 0.06 * amp;
 
     if (!this.onGround) {
-      rig.legL.rotation.x = 0.4;
-      rig.legR.rotation.x = -0.25;
+      rig.legL.rotation.x = 0.45;
+      rig.legR.rotation.x = -0.2;
+      rig.kneeL.rotation.x = 0.9;
+      rig.kneeR.rotation.x = 0.3;
       rig.armL.rotation.x = -1.6;
       rig.armR.rotation.x = -1.6;
     }

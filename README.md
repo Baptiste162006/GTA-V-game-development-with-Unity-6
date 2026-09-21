@@ -44,6 +44,10 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
   Vieille Ville), ~100 immeubles, trottoirs, parcs, lampadaires, marquage au sol.
 - **Cycle jour/nuit** — 24 h en 12 min : ciel dégradé, étoiles, fenêtres qui s'allument,
   halos de lampadaires, phares automatiques.
+- **Météo dynamique** — clair, nuageux, pluie, brouillard, qui s'enchaînent d'eux-mêmes en
+  transitions de 18 s : ciel qui se couvre, pluie, bitume mouillé, brouillard qui mange la
+  distance. Et ça se joue : sous la pluie on freine 40 % plus long, dans le brouillard la
+  police vous repère de bien moins loin, et les trottoirs se vident.
 - **À pied** — marche, course, marche lente, saut, animation procédurale, caméra 3e personne
   qui évite les murs.
 - **Véhicules** — 6 types (citadine, berline, sportive, taxi, camionnette, police), physique
@@ -67,16 +71,16 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
 
 ## Ce qui n'est pas là
 
-Pas d'armes ni de combat à pied, pas de moto/avion/bateau, pas d'intérieurs, pas de météo
-(pluie/neige/brouillard), pas de saisons, pas de téléphone, pas de personnages multiples,
-pas de customisation de véhicule, pas de missions scénarisées.
+Pas d'armes ni de combat à pied, pas de moto/avion/bateau, pas d'intérieurs, pas d'orage ni
+de neige, pas de saisons, pas de téléphone, pas de personnages multiples, pas de customisation
+de véhicule, pas de missions scénarisées.
 Le détail de la suite est dans [MILESTONES.md](MILESTONES.md), l'état exact dans [PROGRESS.md](PROGRESS.md).
 
 ## Performance
 
-Testé automatiquement dans Chromium (Playwright) : ~380 draw calls, ~48 000 triangles.
-Le test tourne en rendu **logiciel** (SwiftShader, sans GPU) et plafonne donc à 20 FPS ;
-sur une vraie carte graphique le budget est très largement tenu pour 60 FPS.
+Testé automatiquement dans Chromium (Playwright) : ~290 draw calls, ~66 000 triangles,
+pour un budget de 500 et 100 000. Le test tourne en rendu **logiciel** (SwiftShader, sans GPU)
+et ne dit donc rien du framerate réel : c'est le budget de rendu qui est la mesure utile ici.
 
 ## Licence
 

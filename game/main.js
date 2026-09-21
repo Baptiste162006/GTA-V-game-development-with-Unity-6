@@ -4,6 +4,7 @@ import { Player, ThirdPersonCamera } from './player.js';
 import { Traffic } from './traffic.js';
 import { Police } from './police.js';
 import { MissionManager } from './missions.js';
+import { WeatherSystem } from './weather.js';
 import { HUD } from './hud.js';
 import { Input } from './input.js';
 import { AudioEngine } from './audio.js';
@@ -35,6 +36,7 @@ class Game {
     this.camera3p = new ThirdPersonCamera(this.camera, this.world);
     this.traffic = new Traffic(this.scene, this.world);
     this.police = new Police(this.scene, this.world, this.traffic);
+    this.weather = new WeatherSystem(this.scene, this.world);
     this.audio = new AudioEngine();
     this.input = new Input(this.renderer.domElement);
     this.hud = new HUD();
@@ -290,6 +292,7 @@ class Game {
     if (vehicle && input.justPressed('KeyH')) this.audio.blip(330, 0.35, 'square', 0.1);
 
     if (vehicle) {
+      vehicle.gripMul = this.weather.grip;
       vehicle.update(dt, { throttle: input.axisY, steer: input.axisX, handbrake: input.handbrake }, this.noclip ? null : this.world);
       vehicle.setLights(this.world.night > 0.3);
       vehicle.sirenOn = false;
@@ -304,11 +307,18 @@ class Game {
       this.audio.updateEngine(false, 0, 0);
     }
 
+    // La météo pilote le monde, l'adhérence, la vue de la police et les trottoirs.
+    this.weather.update(dt, this.playerPos());
+    this.police.sightMul = this.weather.sight;
+    this.traffic.pedBudget = Math.round(18 * (1 - this.weather.rain * 0.65 - this.weather.fog * 0.2));
+    this.traffic.pedHurry = 1 + this.weather.rain * 0.8;
+
     this.traffic.update(dt, this.playerPos(), vehicle, this.playerPos());
     this.police.update(dt, this.player);
     this.missions.update(dt);
     this.world.update(dt, this.playerPos());
     this.audio.updateSiren(this.police.sirenProximity, performance.now() / 1000);
+    this.audio.updateRain(this.weather.rain);
 
     // Régénération lente hors poursuite.
     if (!this.police.searching && this.player.health < 100) this.player.heal(dt * 1.6);
@@ -324,6 +334,7 @@ class Game {
       police: this.police,
       traffic: this.traffic,
       missions: this.missions,
+      weather: this.weather,
       vehicle,
     });
   }
@@ -344,9 +355,12 @@ class Game {
 
   loop() {
     requestAnimationFrame(this.loop);
-    const dt = Math.min(0.05, this.clock.getDelta());
+    const raw = this.clock.getDelta();
+    const dt = Math.min(0.05, raw);
 
-    this.fpsAccum += dt;
+    // Le compteur utilise le temps réel : avec le dt plafonné il annoncerait
+    // toujours 20 FPS dès que l'affichage rame.
+    this.fpsAccum += raw;
     this.fpsFrames++;
     if (this.fpsAccum > 0.5) {
       this.fps = Math.round(this.fpsFrames / this.fpsAccum);

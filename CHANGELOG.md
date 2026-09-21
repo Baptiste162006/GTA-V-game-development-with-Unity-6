@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## v0.2 — 2026-09-21
+
+### Ajouté
+- **Météo dynamique** (`game/weather.js`) : clair, nuageux, pluie et brouillard, tirés au sort
+  toutes les 2 min 30 à 5 min 30 et enchaînés par des transitions de 18 s.
+  - Visuel : ciel qui se couvre, 3 600 gouttes qui suivent le joueur, bitume qui fonce et
+    prend un reflet, brouillard qui referme la distance, étoiles masquées quand c'est couvert.
+  - Gameplay : adhérence réduite (freinage +38 % sous la pluie), champ de vision de la police
+    ramené à 40 % dans le brouillard, trottoirs qui se vident et piétons qui pressent le pas.
+  - Son : pluie synthétisée (bruit blanc filtré en boucle).
+  - Météo affichée dans le HUD, et forçable avec `weather clear|cloudy|rain|fog`.
+
+### Corrigé
+- **Direction inversée en voiture** : `D` braquait à gauche et `Q` à droite. En repère Three.js,
+  augmenter le cap fait tourner vers la gauche de l'écran ; le signe manquait. Les roues avant,
+  l'IA de circulation et celle de la police ont été alignées sur la même convention.
+- **Compteur de FPS mensonger** : il utilisait le `dt` plafonné à 50 ms et affichait donc 20 FPS
+  quoi qu'il arrive dès que l'affichage ramait. Il mesure maintenant le temps réel.
+- **Trottoirs qui ne se vidaient pas** sous la pluie : le quota ne bloquait que les apparitions.
+
+### Modifié
+- **Personnages entièrement redessinés** : capsules, buste galbé, tête sphérique et calotte de
+  cheveux, mains, chaussures, et surtout des **genoux articulés** — fini l'empilement de boîtes.
+  Les conducteurs sont assis à hauteur de vitre au lieu de traverser le toit.
+- Piétons ramenés de 18 à 14 pour compenser le coût des nouveaux personnages.
+
 ## v0.1 — 2026-09-21
 
 Première version jouable, de bout en bout.

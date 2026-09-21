@@ -109,6 +109,7 @@ export class Vehicle {
     this.locked = false;
     this.sirenOn = false;
     this.onCrash = null;
+    this.gripMul = 1; // < 1 par temps de pluie : freinage plus long, virages plus mous
   }
 
   get forward() {
@@ -123,16 +124,16 @@ export class Vehicle {
     return this.damage >= 100 ? 0.35 : 1 - (this.damage / 100) * 0.35;
   }
 
-  // controls : { throttle -1..1, steer -1..1, handbrake bool }
+  // controls : { throttle -1..1, steer -1..1 (positif = vers la droite de l'écran), handbrake bool }
   update(dt, controls, world) {
     const { throttle = 0, steer = 0, handbrake = false } = controls || {};
     const spec = this.spec;
     const top = spec.top * this.power;
 
     if (throttle > 0) {
-      this.speed += spec.accel * this.power * throttle * dt;
+      this.speed += spec.accel * this.power * throttle * dt * (0.85 + 0.15 * this.gripMul);
     } else if (throttle < 0) {
-      if (this.speed > 0.6) this.speed -= 24 * dt; // freinage
+      if (this.speed > 0.6) this.speed -= 24 * dt * this.gripMul; // freinage
       else this.speed -= spec.accel * 0.55 * dt; // marche arrière
     } else {
       this.speed -= this.speed * 0.9 * dt;
@@ -146,9 +147,11 @@ export class Vehicle {
 
     const speedFactor = THREE.MathUtils.clamp(Math.abs(this.speed) / 5, 0, 1);
     const grip = 1 - 0.5 * THREE.MathUtils.clamp(Math.abs(this.speed) / top, 0, 1);
-    const turn = spec.turn * grip * (handbrake ? 1.7 : 1);
+    const turn = spec.turn * grip * (handbrake ? 1.7 : 1) * (0.72 + 0.28 * this.gripMul);
     this.steer = THREE.MathUtils.lerp(this.steer, steer, 1 - Math.exp(-12 * dt));
-    this.yaw += this.steer * turn * dt * speedFactor * Math.sign(this.speed || 1);
+    // Signe négatif : en repère Three.js, augmenter le yaw fait tourner vers la
+    // gauche de l'écran. Sans ça, D braquerait à gauche.
+    this.yaw -= this.steer * turn * dt * speedFactor * Math.sign(this.speed || 1);
 
     const before = this.pos.clone();
     this.pos.addScaledVector(this.forward, this.speed * dt);
@@ -190,7 +193,7 @@ export class Vehicle {
     this.wheelSpin += (this.speed * dt) / 0.45;
     parts.wheels.forEach((wheel, i) => {
       wheel.rotation.x = this.wheelSpin;
-      if (i < 2) wheel.rotation.y = this.steer * 0.45;
+      if (i < 2) wheel.rotation.y = -this.steer * 0.45;
     });
     // Roulis en virage : lisible et ça suffit à donner du poids.
     this.roll = THREE.MathUtils.lerp(this.roll, -this.steer * THREE.MathUtils.clamp(this.speed / 30, 0, 1) * 0.11, 1 - Math.exp(-8 * dt));
@@ -211,8 +214,15 @@ export class Vehicle {
     parts.tailMat.color.setHex(on ? 0xff3b2f : 0x3a1512);
   }
 
+  // Place un occupant (à l'échelle 0,8) de façon que sa tête arrive à hauteur
+  // de vitre : le reste du corps est masqué par la carrosserie.
   seatPosition() {
-    return this.pos.clone().addScaledVector(this.forward, 0.2).add(new THREE.Vector3(0, this.spec.size[1] * 0.55, 0));
+    const headHeight = 1.73 * 0.8;
+    const windowLine = this.spec.size[1] * 0.88;
+    return this.pos
+      .clone()
+      .addScaledVector(this.forward, 0.12)
+      .add(new THREE.Vector3(0, windowLine - headHeight, 0));
   }
 
   exitPosition() {

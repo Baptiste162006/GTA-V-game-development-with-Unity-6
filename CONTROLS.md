@@ -54,6 +54,7 @@ Les phares s'allument tout seuls à la tombée de la nuit.
 | `spawn sportive` | Fait apparaître un véhicule (`citadine`, `berline`, `sportive`, `taxi`, `van`, `police`) |
 | `tp 120 -60` | Téléporte en x / z |
 | `time 22` | Change l'heure du jeu |
+| `weather rain` | Force la météo (`clear`, `cloudy`, `rain`, `fog`) |
 | `job` | Propose un nouveau job |
 | `fps` | Affiche le compteur d'images par seconde |
 | `stats` | Dump des statistiques de la partie |

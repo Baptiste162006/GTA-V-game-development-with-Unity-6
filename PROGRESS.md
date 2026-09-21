@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.1** · Étape en cours : **1 (météo)**
+Dernière mise à jour : 2026-09-21 · Version : **v0.2** · Étape en cours : **2 (orage et saisons)**
 
 ## ✅ Terminé
 
@@ -19,12 +19,13 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.1** · Étape en cours : *
 | Bus d'événements | `game/events.js` | Découple le jeu de l'interface |
 | Console de triche | `game/debug.js` | 14 commandes |
 | Sauvegarde | `game/main.js` | Argent, stats, heure (localStorage) |
+| Météo dynamique | `game/weather.js` | 4 temps, transitions 18 s, effets sur conduite, police et piétons |
 
 ## 🚧 En cours
-Rien — étape 0 livrée, en attente de validation avant d'attaquer la météo (étape 1).
+Rien — étapes 0 et 1 livrées.
 
 ## ⏳ Prévu
-Voir `MILESTONES.md`. Prochaine étape : météo dynamique (clair / nuageux / pluie / brouillard).
+Voir `MILESTONES.md`. Prochaine étape : orage (éclairs, tonnerre) et saisons.
 
 ## 🐛 Bugs connus
 
@@ -38,13 +39,18 @@ Voir `MILESTONES.md`. Prochaine étape : météo dynamique (clair / nuageux / pl
   animation ni sommation.
 - **Pas de collision entre le joueur à pied et les véhicules** — on traverse une voiture à l'arrêt.
 - **Polices Google non chargées hors ligne** — repli sur les polices système, la mise en page tient.
+- **Gouttes de pluie un peu « pointillistes » de près** — ce sont des `Points` texturés, pas de
+  vraies traînées ; correct à distance, perfectible au premier plan.
+- **Pas de flaques ni d'éclaboussures** — seul le reflet spéculaire du bitume signale le sol mouillé.
+- **Caméra qui peut se coincer dans la carrosserie** quand elle est plaquée contre un véhicule.
 
 ## 💡 Idées (hors périmètre v1)
 Feux tricolores et priorités · intérieurs visitables · motos · hélicoptère · métro · radio avec
 stations · bourse · réseaux sociaux parodiques · multijoueur · easter eggs · succès.
 
 ## 📊 Mesures (Chromium, rendu logiciel SwiftShader)
-- Draw calls : **≈ 380** (budget : 500)
-- Triangles : **≈ 48 000** (budget : 100 000)
+- Draw calls : **≈ 290** (budget : 500)
+- Triangles : **≈ 66 000** (budget : 100 000)
 - Erreurs console : **0**
-- FPS : 20 en rendu logiciel sans GPU — non représentatif d'une machine réelle
+- Distance de freinage depuis 90 km/h : **12,6 m** au sec, **17,4 m** sous la pluie
+- FPS : non mesurable ici (pas de GPU) ; le compteur en jeu dit désormais la vérité

@@ -166,6 +166,8 @@ export class World {
     this.scene = scene;
     this.rng = mulberry32(seed);
     this.hour = 8.5;
+    // Renseignés par WeatherSystem ; neutres tant qu'il n'existe pas.
+    this.weatherMods = { sunMul: 1, fogAdd: 0, fogGrey: 0, wet: 0 };
     this.buildings = [];
     this.grid = new Map();
     this.parkedSpots = [];
@@ -238,8 +240,9 @@ export class World {
   }
 
   buildGround() {
-    const asphalt = new THREE.MeshLambertMaterial({ color: 0x41464f });
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), asphalt);
+    // Phong plutôt que Lambert : le reflet spéculaire donne le bitume mouillé.
+    this.groundMat = new THREE.MeshPhongMaterial({ color: 0x41464f, shininess: 0, specular: 0x000000 });
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), this.groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     this.scene.add(ground);
@@ -474,22 +477,35 @@ export class World {
     this.skyUniforms.midColor.value.setHex(a.mid).lerp(new THREE.Color(b.mid), t);
     this.skyUniforms.bottomColor.value.setHex(a.bot).lerp(new THREE.Color(b.bot), t);
 
-    this.sun.color.setHex(a.sun).lerp(new THREE.Color(b.sun), t);
-    this.sun.intensity = THREE.MathUtils.lerp(a.sunI, b.sunI, t);
-    this.hemi.intensity = THREE.MathUtils.lerp(a.hemi, b.hemi, t);
+    const w = this.weatherMods;
 
-    const fog = new THREE.Color(a.fog).lerp(new THREE.Color(b.fog), t);
+    // Les nuages assombrissent le ciel et éteignent le soleil.
+    const overcast = new THREE.Color(0x646a74);
+    this.skyUniforms.topColor.value.lerp(overcast, w.fogGrey * 0.92);
+    this.skyUniforms.midColor.value.lerp(overcast, w.fogGrey * 0.96);
+    this.skyUniforms.bottomColor.value.lerp(overcast, w.fogGrey);
+
+    this.sun.color.setHex(a.sun).lerp(new THREE.Color(b.sun), t);
+    this.sun.intensity = THREE.MathUtils.lerp(a.sunI, b.sunI, t) * w.sunMul;
+    this.hemi.intensity = THREE.MathUtils.lerp(a.hemi, b.hemi, t) * (1 - w.fogGrey * 0.25);
+
+    const fog = new THREE.Color(a.fog).lerp(new THREE.Color(b.fog), t).lerp(overcast, w.fogGrey * 0.7);
     if (!this.scene.fog) this.scene.fog = new THREE.FogExp2(fog.getHex(), 0.0032);
     this.scene.fog.color.copy(fog);
+
+    // Bitume mouillé : il fonce et attrape un reflet.
+    this.groundMat.shininess = w.wet * 70;
+    this.groundMat.specular.setRGB(w.wet * 0.42, w.wet * 0.45, w.wet * 0.5);
+    this.groundMat.color.setHex(0x41464f).multiplyScalar(1 - w.wet * 0.16);
 
     // Nuit : fenêtres et lampadaires s'allument, étoiles apparaissent.
     const night = THREE.MathUtils.clamp((0.55 - this.sun.intensity) / 0.5, 0, 1);
     this.night = night;
-    this.scene.fog.density = 0.0030 + night * 0.0016;
+    this.scene.fog.density = 0.0030 + night * 0.0016 + w.fogAdd;
     for (const mat of this.buildingMats) mat.emissiveIntensity = night * 0.95;
     this.lampMat.color.setRGB(0.16 + night * 0.84, 0.17 + night * 0.72, 0.2 + night * 0.4);
     this.lampPoolMat.opacity = night * 0.16;
-    this.starMat.opacity = night * 0.85;
+    this.starMat.opacity = night * 0.85 * (1 - this.weatherMods.fogGrey);
     if (this.beacons) {
       const on = Math.sin(performance.now() / 500) > 0;
       for (const bcn of this.beacons) bcn.visible = on;

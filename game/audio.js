@@ -50,6 +50,33 @@ export class AudioEngine {
     this.siren.start();
 
     this.noiseBuffer = this.makeNoise();
+
+    // Pluie : bruit blanc filtré, en boucle ; on ne pilote que le volume.
+    this.rainGain = this.ctx.createGain();
+    this.rainGain.gain.value = 0;
+    const rainFilter = this.ctx.createBiquadFilter();
+    rainFilter.type = 'bandpass';
+    rainFilter.frequency.value = 2400;
+    rainFilter.Q.value = 0.45;
+    this.rainGain.connect(rainFilter).connect(this.master);
+    const rainSource = this.ctx.createBufferSource();
+    rainSource.buffer = this.makeLoopNoise();
+    rainSource.loop = true;
+    rainSource.connect(this.rainGain);
+    rainSource.start();
+  }
+
+  makeLoopNoise() {
+    const len = this.ctx.sampleRate * 2;
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  updateRain(intensity) {
+    if (!this.ctx) return;
+    this.rainGain.gain.setTargetAtTime(intensity * 0.085, this.ctx.currentTime, 0.5);
   }
 
   makeNoise() {
