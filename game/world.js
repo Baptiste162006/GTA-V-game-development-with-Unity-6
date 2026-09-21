@@ -38,7 +38,7 @@ export function isOnRoad(x, z) {
 const DISTRICTS = {
   downtown: { name: 'Downtown', color: 0x8d99ae, min: 34, max: 74, park: 0.04, tint: '#6f7890' },
   tokyo: { name: 'Little Tokyo', color: 0xb85c6b, min: 14, max: 30, park: 0.08, tint: '#8c4a57' },
-  hills: { name: 'Vinewood Hills', color: 0xd9c9a8, min: 6, max: 12, park: 0.3, tint: '#9a8c6e' },
+  hills: { name: 'Mirador Hills', color: 0xd9c9a8, min: 6, max: 12, park: 0.3, tint: '#9a8c6e' },
   industrial: { name: 'Zone Industrielle', color: 0x7a7f74, min: 7, max: 16, park: 0.05, tint: '#5f6459' },
   beach: { name: 'Beachside', color: 0xe0b48a, min: 9, max: 22, park: 0.18, tint: '#a8845f' },
   oldtown: { name: 'Vieille Ville', color: 0xc08860, min: 11, max: 26, park: 0.12, tint: '#8a6244' },

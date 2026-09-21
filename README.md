@@ -40,7 +40,7 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
 
 ## Ce qui est jouable aujourd'hui
 
-- **Ville** — 8 quartiers (Downtown, Little Tokyo, Vinewood Hills, Zone Industrielle, Beachside,
+- **Ville** — 8 quartiers (Downtown, Little Tokyo, Mirador Hills, Zone Industrielle, Beachside,
   Vieille Ville), ~100 immeubles, trottoirs, parcs, lampadaires, marquage au sol.
 - **Cycle jour/nuit** — 24 h en 12 min : ciel dégradé, étoiles, fenêtres qui s'allument,
   halos de lampadaires, phares automatiques.
