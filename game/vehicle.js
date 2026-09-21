@@ -8,13 +8,78 @@ export const VEHICLE_SPECS = {
   taxi: { label: 'Taxi', accel: 10.5, top: 41, turn: 2.0, mass: 1.15, value: 2800, colors: [0xf0b429], size: [1.95, 1.4, 4.7] },
   van: { label: 'Camionnette', accel: 7.5, top: 31, turn: 1.7, mass: 1.6, value: 5200, colors: [0xe6e6e6, 0x5a6b7a, 0x7a6a58], size: [2.15, 2.0, 5.3] },
   police: { label: 'Police', accel: 14.5, top: 55, turn: 2.15, mass: 1.25, value: 0, colors: [0x1c2530], size: [1.98, 1.42, 4.8] },
+
+  muscle: { label: 'Muscle car', accel: 14, top: 53, turn: 1.9, mass: 1.3, value: 18000, colors: [0x8c1f1f, 0x1f2d5c, 0x2a2a2a, 0xd9821f], size: [2.05, 1.32, 4.95] },
+  luxe: { label: 'Berline de luxe', accel: 12.5, top: 51, turn: 1.95, mass: 1.25, value: 48000, colors: [0x101318, 0xe8e6e1, 0x2b3b52], size: [2.0, 1.4, 5.1] },
+  suv: { label: '4×4', accel: 10, top: 42, turn: 1.8, mass: 1.45, value: 9500, colors: [0x2f3a2f, 0x53565c, 0x1b2430, 0xa8a49b], size: [2.1, 1.85, 4.9] },
+  pickup: { label: 'Pick-up', accel: 9.2, top: 39, turn: 1.75, mass: 1.5, value: 7200, colors: [0x3b5a7a, 0x7a3b3b, 0xd6cfc0], size: [2.05, 1.7, 5.2] },
+  camion: { label: 'Camion', accel: 6, top: 30, turn: 1.45, mass: 2.2, value: 26000, colors: [0xd8d4cc, 0x2f4f6f, 0x7a6a58], size: [2.45, 3.0, 8.2] },
+  bus: { label: 'Bus', accel: 5.5, top: 27, turn: 1.3, mass: 2.6, value: 38000, colors: [0xe0a12c, 0x3f6f9f], size: [2.55, 3.1, 9.6] },
+  ambulance: { label: 'Ambulance', accel: 9.5, top: 41, turn: 1.7, mass: 1.6, value: 0, colors: [0xf2f2f2], size: [2.2, 2.35, 5.6] },
+  pompiers: { label: 'Camion de pompiers', accel: 7, top: 34, turn: 1.4, mass: 2.4, value: 0, colors: [0xc0241f], size: [2.5, 2.9, 7.8] },
+
+  // Deux-roues : plus vifs, ils se couchent dans les virages et n'offrent aucune protection.
+  scooter: { label: 'Scooter', accel: 8.5, top: 23, turn: 2.8, mass: 0.4, value: 900, colors: [0xe8e2d5, 0x5aa2ff, 0xff6b3d], size: [0.72, 1.15, 1.85], bike: true },
+  moto: { label: 'Moto', accel: 18.5, top: 59, turn: 3.0, mass: 0.5, value: 16000, colors: [0x14181f, 0xb8232b, 0x2b6fb8, 0xe0e0e0], size: [0.8, 1.2, 2.15], bike: true },
 };
+
+// Deux-roues : cadre étroit, selle, guidon, deux roues alignées.
+function buildBikeMesh(spec, color) {
+  const [w, h, l] = spec.size;
+  const g = new THREE.Group();
+  const bodyMat = new THREE.MeshLambertMaterial({ color });
+  const trimMat = new THREE.MeshLambertMaterial({ color: 0x1a1d22 });
+
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(w * 0.55, h * 0.3, l * 0.62), bodyMat);
+  frame.position.y = h * 0.52;
+  frame.castShadow = true;
+  g.add(frame);
+
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(w * 0.6, h * 0.14, l * 0.3), trimMat);
+  seat.position.set(0, h * 0.72, -l * 0.12);
+  g.add(seat);
+
+  const tank = new THREE.Mesh(new THREE.SphereGeometry(w * 0.34, 10, 8), bodyMat);
+  tank.scale.set(1, 0.8, 1.5);
+  tank.position.set(0, h * 0.7, l * 0.14);
+  g.add(tank);
+
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(w * 1.05, 0.05, 0.05), trimMat);
+  bar.position.set(0, h * 0.95, l * 0.36);
+  g.add(bar);
+
+  const wheelGeo = new THREE.CylinderGeometry(h * 0.36, h * 0.36, 0.14, 12);
+  wheelGeo.rotateZ(Math.PI / 2);
+  const wheels = [];
+  for (const z of [l * 0.38, -l * 0.38]) {
+    const wheel = new THREE.Mesh(wheelGeo, trimMat);
+    wheel.position.set(0, h * 0.36, z);
+    wheel.castShadow = true;
+    g.add(wheel);
+    wheels.push(wheel);
+  }
+  // Deux roues seulement : on duplique les références pour garder la même animation.
+  wheels.push(wheels[0], wheels[1]);
+
+  const headMat = new THREE.MeshBasicMaterial({ color: 0x2a2a26 });
+  const tailMat = new THREE.MeshBasicMaterial({ color: 0x3a1512 });
+  const lamp = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4, 0.12, 0.08), headMat);
+  lamp.position.set(0, h * 0.78, l / 2);
+  g.add(lamp);
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(w * 0.35, 0.1, 0.06), tailMat);
+  tail.position.set(0, h * 0.75, -l / 2);
+  g.add(tail);
+
+  g.userData.parts = { wheels, heads: [lamp], headMat, tailMat, lightbar: null, bodyMat };
+  return g;
+}
 
 export function buildVehicleMesh(specName, colorOverride) {
   const spec = VEHICLE_SPECS[specName];
   const [w, h, l] = spec.size;
-  const g = new THREE.Group();
   const color = colorOverride ?? spec.colors[Math.floor(Math.random() * spec.colors.length)];
+  if (spec.bike) return buildBikeMesh(spec, color);
+  const g = new THREE.Group();
   const bodyMat = new THREE.MeshLambertMaterial({ color });
   const glassMat = new THREE.MeshLambertMaterial({ color: 0x141a22 });
   const trimMat = new THREE.MeshLambertMaterial({ color: 0x1a1d22 });
@@ -63,11 +128,13 @@ export function buildVehicleMesh(specName, colorOverride) {
   }
 
   let lightbar = null;
-  if (specName === 'police') {
-    // Livrée noir et blanc + rampe lumineuse.
+  const emergency = specName === 'police' || specName === 'ambulance' || specName === 'pompiers';
+  if (emergency) {
+    // Bande latérale de livrée + rampe lumineuse.
+    const stripe = { police: 0xf2f2f2, ambulance: 0xd8322c, pompiers: 0xf2f2f2 }[specName];
     for (const side of [-1, 1]) {
-      const door = new THREE.Mesh(new THREE.BoxGeometry(0.04, h * 0.34, l * 0.42), new THREE.MeshLambertMaterial({ color: 0xf2f2f2 }));
-      door.position.set((side * w) / 2, h * 0.42, 0);
+      const door = new THREE.Mesh(new THREE.BoxGeometry(0.04, h * 0.28, l * 0.42), new THREE.MeshLambertMaterial({ color: stripe }));
+      door.position.set((side * w) / 2, h * 0.5, 0);
       g.add(door);
     }
     lightbar = new THREE.Group();
@@ -195,8 +262,9 @@ export class Vehicle {
       wheel.rotation.x = this.wheelSpin;
       if (i < 2) wheel.rotation.y = -this.steer * 0.45;
     });
-    // Roulis en virage : lisible et ça suffit à donner du poids.
-    this.roll = THREE.MathUtils.lerp(this.roll, -this.steer * THREE.MathUtils.clamp(this.speed / 30, 0, 1) * 0.11, 1 - Math.exp(-8 * dt));
+    // Roulis en virage. Un deux-roues se couche franchement, une voiture s'incline à peine.
+    const lean = this.spec.bike ? 0.5 : 0.11;
+    this.roll = THREE.MathUtils.lerp(this.roll, -this.steer * THREE.MathUtils.clamp(this.speed / 30, 0, 1) * lean, 1 - Math.exp(-8 * dt));
     this.mesh.rotation.z = this.roll;
 
     if (parts.lightbar) {

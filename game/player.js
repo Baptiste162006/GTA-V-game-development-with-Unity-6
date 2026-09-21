@@ -228,8 +228,14 @@ export class ThirdPersonCamera {
     return len;
   }
 
-  update(dt, targetPos, targetHeight = 1.6, extraDistance = 0) {
+  // shoulder : décalage latéral en mètres. En visée on dégage la caméra sur le
+  // côté, sinon le personnage masque exactement ce qu'on vise.
+  update(dt, targetPos, targetHeight = 1.6, extraDistance = 0, shoulder = 0) {
     this.distance = THREE.MathUtils.lerp(this.distance, this.targetDistance + extraDistance, 1 - Math.exp(-6 * dt));
+    this.shoulder = THREE.MathUtils.lerp(this.shoulder || 0, shoulder, 1 - Math.exp(-10 * dt));
+    const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw)).multiplyScalar(this.shoulder);
+    // L'axe de visée passe par le joueur ; seule la caméra se décale de côté,
+    // sinon tout reste aligné et le personnage masque le viseur.
     const target = new THREE.Vector3(targetPos.x, targetPos.y + targetHeight, targetPos.z);
     const offset = new THREE.Vector3(
       Math.sin(this.yaw) * Math.cos(this.pitch),
@@ -239,12 +245,18 @@ export class ThirdPersonCamera {
 
     let desired = target.clone().add(offset);
     const allowed = this.clearObstruction(target, desired);
-    desired = target.clone().addScaledVector(offset.clone().normalize(), allowed);
+    desired = target.clone().addScaledVector(offset.clone().normalize(), allowed).add(right);
     desired.y = Math.max(desired.y, 0.8);
 
     this.current.lerp(desired, 1 - Math.exp(-11 * dt));
     this.camera.position.copy(this.current);
-    this.lookAt.lerp(target, 1 - Math.exp(-14 * dt));
+
+    // En visée, on regarde loin devant plutôt que le personnage : sinon décaler
+    // la caméra ET sa cible du même vecteur le laisse pile au centre de l'écran.
+    const aimPoint = this.shoulder > 0.05
+      ? target.clone().addScaledVector(offset.clone().normalize(), -28)
+      : target;
+    this.lookAt.lerp(aimPoint, 1 - Math.exp(-14 * dt));
     this.camera.lookAt(this.lookAt);
   }
 }

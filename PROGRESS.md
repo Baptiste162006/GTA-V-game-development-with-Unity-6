@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.3** · Étape en cours : **2 (orage et saisons)**
+Dernière mise à jour : 2026-09-21 · Version : **v0.4** · Étape en cours : **2 (orage et saisons)**
 
 ## ✅ Terminé
 
@@ -10,7 +10,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.3** · Étape en cours : *
 | Cycle jour/nuit (24 h en 12 min) | `game/world.js` | Ciel dégradé, étoiles, fenêtres allumées, halos |
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
 | Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, caméra anti-mur |
-| Véhicules (6 types) | `game/vehicle.js` | Physique arcade, dégâts, roulis, gyrophares |
+| Véhicules (15 types) | `game/vehicle.js` | Physique arcade, dégâts, roulis, gyrophares |
 | Circulation et piétons | `game/traffic.js` | 14 voitures, 18 piétons, 12 voitures garées |
 | Police 5 étoiles | `game/police.js` | Poursuite, agents à pied, tirs, arrestation, évasion |
 | Missions | `game/missions.js` | Tutoriel 4 étapes + 2 jobs répétables |
@@ -19,7 +19,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.3** · Étape en cours : *
 | Bus d'événements | `game/events.js` | Découple le jeu de l'interface |
 | Console de triche | `game/debug.js` | 14 commandes |
 | Sauvegarde | `game/main.js` | Argent, stats, heure (localStorage) |
-| Combat | `game/weapons.js` | 6 armes, visée, recul, dégâts par zone, traçantes |
+| Combat | `game/weapons.js` | 6 armes, visée épaule, arme en main, recul, dégâts par zone |
 | Ennemis | `game/enemies.js` | Gangs de quartier, IA de tir, butin |
 | Météo dynamique | `game/weather.js` | 4 temps, transitions 18 s, effets sur conduite, police et piétons |
 

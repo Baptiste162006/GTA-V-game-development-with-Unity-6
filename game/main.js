@@ -347,7 +347,7 @@ class Game {
       // Visée : caméra épaule, champ resserré, et le joueur regarde où on vise.
       const aiming = this.weapons.aiming;
       if (aiming) this.player.yaw = this.camera3p.yaw;
-      this.camera3p.update(dt, this.player.pos, aiming ? 1.62 : 1.5, aiming ? -2.6 : 0);
+      this.camera3p.update(dt, this.player.pos, aiming ? 1.68 : 1.5, aiming ? -4 : 0, aiming ? 0.85 : 0);
       const fov = aiming ? (this.weapons.spec.scope ? 26 : 48) : 64;
       this.camera.fov += (fov - this.camera.fov) * (1 - Math.exp(-11 * dt));
       this.camera.updateProjectionMatrix();

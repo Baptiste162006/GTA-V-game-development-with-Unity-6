@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.4 — 2026-09-21
+
+### Corrigé
+- **Visée inutilisable** : le clic droit rapprochait la caméra dans le dos du personnage,
+  qui masquait exactement la cible. La caméra passe maintenant **par-dessus l'épaule droite**
+  (décalage latéral de 0,85 m, distance 2,8 m) et regarde parallèlement à l'axe de tir, donc
+  le joueur se place à gauche de l'écran et le viseur tombe sur la cible.
+  Deux tentatives ont échoué avant : décaler la caméra *et* son point de visée du même vecteur
+  ne change rien, puisque caméra, joueur et cible restent alignés.
+
+### Ajouté
+- **Arme visible** : elle est accrochée à la main droite et suit l'animation du bras. Au repos
+  elle pend le long du corps, en visée le bras droit se lève et le gauche vient en soutien.
+- **Éclair de bouche** à chaque tir, et recul qui remonte visiblement l'épaule.
+- **9 véhicules de plus** : muscle car, berline de luxe, 4×4, pick-up, camion, bus, ambulance,
+  camion de pompiers — et deux **deux-roues** (scooter, moto) avec un modèle dédié et une
+  inclinaison marquée en virage.
+- Livrée et rampe lumineuse étendues à l'ambulance et aux pompiers.
+
 ## v0.3 — 2026-09-21
 
 ### Ajouté

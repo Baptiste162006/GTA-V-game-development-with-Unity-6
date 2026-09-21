@@ -50,7 +50,8 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
   police vous repère de bien moins loin, et les trottoirs se vident.
 - **À pied** — marche, course, marche lente, saut, animation procédurale, caméra 3e personne
   qui évite les murs.
-- **Véhicules** — 6 types (citadine, berline, sportive, taxi, camionnette, police), physique
+- **Véhicules** — 15 types, des deux-roues au bus (citadine, berline, sportive, muscle car,
+  luxe, 4×4, pick-up, taxi, camionnette, camion, bus, police, ambulance, pompiers, scooter, moto), physique
   arcade, frein à main, dégâts de carrosserie, roulis en virage, compteur et rapport de boîte.
 - **Vol de voiture** — voitures garées et carjacking d'un véhicule occupé (le conducteur est
   éjecté, la police est prévenue).
@@ -78,7 +79,7 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
 
 ## Ce qui n'est pas là
 
-Pas de moto, d'avion ni de bateau, pas d'intérieurs visitables, pas d'orage ni de neige,
+Pas d'avion ni de bateau, pas d'intérieurs visitables, pas d'orage ni de neige,
 pas de saisons, pas de téléphone, pas de personnages multiples, pas de customisation de
 véhicule, pas de missions scénarisées, pas de ramassage d'armes au sol ni de tir en voiture.
 Le détail de la suite est dans [MILESTONES.md](MILESTONES.md), l'état exact dans [PROGRESS.md](PROGRESS.md).

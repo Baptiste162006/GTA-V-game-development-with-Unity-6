@@ -55,9 +55,12 @@ export class WeaponSystem {
     this.onShot = null; // (nom de l'arme) -> void
     this.onDry = null;
 
+    // L'arme est accrochée à la main droite : elle suit l'animation du bras,
+    // pointe vers le sol au repos et vers l'avant dès que le bras se lève.
     this.held = new THREE.Group();
-    this.player.mesh.add(this.held);
-    this.held.position.set(0.24, 1.32, 0.12);
+    this.player.mesh.userData.rig.armR.add(this.held);
+    this.held.position.set(0, -0.52, 0.03);
+    this.held.rotation.x = Math.PI / 2;
     this.refreshHeld();
 
     this.buildTracers();
@@ -113,10 +116,37 @@ export class WeaponSystem {
 
   refreshHeld() {
     this.held.clear();
-    const mesh = buildWeaponMesh(this.name);
-    mesh.rotation.y = Math.PI;
-    this.held.add(mesh);
+    this.held.add(buildWeaponMesh(this.name));
+    if (!this.spec.melee) {
+      // Éclair de bouche, montré 50 ms à chaque tir.
+      const long = this.spec.range > 60 ? 0.62 : 0.26;
+      this.flash = new THREE.Mesh(
+        new THREE.SphereGeometry(0.09, 8, 6),
+        new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0.85 })
+      );
+      this.flash.scale.set(1, 0.7, 1.8);
+      this.flash.position.z = long * 0.72;
+      this.flash.visible = false;
+      this.held.add(this.flash);
+    } else {
+      this.flash = null;
+    }
     this.held.visible = !this.spec.melee && !this.player.inVehicle;
+  }
+
+  // Pose de tir : bras droit tendu vers l'avant, gauche en soutien.
+  applyPose() {
+    const rig = this.player.mesh.userData.rig;
+    if (this.spec.melee || this.player.inVehicle) return;
+    const kick = this.recoil * 4;
+    if (this.aiming) {
+      rig.armR.rotation.x = -1.4 + kick;
+      rig.armL.rotation.x = -1.2 + kick;
+      rig.armL.rotation.z = 0.24;
+    } else {
+      rig.armR.rotation.x = Math.min(rig.armR.rotation.x, -0.35) + kick;
+      rig.armL.rotation.z = 0;
+    }
   }
 
   cycle(dir) {
@@ -181,6 +211,10 @@ export class WeaponSystem {
     }
     box.mag--;
     this.recoil = Math.min(0.09, 0.012 + spec.damage * 0.0006);
+    if (this.flash) {
+      this.flash.visible = true;
+      this.flashLife = 0.05;
+    }
     if (this.onShot) this.onShot(this.name);
 
     const shots = spec.pellets || 1;
@@ -277,6 +311,11 @@ export class WeaponSystem {
     this.cooldown = Math.max(0, this.cooldown - dt);
     this.recoil *= Math.exp(-9 * dt);
 
+    if (this.flashLife > 0) {
+      this.flashLife -= dt;
+      if (this.flashLife <= 0 && this.flash) this.flash.visible = false;
+    }
+
     if (this.reloading > 0) {
       this.reloading -= dt;
       if (this.reloading <= 0) {
@@ -303,6 +342,7 @@ export class WeaponSystem {
     }
 
     this.held.visible = !this.spec.melee && !this.player.inVehicle;
+    this.applyPose();
   }
 
   get hudAmmo() {
