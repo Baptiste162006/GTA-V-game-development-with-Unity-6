@@ -70,8 +70,18 @@ précédente soit validée.
 - [ ] Impact réel : vitesse de course, endurance, PV max, dégâts au corps à corps
 - [ ] Écran de suivi (dans le téléphone de l'étape 3)
 
-## ⏳ Étape 9 — Finitions
-- [ ] Menu principal, réglages de qualité (ombres, distance de rendu)
+## ⏳ Étape 9 — Menus et réglages
+- [ ] Menu principal : titre, nouvelle partie, charger, options, crédits
+- [ ] Options graphiques : qualité (ombres on/off, résolution de rendu, distance), FOV, limite de FPS
+- [ ] Options audio : volume général, moteur, sirènes, interface
+- [ ] Options contrôles : sensibilité souris, inversion de l'axe Y, remappage des touches
+- [ ] Options gameplay : mini-carte on/off et taille, marqueurs, notifications, tutoriels
+- [ ] 3 emplacements de sauvegarde avec nom, temps de jeu et date
+- [ ] Menu pause enrichi : carte, stats, inventaire, retour au menu principal
+- [ ] Réglages conservés d'une partie à l'autre
+- Note : pas de traduction multilingue ni de doublage en v1 — le jeu reste en français.
+
+## ⏳ Étape 10 — Finitions
 - [ ] Musique procédurale par ambiance
 - [ ] Équilibrage économique, passe de bugs, tests sur plusieurs machines
 
