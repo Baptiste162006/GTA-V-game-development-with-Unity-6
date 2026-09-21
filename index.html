@@ -228,6 +228,36 @@
   }
   @keyframes pulse { 50% { opacity: 0.35; } }
 
+  /* --- menu pause --- */
+  .pause-layout { display: grid; grid-template-columns: 210px 1fr; gap: 36px; align-items: start; }
+  .pause-side nav { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
+  .nav-item {
+    font-family: var(--ui); font-size: 19px; font-weight: 600; letter-spacing: 0.04em;
+    text-align: left; background: transparent; color: var(--ink-dim);
+    border: 0; border-left: 3px solid transparent; border-radius: 0;
+    padding: 9px 12px; cursor: pointer; transition: color 0.12s, border-color 0.12s, transform 0.12s;
+  }
+  .nav-item:hover { color: var(--ink); filter: none; }
+  .nav-item.on { color: var(--ink); border-left-color: var(--accent); transform: translateX(4px); }
+  .nav-item:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .pause-main h1 { font-size: clamp(28px, 5vw, 44px); margin-top: 0; }
+  #pause-panel { display: grid; gap: 2px; max-width: 520px; }
+  #pause-panel .eyebrow { margin: 18px 0 4px; }
+  .option { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--edge); font-size: 15px; }
+  .option span { flex: 1; color: var(--ink-dim); }
+  .option input[type='range'] { width: 150px; accent-color: var(--accent); }
+  .option b { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .bigmap { width: min(100%, 420px); height: auto; border: 1px solid var(--edge); border-radius: 3px; background: #14171d; }
+  .confirm {
+    margin-top: 22px; padding: 16px; border: 1px solid var(--edge);
+    border-left: 3px solid var(--danger); background: rgba(0, 0, 0, 0.35);
+  }
+  .confirm p { margin: 0 0 14px; }
+  @media (max-width: 640px) {
+    .pause-layout { grid-template-columns: 1fr; gap: 14px; }
+    .pause-side nav { flex-direction: row; flex-wrap: wrap; }
+  }
+
   #stat-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2px 26px; margin: 18px 0 22px; }
   .stat { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--edge); font-size: 15px; }
   .stat span { color: var(--ink-dim); }
@@ -358,15 +388,16 @@
 </div>
 
 <div id="pause-screen" class="screen" hidden>
-  <div class="sheet">
-    <p class="eyebrow">Pause</p>
-    <h1>Statistiques</h1>
-    <div id="stat-list"></div>
-    <div class="row">
-      <button id="resume-button">Reprendre</button>
-      <button id="restart-button" class="ghost">Recommencer</button>
+  <div class="sheet pause-layout">
+    <div class="pause-side">
+      <p class="eyebrow">San Felipe City</p>
+      <nav id="pause-nav"></nav>
     </div>
-    <p class="note">La progression (argent, stats, heure) est sauvegardée dans ce navigateur.</p>
+    <div class="pause-main">
+      <h1 id="pause-title">Statistiques</h1>
+      <div id="pause-panel"></div>
+      <div id="pause-confirm" class="confirm" hidden></div>
+    </div>
   </div>
 </div>
 

@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.7** · Étape en cours : **2 (orage et saisons)**
+Dernière mise à jour : 2026-09-21 · Version : **v0.8** · Étape en cours : **2 (orage et saisons)**
 
 ## ✅ Terminé
 
@@ -19,6 +19,8 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.7** · Étape en cours : *
 | Son synthétisé | `game/audio.js` | Moteur, sirène, klaxon, chocs, jingles |
 | Bus d'événements | `game/events.js` | Découple le jeu de l'interface |
 | Console de triche | `game/debug.js` | 14 commandes |
+| Menu pause | `game/menu.js` | Navigation clavier, carte, options |
+| Réglages | `game/settings.js` | 10 options appliquées en direct et conservées |
 | Sauvegarde | `game/main.js` | Argent, stats, heure (localStorage) |
 | Combat | `game/weapons.js` | 6 armes, visée épaule, arme en main, recul, dégâts par zone |
 | Ennemis | `game/enemies.js` | Gangs de quartier, IA de tir, butin |

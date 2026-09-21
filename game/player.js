@@ -209,7 +209,8 @@ export class ThirdPersonCamera {
 
   handleMouse(mouse) {
     this.yaw -= mouse.dx * this.sensitivity;
-    this.pitch = THREE.MathUtils.clamp(this.pitch + mouse.dy * this.sensitivity, -0.35, 1.15);
+    const dy = this.invertY ? -mouse.dy : mouse.dy;
+    this.pitch = THREE.MathUtils.clamp(this.pitch + dy * this.sensitivity, -0.35, 1.15);
     if (mouse.wheel) {
       this.targetDistance = THREE.MathUtils.clamp(this.targetDistance + mouse.wheel * 0.8, 3, 14);
     }

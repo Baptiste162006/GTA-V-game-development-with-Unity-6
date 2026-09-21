@@ -8,6 +8,8 @@ import { WeatherSystem } from './weather.js';
 import { WeaponSystem, WEAPONS } from './weapons.js';
 import { Enemies } from './enemies.js';
 import { VehicleEffects } from './vehicleEffects.js';
+import { Settings } from './settings.js';
+import { PauseMenu } from './menu.js';
 import { HUD } from './hud.js';
 import { Input } from './input.js';
 import { AudioEngine } from './audio.js';
@@ -58,6 +60,12 @@ class Game {
       audio: this.audio,
     });
     this.debug = new DebugConsole(this);
+    this.settings = new Settings();
+    this.menu = new PauseMenu(this);
+    this.shakeScale = 1;
+    this.baseFov = 64;
+    this.settings.onChange = () => this.settings.apply(this);
+    this.settings.apply(this);
 
     if (restored.money) this.player.money = restored.money;
     if (restored.hour !== undefined) this.world.hour = restored.hour;
@@ -168,8 +176,6 @@ class Game {
 
   wireUI() {
     document.getElementById('start-button').addEventListener('click', () => this.startGame());
-    document.getElementById('resume-button').addEventListener('click', () => this.resume());
-    document.getElementById('restart-button').addEventListener('click', () => location.reload());
     document.getElementById('respawn-button').addEventListener('click', () => this.respawn());
     const mute = document.getElementById('mute-toggle');
     mute.addEventListener('change', () => this.audio.setMuted(!mute.checked));
@@ -200,15 +206,14 @@ class Game {
     if (this.state !== 'playing') return;
     this.state = 'paused';
     this.input.release();
-    document.getElementById('pause-screen').hidden = false;
-    document.getElementById('stat-list').innerHTML = this.statsHtml();
+    this.menu.open();
     this.audio.updateEngine(false, 0, 0);
     this.audio.updateSiren(0, 0);
     this.save();
   }
 
   resume() {
-    document.getElementById('pause-screen').hidden = true;
+    this.menu.close();
     this.state = 'playing';
     this.renderer.domElement.requestPointerLock();
   }
@@ -438,7 +443,7 @@ class Game {
       const aiming = this.weapons.aiming;
       if (aiming) this.player.yaw = this.camera3p.yaw;
       this.camera3p.update(dt, this.player.pos, aiming ? 1.68 : 1.5, aiming ? -4 : 0, aiming ? 0.85 : 0);
-      const fov = aiming ? (this.weapons.spec.scope ? 26 : 48) : 64;
+      const fov = aiming ? (this.weapons.spec.scope ? this.baseFov * 0.4 : this.baseFov * 0.75) : this.baseFov;
       this.camera.fov += (fov - this.camera.fov) * (1 - Math.exp(-11 * dt));
       this.camera.updateProjectionMatrix();
       this.audio.updateEngine(false, 0, 0);
@@ -505,10 +510,20 @@ class Game {
     if (wantsFire && w.fire(this.combatTargets(), this.world)) {
       this.stats.shotsFired++;
       // Recul : la caméra part vers le haut, le joueur la ramène.
-      this.camera3p.pitch = Math.max(-0.35, this.camera3p.pitch - w.recoil);
+      this.camera3p.pitch = Math.max(-0.35, this.camera3p.pitch - w.recoil * this.shakeScale);
     }
 
     w.update(dt);
+  }
+
+  mapState() {
+    return {
+      player: this.player,
+      police: this.police,
+      traffic: this.traffic,
+      missions: this.missions,
+      world: this.world,
+    };
   }
 
   updatePrompt() {

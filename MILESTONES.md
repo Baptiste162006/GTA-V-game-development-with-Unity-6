@@ -72,15 +72,15 @@ devant l'orage et le téléphone parce que c'était le plus gros manque de gamep
 - [ ] Impact réel : vitesse de course, endurance, PV max, dégâts au corps à corps
 - [ ] Écran de suivi (dans le téléphone de l'étape 3)
 
-## ⏳ Étape 9 — Menus et réglages
-- [ ] Menu principal : titre, nouvelle partie, charger, options, crédits
-- [ ] Options graphiques : qualité (ombres on/off, résolution de rendu, distance), FOV, limite de FPS
-- [ ] Options audio : volume général, moteur, sirènes, interface
-- [ ] Options contrôles : sensibilité souris, inversion de l'axe Y, remappage des touches
-- [ ] Options gameplay : mini-carte on/off et taille, marqueurs, notifications, tutoriels
-- [ ] 3 emplacements de sauvegarde avec nom, temps de jeu et date
-- [ ] Menu pause enrichi : carte, stats, inventaire, retour au menu principal
-- [ ] Réglages conservés d'une partie à l'autre
+## 🚧 Étape 9 — Menus et réglages (en grande partie livrée)
+- [x] Menu pause : navigation clavier et souris, carte, missions, stats, commandes
+- [x] Options graphiques : ombres, résolution de rendu, FOV, mini-carte
+- [x] Options audio : volume général, moteurs, sirènes
+- [x] Options contrôles : sensibilité souris, inversion de l'axe Y, secousses
+- [x] Réglages conservés d'une partie à l'autre
+- [x] Confirmation avant de recommencer
+- [ ] Reste : menu principal avec 3 emplacements de sauvegarde, remappage des touches,
+      limite de FPS
 - Note : pas de traduction multilingue ni de doublage en v1 — le jeu reste en français.
 
 ## ⏳ Étape 10 — Finitions

@@ -115,7 +115,7 @@ export class AudioEngine {
   // rpm01 : régime normalisé 0..1. load : accélérateur enfoncé.
   updateEngine(inCar, rpm01, load) {
     if (!this.ctx) return;
-    const target = inCar ? 0.09 + load * 0.05 : 0;
+    const target = inCar ? (0.09 + load * 0.05) * (this.engineScale ?? 1) : 0;
     const f = 55 + rpm01 * 320;
     const now = this.ctx.currentTime;
     this.engineGain.gain.setTargetAtTime(target, now, 0.08);
@@ -128,7 +128,7 @@ export class AudioEngine {
   updateSiren(proximity, t) {
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
-    this.sirenGain.gain.setTargetAtTime(proximity * 0.05, now, 0.15);
+    this.sirenGain.gain.setTargetAtTime(proximity * 0.05 * (this.sirenScale ?? 1), now, 0.15);
     if (proximity > 0.01) {
       this.siren.frequency.setTargetAtTime(Math.sin(t * 6) > 0 ? 780 : 560, now, 0.04);
     }

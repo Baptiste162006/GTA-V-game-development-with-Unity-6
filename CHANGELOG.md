@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.8 — 2026-09-21
+
+### Ajouté — menu pause complet
+- Colonne de navigation à gauche, contenu à droite : **Reprendre, Carte, Missions,
+  Statistiques, Options, Commandes, Recommencer**.
+- **Navigation clavier** (flèches, Entrée, Échap) et souris, avec de vrais `<button>` et un
+  état de focus visible — pas des `div` cliquables.
+- **Carte de la ville en grand**, avec les îlots, la circulation, la zone de recherche et
+  l'objectif en cours.
+- **Confirmation** avant de recommencer une partie.
+- **10 réglages qui agissent vraiment** (`game/settings.js`) : champ de vision, résolution de
+  rendu, ombres, mini-carte, sensibilité souris, inversion de l'axe Y, intensité des
+  secousses, volume général, moteurs, sirènes. Ils sont appliqués en direct et conservés
+  d'une partie à l'autre.
+
 ## v0.7 — 2026-09-21
 
 ### Ajouté — mort et arrestation

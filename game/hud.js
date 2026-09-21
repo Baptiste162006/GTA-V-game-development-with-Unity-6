@@ -158,6 +158,66 @@ export class HUD {
     this.drawMinimap(state);
   }
 
+  // Carte du menu pause : toute la ville d'un coup, pas une fenêtre glissante.
+  drawBigMap(canvas, { player, police, traffic, missions }) {
+    const c = canvas.getContext('2d');
+    const size = canvas.width;
+    const span = MAX_LINE * 2 + CITY.CELL;
+    const scale = size / span;
+    const toMap = (x, z) => [(x + span / 2) * scale, (z + span / 2) * scale];
+
+    c.fillStyle = '#14171d';
+    c.fillRect(0, 0, size, size);
+
+    c.fillStyle = '#2b313c';
+    for (let i = -CITY.RINGS; i < CITY.RINGS; i++) {
+      for (let j = -CITY.RINGS; j < CITY.RINGS; j++) {
+        const [mx, my] = toMap(i * CITY.CELL + CITY.CELL / 2 - CITY.BLOCK / 2, j * CITY.CELL + CITY.CELL / 2 - CITY.BLOCK / 2);
+        c.fillRect(mx, my, CITY.BLOCK * scale, CITY.BLOCK * scale);
+      }
+    }
+
+    if (police.searching && police.searchRadius > 0) {
+      const [sx, sy] = toMap(police.searchCenter.x, police.searchCenter.z);
+      c.beginPath();
+      c.arc(sx, sy, police.searchRadius * scale, 0, Math.PI * 2);
+      c.fillStyle = 'rgba(255, 70, 60, 0.18)';
+      c.fill();
+      c.strokeStyle = 'rgba(255, 90, 74, 0.9)';
+      c.stroke();
+    }
+
+    c.fillStyle = '#7d8592';
+    for (const car of traffic.cars) {
+      const [x, y] = toMap(car.vehicle.pos.x, car.vehicle.pos.z);
+      c.fillRect(x - 1, y - 1, 2, 2);
+    }
+
+    if (missions.markerPos) {
+      const [mx, my] = toMap(missions.markerPos.x, missions.markerPos.z);
+      c.fillStyle = `#${missions.markerColor.toString(16).padStart(6, '0')}`;
+      c.beginPath();
+      c.arc(mx, my, 5, 0, Math.PI * 2);
+      c.fill();
+    }
+
+    const pos = player.inVehicle ? player.inVehicle.pos : player.pos;
+    const [px, py] = toMap(pos.x, pos.z);
+    const yaw = player.inVehicle ? player.inVehicle.yaw : player.yaw;
+    c.save();
+    c.translate(px, py);
+    c.rotate(-yaw + Math.PI);
+    c.fillStyle = '#ff7a45';
+    c.beginPath();
+    c.moveTo(0, -8);
+    c.lineTo(6, 7);
+    c.lineTo(0, 4);
+    c.lineTo(-6, 7);
+    c.closePath();
+    c.fill();
+    c.restore();
+  }
+
   drawMinimap({ player, police, traffic, missions, world }) {
     const c = this.ctx2d;
     const size = this.el.minimap.width;
