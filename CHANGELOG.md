@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v0.5 — 2026-09-21
+
+### Corrigé
+- **Le pistolet avait la taille d'un fusil** : la longueur du modèle se déduisait de la portée,
+  et un pistolet porte à 90 m. Chaque arme a désormais une longueur explicite (22 cm pour le
+  pistolet, 92 cm pour le fusil de précision), avec crosse sur les armes d'épaule.
+
+### Ajouté — retour d'impact
+- **Ennemi touché** : flash blanc de 90 ms sur le corps, recul directionnel (limité à une
+  réaction toutes les 280 ms pour qu'une rafale ne le secoue pas en continu), et barre de vie
+  flottante qui apparaît 3 s au-dessus de sa tête, orientée face caméra.
+- **Marqueur de touche** au centre du viseur, plus large et rouge pour un tir à la tête,
+  avec un son distinct.
+- **Indicateur de direction des tirs reçus** : un arc rouge s'allume du côté d'où vient le
+  coup, calculé dans le repère de la caméra.
+- **« RECHARGER »** s'affiche à la place des munitions quand le chargeur est vide.
+
 ## v0.4 — 2026-09-21
 
 ### Corrigé

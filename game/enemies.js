@@ -12,6 +12,11 @@ const OUTFITS = [
   { shirt: 0x4a3a6b, pants: 0x191c22, hair: 0x120f0c },
 ];
 
+// Barre de vie flottante : deux plans partagés, mis à l'échelle par ennemi.
+const BAR_GEO = new THREE.PlaneGeometry(1, 0.11);
+const BAR_BG = new THREE.MeshBasicMaterial({ color: 0x14171d, transparent: true, depthWrite: false });
+const BAR_FG = new THREE.MeshBasicMaterial({ color: 0xff5a4a, transparent: true, depthWrite: false });
+
 export class Enemies {
   constructor(scene, world, traffic) {
     this.scene = scene;
@@ -46,8 +51,30 @@ export class Enemies {
       cooldown: 1 + Math.random(),
       wander: null,
       dead: 0,
+      flash: 0,
+      stagger: new THREE.Vector3(),
+      reactCooldown: 0,
+      barTimer: 0,
+      // Matériaux du corps, pour le flash blanc quand il encaisse.
+      skinMats: [],
     };
-    enemy.applyDamage = (amount) => this.hurt(enemy, amount);
+    mesh.traverse((o) => {
+      if (o.material && o.material.emissive) enemy.skinMats.push(o.material);
+    });
+
+    const bar = new THREE.Group();
+    const bg = new THREE.Mesh(BAR_GEO, BAR_BG);
+    const fg = new THREE.Mesh(BAR_GEO, BAR_FG);
+    fg.position.z = 0.001;
+    bar.add(bg, fg);
+    bar.scale.setScalar(0.85);
+    bar.position.y = 2.1;
+    bar.visible = false;
+    mesh.add(bar);
+    enemy.bar = bar;
+    enemy.barFill = fg;
+
+    enemy.applyDamage = (amount, from) => this.hurt(enemy, amount, from);
     this.list.push(enemy);
     return enemy;
   }
@@ -64,10 +91,23 @@ export class Enemies {
     return squad;
   }
 
-  hurt(enemy, amount) {
+  hurt(enemy, amount, from) {
     if (enemy.dead > 0) return;
     enemy.health -= amount;
     enemy.state = 'chase';
+    enemy.flash = 0.09;
+    enemy.barTimer = 3;
+
+    // Recul directionnel, mais pas à chaque balle d'une rafale.
+    if (from && enemy.reactCooldown <= 0) {
+      enemy.reactCooldown = 0.28;
+      const push = enemy.position.clone().sub(from);
+      push.y = 0;
+      if (push.lengthSq() > 0.001) {
+        enemy.stagger.copy(push.normalize().multiplyScalar(Math.min(3.2, amount * 0.05)));
+      }
+    }
+
     // Ses copains proches réagissent aussi.
     for (const other of this.list) {
       if (other !== enemy && other.dead <= 0 && other.position.distanceTo(enemy.position) < 28) {
@@ -81,6 +121,8 @@ export class Enemies {
     enemy.dead = 7;
     enemy.mesh.rotation.z = Math.PI / 2 - 0.15;
     enemy.mesh.position.y = 0.35;
+    enemy.bar.visible = false;
+    for (const m of enemy.skinMats) m.emissive.setScalar(0);
     if (this.onKill) this.onKill(enemy);
   }
 
@@ -88,9 +130,37 @@ export class Enemies {
     return this.list.filter((e) => e.dead <= 0);
   }
 
-  update(dt, player, playerPos) {
+  // Flash blanc, recul directionnel et barre de vie : tout ce qui dit au joueur
+  // « tu l'as touché ».
+  updateFeedback(dt, e, camera) {
+    if (e.flash > 0) {
+      e.flash -= dt;
+      const on = e.flash > 0 ? 0.55 : 0;
+      for (const m of e.skinMats) m.emissive.setScalar(on);
+    }
+    if (e.reactCooldown > 0) e.reactCooldown -= dt;
+    if (e.stagger.lengthSq() > 0.0004) {
+      e.position.addScaledVector(e.stagger, dt);
+      this.world.collideCircle(e.position, 0.45);
+      e.stagger.multiplyScalar(Math.exp(-7 * dt));
+    }
+    if (e.barTimer > 0) {
+      e.barTimer -= dt;
+      e.bar.visible = e.barTimer > 0;
+      const ratio = Math.max(0, e.health / 100);
+      e.barFill.scale.x = ratio;
+      e.barFill.position.x = -(1 - ratio) / 2;
+      if (camera) {
+        // Billboard : la barre reste face à la caméra malgré la rotation du corps.
+        e.bar.rotation.y = camera.rotation.y - e.mesh.rotation.y;
+      }
+    }
+  }
+
+  update(dt, player, playerPos, camera) {
     for (let k = this.list.length - 1; k >= 0; k--) {
       const e = this.list[k];
+      if (e.dead <= 0) this.updateFeedback(dt, e, camera);
 
       if (e.dead > 0) {
         e.dead -= dt;
@@ -136,7 +206,7 @@ export class Enemies {
               // Ils ratent souvent de loin : trois tireurs ne doivent pas
               // vider la barre de vie en dix secondes.
               const accuracy = THREE.MathUtils.clamp(1 - (dist - 12) / 34, 0.3, 0.9);
-              if (Math.random() < accuracy) player.damage(3 + Math.random() * 4);
+              if (Math.random() < accuracy) player.damage(3 + Math.random() * 4, e.position);
               if (this.onShoot) this.onShoot(e.position);
             }
           }

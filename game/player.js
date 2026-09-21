@@ -96,11 +96,13 @@ export class Player {
     return new THREE.Vector3(this.pos.x, this.pos.y + 1.7, this.pos.z);
   }
 
-  damage(amount) {
+  // `from` : position du tireur, pour l'indicateur de direction du HUD.
+  damage(amount, from) {
     if (!this.alive) return;
     const toArmor = Math.min(this.armor, amount * 0.6);
     this.armor -= toArmor;
     this.health -= amount - toArmor;
+    if (this.onDamage) this.onDamage(amount, from);
     if (this.health <= 0) {
       this.health = 0;
       this.alive = false;

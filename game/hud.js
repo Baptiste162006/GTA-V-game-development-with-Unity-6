@@ -17,6 +17,8 @@ export class HUD {
       weaponName: document.getElementById('weapon-name'),
       ammo: document.getElementById('ammo'),
       crosshair: document.getElementById('crosshair'),
+      hitmarker: document.getElementById('hitmarker'),
+      damageArc: document.getElementById('damage-arc'),
       speedBox: document.getElementById('speed-box'),
       speed: document.getElementById('speed'),
       gear: document.getElementById('gear'),
@@ -78,6 +80,30 @@ export class HUD {
     this.bigTimer = 2.8;
   }
 
+  // Confirmation de touche : croix brève au centre, plus large et rouge à la tête.
+  hitMarker(critical) {
+    const el = this.el.hitmarker;
+    el.hidden = false;
+    el.classList.toggle('crit', !!critical);
+    el.style.animation = 'none';
+    void el.offsetWidth; // relance l'animation
+    el.style.animation = '';
+    clearTimeout(this.hitTimer);
+    this.hitTimer = setTimeout(() => { el.hidden = true; }, 240);
+  }
+
+  // angle en radians : 0 = le tir vient de devant, positif = de la droite.
+  damageFrom(angle) {
+    const el = this.el.damageArc;
+    el.hidden = false;
+    el.style.transform = `translate(-50%, -50%) rotate(${(angle * 180) / Math.PI - 90}deg)`;
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+    clearTimeout(this.arcTimer);
+    this.arcTimer = setTimeout(() => { el.hidden = true; }, 780);
+  }
+
   setPrompt(text) {
     this.el.prompt.hidden = !text;
     this.el.prompt.textContent = text || '';
@@ -115,7 +141,8 @@ export class HUD {
       this.el.crosshair.hidden = !!vehicle || weapons.spec.melee;
       this.el.crosshair.dataset.aim = weapons.aiming ? 'on' : 'off';
       this.el.weaponName.textContent = weapons.spec.label;
-      this.el.ammo.textContent = weapons.hudAmmo;
+      const empty = !weapons.spec.melee && weapons.magazine === 0 && weapons.reloading <= 0;
+      this.el.ammo.textContent = empty ? 'RECHARGER' : weapons.hudAmmo;
       this.el.ammo.classList.toggle('low', !weapons.spec.melee && weapons.magazine <= 3);
       this.el.ammo.classList.toggle('reloading', weapons.reloading > 0);
     }

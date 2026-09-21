@@ -2,12 +2,14 @@ import * as THREE from 'three';
 
 // Catalogue : ajouter une arme = ajouter une entrée ici, rien d'autre.
 export const WEAPONS = {
-  poings: { label: 'Poings', damage: 12, rpm: 110, mag: 0, reserve: 0, range: 1.8, spread: 0, reload: 0, auto: false, melee: true, price: 0 },
-  pistolet: { label: 'Pistolet 9 mm', damage: 26, rpm: 320, mag: 12, reserve: 60, range: 90, spread: 0.014, reload: 1.5, auto: false, price: 500 },
-  uzi: { label: 'UZI', damage: 17, rpm: 850, mag: 32, reserve: 160, range: 70, spread: 0.045, reload: 2.1, auto: true, price: 1800 },
-  pompe: { label: 'Fusil à pompe', damage: 20, pellets: 8, rpm: 70, mag: 6, reserve: 32, range: 32, spread: 0.075, reload: 2.8, auto: false, price: 1500 },
-  fusil: { label: "Fusil d'assaut", damage: 31, rpm: 620, mag: 30, reserve: 180, range: 140, spread: 0.022, reload: 2.4, auto: true, price: 2200 },
-  sniper: { label: 'Fusil de précision', damage: 115, rpm: 40, mag: 5, reserve: 25, range: 400, spread: 0.002, reload: 3.2, auto: false, scope: true, price: 3000 },
+  // `length` est la longueur du modèle tenu en main, en mètres. Elle n'a rien à
+  // voir avec la portée : un pistolet porte loin mais reste court.
+  poings: { label: 'Poings', damage: 12, rpm: 110, mag: 0, reserve: 0, range: 1.8, spread: 0, reload: 0, auto: false, melee: true, price: 0, length: 0 },
+  pistolet: { label: 'Pistolet 9 mm', damage: 26, rpm: 320, mag: 12, reserve: 60, range: 90, spread: 0.014, reload: 1.5, auto: false, price: 500, length: 0.22 },
+  uzi: { label: 'UZI', damage: 17, rpm: 850, mag: 32, reserve: 160, range: 70, spread: 0.045, reload: 2.1, auto: true, price: 1800, length: 0.3 },
+  pompe: { label: 'Fusil à pompe', damage: 20, pellets: 8, rpm: 70, mag: 6, reserve: 32, range: 32, spread: 0.075, reload: 2.8, auto: false, price: 1500, length: 0.68 },
+  fusil: { label: "Fusil d'assaut", damage: 31, rpm: 620, mag: 30, reserve: 180, range: 140, spread: 0.022, reload: 2.4, auto: true, price: 2200, length: 0.72 },
+  sniper: { label: 'Fusil de précision', damage: 115, rpm: 40, mag: 5, reserve: 25, range: 400, spread: 0.002, reload: 3.2, auto: false, scope: true, price: 3000, length: 0.92 },
 };
 
 const ORDER = ['poings', 'pistolet', 'uzi', 'pompe', 'fusil', 'sniper'];
@@ -20,18 +22,26 @@ function buildWeaponMesh(name) {
   const metal = new THREE.MeshLambertMaterial({ color: 0x23262b });
   const grip = new THREE.MeshLambertMaterial({ color: 0x14161a });
   const spec = WEAPONS[name];
-  const long = spec.range > 60 ? 0.62 : 0.26;
+  const long = spec.length;
+  const thick = long > 0.5 ? 0.055 : 0.042;
 
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.09, long), metal);
-  body.position.z = long * 0.3;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(thick, long > 0.5 ? 0.075 : 0.095, long), metal);
+  body.position.z = long * 0.24;
   g.add(body);
-  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.16, 0.07), grip);
-  handle.position.set(0, -0.11, 0);
+
+  // Crosse pour les armes d'épaule, poignée seule pour les armes de poing.
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(thick, 0.13, 0.06), grip);
+  handle.position.set(0, -0.09, long > 0.5 ? -long * 0.12 : 0);
   g.add(handle);
+  if (long > 0.5) {
+    const stock = new THREE.Mesh(new THREE.BoxGeometry(thick, 0.085, long * 0.3), grip);
+    stock.position.set(0, -0.03, -long * 0.32);
+    g.add(stock);
+  }
   if (spec.scope) {
-    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.2, 8), grip);
+    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.18, 8), grip);
     scope.rotation.x = Math.PI / 2;
-    scope.position.set(0, 0.08, 0.15);
+    scope.position.set(0, 0.07, long * 0.12);
     g.add(scope);
   }
   return g;
@@ -119,13 +129,12 @@ export class WeaponSystem {
     this.held.add(buildWeaponMesh(this.name));
     if (!this.spec.melee) {
       // Éclair de bouche, montré 50 ms à chaque tir.
-      const long = this.spec.range > 60 ? 0.62 : 0.26;
       this.flash = new THREE.Mesh(
-        new THREE.SphereGeometry(0.09, 8, 6),
+        new THREE.SphereGeometry(0.075, 8, 6),
         new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0.85 })
       );
       this.flash.scale.set(1, 0.7, 1.8);
-      this.flash.position.z = long * 0.72;
+      this.flash.position.z = this.spec.length * 0.78;
       this.flash.visible = false;
       this.held.add(this.flash);
     } else {

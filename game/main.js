@@ -105,6 +105,14 @@ class Game {
         GameEvents.emit(EVENTS.NOTIFY, { text: 'Tu as semé la police' });
       }
     };
+    this.player.onDamage = (amount, from) => {
+      if (!from || amount < 1) return;
+      // Angle du tir dans le repère de la caméra : 0 = pile devant.
+      const to = from.clone().sub(this.playerPos());
+      const camYaw = this.camera3p.yaw;
+      this.hud.damageFrom(Math.atan2(to.x, to.z) - camYaw - Math.PI);
+    };
+
     this.police.onBusted = () => this.busted();
     this.police.onShot = () => this.audio.blip(180, 0.06, 'sawtooth', 0.08);
 
@@ -137,8 +145,10 @@ class Game {
     };
     this.weapons.onDry = () => this.audio.blip(140, 0.05, 'square', 0.06);
     this.weapons.onHit = (target, damage, head) => {
-      target.applyDamage(damage);
+      target.applyDamage(damage, this.player.pos);
       this.stats.shotsHit++;
+      this.hud.hitMarker(head);
+      this.audio.blip(head ? 900 : 420, 0.05, 'square', 0.07);
       if (head) GameEvents.emit(EVENTS.NOTIFY, { text: 'Tir à la tête' });
       if (target.kind === 'ped') {
         this.police.addCrime(2, this.playerPos());
@@ -362,7 +372,7 @@ class Game {
 
     this.traffic.update(dt, this.playerPos(), vehicle, this.playerPos());
     this.police.update(dt, this.player);
-    this.enemies.update(dt, this.player, this.playerPos());
+    this.enemies.update(dt, this.player, this.playerPos(), this.camera);
     this.missions.update(dt);
     this.world.update(dt, this.playerPos());
     this.audio.updateSiren(this.police.sirenProximity, performance.now() / 1000);

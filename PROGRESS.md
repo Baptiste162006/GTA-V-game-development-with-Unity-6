@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.4** · Étape en cours : **2 (orage et saisons)**
+Dernière mise à jour : 2026-09-21 · Version : **v0.5** · Étape en cours : **2 (orage et saisons)**
 
 ## ✅ Terminé
 
