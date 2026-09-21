@@ -1,0 +1,84 @@
+# San Felipe City
+
+Prototype de jeu open-world 3D jouable dans le navigateur. Une ville de 0,5 km² en huit quartiers,
+de la circulation, des piétons, un cycle jour/nuit, du vol de voiture et une police à cinq étoiles.
+
+> **Pourquoi pas Unity 6 ?** Le nom du dépôt vient du plan initial. Unity ne peut pas tourner dans
+> l'environnement où ce code a été écrit (pas d'éditeur, pas d'Asset Store, rien de compilable ni de
+> testable). Le choix s'est donc porté sur **Three.js / JavaScript**, qui est l'« Alternative 2 » du
+> plan B : le résultat est **réellement jouable et testé**, tout de suite, sans installation.
+> Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour la correspondance avec les scripts Unity prévus.
+
+## Lancer le jeu
+
+Le jeu a besoin d'un petit serveur HTTP local (les modules ES ne se chargent pas en `file://`) :
+
+```bash
+git clone https://github.com/Baptiste162006/GTA-V-game-development-with-Unity-6.git
+cd GTA-V-game-development-with-unity-6
+npx http-server -p 8080      # ou : python3 -m http.server 8080
+```
+
+Puis ouvre <http://localhost:8080>. Aucune dépendance à installer : Three.js r160 est embarqué
+dans `vendor/`, et il n'y a **aucun asset à télécharger** — ville, personnages, véhicules,
+textures et sons sont tous générés par le code.
+
+## Contrôles
+
+| Touche | Action |
+|---|---|
+| `Z Q S D` / `W A S D` / flèches | Se déplacer (les deux dispositions clavier fonctionnent) |
+| `Maj` | Courir · `Ctrl` : marcher lentement |
+| `Espace` | Sauter (à pied) · frein à main (en voiture) |
+| `F` | Monter dans un véhicule / en sortir |
+| `H` | Klaxon |
+| Souris | Caméra · molette : zoom |
+| `P` ou `Échap` | Pause et statistiques |
+| `²` ou `` ` `` | Console de triche |
+
+Liste complète : [CONTROLS.md](CONTROLS.md).
+
+## Ce qui est jouable aujourd'hui
+
+- **Ville** — 8 quartiers (Downtown, Little Tokyo, Vinewood Hills, Zone Industrielle, Beachside,
+  Vieille Ville), ~100 immeubles, trottoirs, parcs, lampadaires, marquage au sol.
+- **Cycle jour/nuit** — 24 h en 12 min : ciel dégradé, étoiles, fenêtres qui s'allument,
+  halos de lampadaires, phares automatiques.
+- **À pied** — marche, course, marche lente, saut, animation procédurale, caméra 3e personne
+  qui évite les murs.
+- **Véhicules** — 6 types (citadine, berline, sportive, taxi, camionnette, police), physique
+  arcade, frein à main, dégâts de carrosserie, roulis en virage, compteur et rapport de boîte.
+- **Vol de voiture** — voitures garées et carjacking d'un véhicule occupé (le conducteur est
+  éjecté, la police est prévenue).
+- **Circulation et piétons** — 14 voitures qui suivent la trame des rues, s'arrêtent derrière
+  celles qui les précèdent et tournent aux carrefours ; 18 piétons qui marchent, paniquent et
+  se font renverser.
+- **Police** — 5 niveaux de recherche, voitures qui poursuivent et évitent les immeubles, agents
+  qui descendent de voiture et arrêtent le joueur, tirs à partir de 3 étoiles, zone de recherche
+  à quitter pour les semer.
+- **Missions** — tutoriel en 4 étapes, puis jobs répétables (livraison chronométrée, commande de
+  véhicule pour le garage) avec récompenses.
+- **Économie** — argent, primes de mission, frais d'hôpital (-500 $) et amende d'arrestation (-250 $).
+- **HUD** — mini-carte avec îlots, trafic, police et zone de recherche ; vie, armure, argent,
+  étoiles, heure, quartier, objectif, notifications.
+- **Son** — moteur, sirène, klaxon, chocs et jingles entièrement synthétisés (WebAudio), aucun fichier.
+- **Console de triche** — `god`, `money`, `stars`, `spawn`, `tp`, `time`, `heal`, `noclip`, `fps`…
+- **Sauvegarde** — argent, statistiques et heure conservés dans le navigateur.
+
+## Ce qui n'est pas là
+
+Pas d'armes ni de combat à pied, pas de moto/avion/bateau, pas d'intérieurs, pas de météo
+(pluie/neige/brouillard), pas de saisons, pas de téléphone, pas de personnages multiples,
+pas de customisation de véhicule, pas de missions scénarisées.
+Le détail de la suite est dans [MILESTONES.md](MILESTONES.md), l'état exact dans [PROGRESS.md](PROGRESS.md).
+
+## Performance
+
+Testé automatiquement dans Chromium (Playwright) : ~380 draw calls, ~48 000 triangles.
+Le test tourne en rendu **logiciel** (SwiftShader, sans GPU) et plafonne donc à 20 FPS ;
+sur une vraie carte graphique le budget est très largement tenu pour 60 FPS.
+
+## Licence
+
+Code du jeu : libre d'usage. Three.js r160 (`vendor/`) est sous licence MIT — voir
+`vendor/THREE-LICENSE.txt`.

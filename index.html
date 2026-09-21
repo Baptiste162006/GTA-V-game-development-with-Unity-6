@@ -1,0 +1,296 @@
+<title>San Felipe City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
+
+<style>
+  /* Le jeu assume un seul parti pris visuel : une console de bord nocturne. */
+  :root {
+    --ground: #101318;
+    --panel: rgba(20, 24, 31, 0.78);
+    --panel-solid: #161a21;
+    --edge: rgba(236, 230, 218, 0.14);
+    --ink: #ece6da;
+    --ink-dim: #9aa1ab;
+    --accent: #ff6b3d;
+    --money: #86d98a;
+    --police: #5aa2ff;
+    --gold: #ffcf5c;
+    --danger: #ff4b3a;
+    --display: 'Archivo Black', 'Arial Black', system-ui, sans-serif;
+    --ui: 'Barlow Condensed', 'Helvetica Neue', system-ui, sans-serif;
+  }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--ui);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Doit battre les `display` posés par les classes ci-dessous. */
+  [hidden] { display: none !important; }
+
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; }
+
+  /* --- HUD --- */
+  #hud { position: fixed; inset: 0; pointer-events: none; font-size: 16px; }
+
+  .corner { position: absolute; display: flex; flex-direction: column; gap: 8px; }
+  .tl { top: calc(14px + env(safe-area-inset-top, 0px)); left: 16px; max-width: min(46vw, 380px); }
+  .tc { top: calc(14px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); align-items: center; }
+  .tr { top: calc(14px + env(safe-area-inset-top, 0px)); right: 16px; align-items: flex-end; }
+  .bl { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; }
+  .bc { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); align-items: center; }
+  .br { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px; }
+
+  .plate {
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 3px;
+    padding: 6px 10px;
+    backdrop-filter: blur(6px);
+  }
+
+  #objective { max-width: 100%; border-left: 3px solid var(--accent); }
+  #objective-label {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+  }
+  #objective-text { font-size: 18px; line-height: 1.15; font-weight: 500; }
+  #objective-timer {
+    font-size: 22px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums;
+  }
+
+  #clock { font-size: 26px; font-weight: 700; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; line-height: 1; }
+  #district { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-dim); text-align: center; }
+
+  #money { font-size: 30px; font-weight: 700; color: var(--money); line-height: 1; font-variant-numeric: tabular-nums; }
+  #money.flash { animation: pop 0.45s ease-out; }
+  @keyframes pop { from { transform: scale(1.22); filter: brightness(1.7); } to { transform: none; } }
+  #stars { display: flex; gap: 2px; font-size: 20px; line-height: 1; }
+  .star { color: rgba(236, 230, 218, 0.22); }
+  .star.on { color: var(--gold); text-shadow: 0 0 10px rgba(255, 207, 92, 0.55); }
+
+  .bar { width: 190px; height: 9px; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--edge); }
+  .bar > i { display: block; height: 100%; transition: width 0.18s linear; }
+  #health-fill { background: linear-gradient(90deg, #d8483a, #7bd07f); }
+  #armor-fill { background: linear-gradient(90deg, #3d6ea8, #7fb6f0); }
+  .bar-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
+
+  #speed-box { display: flex; align-items: baseline; gap: 8px; }
+  #speed { font-size: 40px; font-weight: 700; line-height: 0.9; font-variant-numeric: tabular-nums; }
+  #speed-unit { font-size: 12px; letter-spacing: 0.16em; color: var(--ink-dim); }
+  #gear { font-size: 20px; font-weight: 700; color: var(--accent); }
+
+  #prompt { font-size: 15px; letter-spacing: 0.04em; }
+  #prompt b { color: var(--accent); }
+
+  #minimap {
+    width: 190px; height: 190px; border-radius: 50%;
+    border: 2px solid rgba(236, 230, 218, 0.22);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+  }
+
+  #notifications {
+    position: absolute; top: 22%; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px; width: min(92vw, 520px);
+  }
+  .notif {
+    background: var(--panel); border: 1px solid var(--edge); border-left: 3px solid var(--accent);
+    padding: 6px 14px; font-size: 16px; opacity: 1; transition: opacity 0.6s, transform 0.6s;
+  }
+  .notif.out { opacity: 0; transform: translateY(-10px); }
+
+  #big-message {
+    position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 6px;
+  }
+  #big-title { font-family: var(--display); font-size: clamp(34px, 8vw, 78px); letter-spacing: 0.02em; }
+  #big-sub { font-size: clamp(16px, 3vw, 24px); color: var(--ink-dim); letter-spacing: 0.1em; }
+  #big-message[data-tone='good'] #big-title { color: var(--money); }
+  #big-message[data-tone='bad'] #big-title { color: var(--danger); }
+  #big-message[data-tone='warn'] #big-title { color: var(--gold); }
+
+  #damage-vignette {
+    position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s;
+    background: radial-gradient(ellipse at center, transparent 42%, rgba(150, 12, 8, 0.85) 100%);
+  }
+
+  #fps {
+    position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); left: 50%;
+    transform: translate(120px, 0); font-size: 13px; color: var(--ink-dim);
+  }
+
+  /* --- écrans --- */
+  .screen {
+    position: fixed; inset: 0; z-index: 10; overflow-y: auto;
+    display: grid; place-items: center;
+    padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255, 107, 61, 0.22), transparent 60%),
+      linear-gradient(180deg, #1b1f28 0%, #0d1014 100%);
+  }
+  .sheet { width: min(760px, 100%); }
+  .eyebrow { font-size: 12px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--accent); }
+  h1 {
+    font-family: var(--display); font-size: clamp(38px, 9vw, 86px); line-height: 0.92;
+    margin: 6px 0 4px; text-wrap: balance;
+  }
+  .tagline { font-size: clamp(15px, 2.4vw, 19px); color: var(--ink-dim); max-width: 60ch; margin: 0 0 22px; }
+
+  .keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 4px 26px; margin-bottom: 24px; }
+  .keys div { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--edge); font-size: 15px; }
+  .keys span { color: var(--ink-dim); }
+  kbd {
+    font-family: var(--ui); font-size: 14px; font-weight: 600; background: rgba(236, 230, 218, 0.1);
+    border: 1px solid var(--edge); border-radius: 3px; padding: 1px 6px; white-space: nowrap;
+  }
+
+  button {
+    font-family: var(--display); font-size: 19px; letter-spacing: 0.04em;
+    background: var(--accent); color: #12141a; border: 0; border-radius: 3px;
+    padding: 14px 30px; cursor: pointer; transition: transform 0.12s, filter 0.12s;
+  }
+  button:hover { filter: brightness(1.12); }
+  button:active { transform: translateY(1px); }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--edge); }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .note { font-size: 14px; color: var(--ink-dim); margin-top: 18px; }
+  label.check { display: flex; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
+
+  #stat-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2px 26px; margin: 18px 0 22px; }
+  .stat { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--edge); font-size: 15px; }
+  .stat span { color: var(--ink-dim); }
+  .stat b { font-variant-numeric: tabular-nums; }
+
+  /* --- console de debug --- */
+  #console {
+    position: fixed; z-index: 20; top: 0; left: 0; right: 0;
+    background: rgba(9, 11, 15, 0.94); border-bottom: 1px solid var(--edge);
+    padding: 10px 16px calc(10px + env(safe-area-inset-top, 0px));
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 13px;
+  }
+  #console-log { max-height: 34vh; overflow-y: auto; color: var(--ink-dim); white-space: pre-wrap; }
+  #console-input {
+    width: 100%; margin-top: 8px; background: #0d1014; color: var(--money);
+    border: 1px solid var(--edge); border-radius: 3px; padding: 7px 10px;
+    font-family: inherit; font-size: 14px;
+  }
+  #console-input:focus-visible { outline: 1px solid var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  @media (max-width: 560px) {
+    #minimap { width: 128px; height: 128px; }
+    .bar { width: 140px; }
+    #speed { font-size: 30px; }
+    .tl { max-width: 60vw; }
+  }
+</style>
+
+<div id="stage"></div>
+
+<div id="hud">
+  <div class="corner tl">
+    <div id="objective" class="plate" hidden>
+      <div id="objective-label">Objectif</div>
+      <div id="objective-text"></div>
+      <div id="objective-timer" hidden></div>
+    </div>
+  </div>
+
+  <div class="corner tc">
+    <div class="plate" style="text-align:center">
+      <div id="clock">08:30</div>
+      <div id="district">San Felipe</div>
+    </div>
+  </div>
+
+  <div class="corner tr">
+    <div class="plate"><div id="money">$ 0</div></div>
+    <div id="stars"></div>
+  </div>
+
+  <div class="corner bl">
+    <div class="bar-label">Vie</div>
+    <div class="bar"><i id="health-fill" style="width:100%"></i></div>
+    <div class="bar-label">Armure</div>
+    <div class="bar"><i id="armor-fill" style="width:0%"></i></div>
+  </div>
+
+  <div class="corner bc">
+    <div id="prompt" class="plate" hidden></div>
+    <div id="speed-box" class="plate" hidden>
+      <span id="speed">0</span><span id="speed-unit">KM/H</span><span id="gear">1</span>
+    </div>
+  </div>
+
+  <div class="corner br"><canvas id="minimap" width="190" height="190"></canvas></div>
+
+  <div id="notifications"></div>
+  <div id="big-message" hidden><div id="big-title"></div><div id="big-sub"></div></div>
+  <div id="damage-vignette"></div>
+  <div id="fps" hidden></div>
+</div>
+
+<div id="start-screen" class="screen">
+  <div class="sheet">
+    <p class="eyebrow">Prototype jouable · v0.1</p>
+    <h1>San Felipe City</h1>
+    <p class="tagline">
+      Une ville de 0,5 km² en huit quartiers, ouverte et sans temps de chargement : circulation,
+      piétons, cycle jour/nuit de 12 minutes, vol de voitures et police à cinq étoiles.
+      Commence par le tutoriel, puis enchaîne les jobs.
+    </p>
+
+    <div class="keys">
+      <div><span>Se déplacer</span><b><kbd>Z Q S D</kbd> / <kbd>W A S D</kbd></b></div>
+      <div><span>Courir · marcher</span><b><kbd>Maj</kbd> · <kbd>Ctrl</kbd></b></div>
+      <div><span>Sauter · frein à main</span><b><kbd>Espace</kbd></b></div>
+      <div><span>Monter / sortir</span><b><kbd>F</kbd></b></div>
+      <div><span>Klaxon</span><b><kbd>H</kbd></b></div>
+      <div><span>Caméra · zoom</span><b>Souris · molette</b></div>
+      <div><span>Pause et stats</span><b><kbd>P</kbd> / <kbd>Échap</kbd></b></div>
+      <div><span>Console de triche</span><b><kbd>²</kbd> ou <kbd>`</kbd></b></div>
+    </div>
+
+    <div class="row">
+      <button id="start-button">Jouer</button>
+      <label class="check"><input type="checkbox" id="mute-toggle" checked> Son</label>
+    </div>
+    <p class="note">
+      Clavier et souris requis. Le jeu capture le curseur : <kbd>Échap</kbd> le rend et met en pause.
+    </p>
+  </div>
+</div>
+
+<div id="pause-screen" class="screen" hidden>
+  <div class="sheet">
+    <p class="eyebrow">Pause</p>
+    <h1>Statistiques</h1>
+    <div id="stat-list"></div>
+    <div class="row">
+      <button id="resume-button">Reprendre</button>
+      <button id="restart-button" class="ghost">Recommencer</button>
+    </div>
+    <p class="note">La progression (argent, stats, heure) est sauvegardée dans ce navigateur.</p>
+  </div>
+</div>
+
+<div id="console" hidden>
+  <div id="console-log"></div>
+  <input id="console-input" type="text" placeholder="help" autocomplete="off" spellcheck="false">
+</div>
+
+<!-- Three.js r160 embarqué dans le dépôt : le jeu tourne hors ligne, sans CDN. -->
+<script type="importmap">
+  { "imports": { "three": "./vendor/three.module.js" } }
+</script>
+<script type="module" src="game/main.js"></script>
