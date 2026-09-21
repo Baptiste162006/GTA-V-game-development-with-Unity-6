@@ -90,6 +90,7 @@ export class Player {
     this.money = 250;
     this.inVehicle = null;
     this.alive = true;
+    this.invulnerable = 0;
   }
 
   get headPos() {
@@ -97,12 +98,12 @@ export class Player {
   }
 
   // `from` : position du tireur, pour l'indicateur de direction du HUD.
-  damage(amount, from) {
-    if (!this.alive) return;
+  damage(amount, from, cause) {
+    if (!this.alive || this.invulnerable > 0) return;
     const toArmor = Math.min(this.armor, amount * 0.6);
     this.armor -= toArmor;
     this.health -= amount - toArmor;
-    if (this.onDamage) this.onDamage(amount, from);
+    if (this.onDamage) this.onDamage(amount, from, cause);
     if (this.health <= 0) {
       this.health = 0;
       this.alive = false;

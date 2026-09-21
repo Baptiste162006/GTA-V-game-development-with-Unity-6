@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v0.7 — 2026-09-21
+
+### Ajouté — mort et arrestation
+- **Séquence de mort lisible** : le personnage s'effondre, le jeu se fige, et un écran
+  annonce ce qui s'est passé — cause réelle (gang, police, accident de voiture), frais,
+  argent restant et lieu de réapparition.
+- Bouton « Réapparaître » déverrouillé après 1,6 s, réapparition automatique à 4,5 s.
+- **Invulnérabilité de 3 secondes** au retour, avec un halo bleuté qui pulse : on ne remeurt
+  plus à peine relevé.
+- **Arrestation** distincte de la mort : mêmes mécaniques, texte et amende propres (250 $
+  contre 500 $ à l'hôpital).
+- Les commandes sont réellement coupées pendant la séquence, et `die()` est idempotent :
+  une seconde mort pendant la chute ne relance rien.
+
+### Corrigé
+- **L'écran de mort mettait le jeu en pause.** Il relâche le curseur pour afficher son
+  interface, ce que le jeu interprétait comme un appui sur Échap : le compte à rebours se
+  figeait et le menu pause se superposait à l'écran de mort. La pause ne se déclenche plus
+  que si le curseur était réellement capturé et qu'aucune séquence n'est en cours.
+
 ## v0.6 — 2026-09-21
 
 ### Ajouté — sensation de conduite

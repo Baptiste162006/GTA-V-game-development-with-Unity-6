@@ -213,6 +213,21 @@
   .note { font-size: 14px; color: var(--ink-dim); margin-top: 18px; }
   label.check { display: flex; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
 
+  #death-screen { background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255, 75, 58, 0.26), transparent 60%),
+      linear-gradient(180deg, #24161a 0%, #0b0d10 100%); }
+  #death-title { color: var(--danger); }
+  #death-list { display: grid; gap: 2px; max-width: 360px; margin: 0 auto 24px; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Clignotement discret pendant l'invulnérabilité qui suit un respawn. */
+  #invuln {
+    position: absolute; inset: 0; pointer-events: none;
+    box-shadow: inset 0 0 90px rgba(122, 200, 255, 0.35);
+    animation: pulse 0.9s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
   #stat-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2px 26px; margin: 18px 0 22px; }
   .stat { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--edge); font-size: 15px; }
   .stat span { color: var(--ink-dim); }
@@ -295,6 +310,7 @@
   <div id="notifications"></div>
   <div id="big-message" hidden><div id="big-title"></div><div id="big-sub"></div></div>
   <div id="damage-vignette"></div>
+  <div id="invuln" hidden></div>
   <div id="fps" hidden></div>
 </div>
 
@@ -326,6 +342,18 @@
     <p class="note">
       Clavier et souris requis. Le jeu capture le curseur : <kbd>Échap</kbd> le rend et met en pause.
     </p>
+  </div>
+</div>
+
+<div id="death-screen" class="screen" hidden>
+  <div class="sheet" style="text-align:center">
+    <p class="eyebrow" id="death-eyebrow">Conséquence</p>
+    <h1 id="death-title">Vous êtes inconscient</h1>
+    <p class="tagline" id="death-cause" style="margin-inline:auto"></p>
+    <div id="death-list"></div>
+    <div class="row" style="justify-content:center">
+      <button id="respawn-button" disabled>Réapparaître</button>
+    </div>
   </div>
 </div>
 

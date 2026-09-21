@@ -206,7 +206,7 @@ export class Enemies {
               // Ils ratent souvent de loin : trois tireurs ne doivent pas
               // vider la barre de vie en dix secondes.
               const accuracy = THREE.MathUtils.clamp(1 - (dist - 12) / 34, 0.3, 0.9);
-              if (Math.random() < accuracy) player.damage(3 + Math.random() * 4, e.position);
+              if (Math.random() < accuracy) player.damage(3 + Math.random() * 4, e.position, 'Un gang a eu ta peau.');
               if (this.onShoot) this.onShoot(e.position);
             }
           }

@@ -164,7 +164,7 @@ export class Police {
         unit.shootCooldown -= dt;
         if (unit.shootCooldown <= 0) {
           unit.shootCooldown = 0.9 + Math.random() * 0.8;
-          player.damage(2.5 + this.wanted, v.pos);
+          player.damage(2.5 + this.wanted, v.pos, 'La police a ouvert le feu.');
           if (this.onShot) this.onShot(v.pos);
         }
       }
@@ -241,7 +241,7 @@ export class Police {
         off.shootCooldown -= dt;
         if (off.shootCooldown <= 0) {
           off.shootCooldown = 1.1 + Math.random();
-          player.damage(3 + this.wanted * 0.8, off.mesh.position);
+          player.damage(3 + this.wanted * 0.8, off.mesh.position, 'La police a ouvert le feu.');
           if (this.onShot) this.onShot(off.mesh.position);
         }
       }

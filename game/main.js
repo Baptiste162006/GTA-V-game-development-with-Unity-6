@@ -107,7 +107,8 @@ class Game {
         GameEvents.emit(EVENTS.NOTIFY, { text: 'Tu as semé la police' });
       }
     };
-    this.player.onDamage = (amount, from) => {
+    this.player.onDamage = (amount, from, cause) => {
+      if (cause) this.lastCause = cause;
       if (!from || amount < 1) return;
       // Angle du tir dans le repère de la caméra : 0 = pile devant.
       const to = from.clone().sub(this.playerPos());
@@ -169,11 +170,18 @@ class Game {
     document.getElementById('start-button').addEventListener('click', () => this.startGame());
     document.getElementById('resume-button').addEventListener('click', () => this.resume());
     document.getElementById('restart-button').addEventListener('click', () => location.reload());
+    document.getElementById('respawn-button').addEventListener('click', () => this.respawn());
     const mute = document.getElementById('mute-toggle');
     mute.addEventListener('change', () => this.audio.setMuted(!mute.checked));
 
+    // On ne met en pause que si le curseur était vraiment capturé : une demande
+    // de capture refusée (fenêtre sans focus, respawn) ne doit pas figer le jeu.
     document.addEventListener('pointerlockchange', () => {
-      if (!this.input.locked && this.state === 'playing') this.pause();
+      const locked = this.input.locked;
+      // Pendant la séquence de mort on relâche le curseur volontairement :
+      // ce n'est pas une demande de pause.
+      if (!locked && this.hadLock && this.state === 'playing' && !this.down) this.pause();
+      this.hadLock = locked;
     });
   }
 
@@ -262,35 +270,91 @@ class Game {
     GameEvents.emit(EVENTS.EXIT_VEHICLE, v);
   }
 
+  // Mort et arrestation partagent la même séquence : on fige le jeu, on
+  // explique ce qui s'est passé, puis on réapparaît. `this.down` garantit
+  // qu'elle ne se déclenche jamais deux fois.
   busted() {
-    if (this.state !== 'playing' || this.godMode) return;
+    if (this.state !== 'playing' || this.godMode || this.down) return;
     this.stats.busted++;
-    this.player.money = Math.max(0, this.player.money - 250);
-    GameEvents.emit(EVENTS.MONEY, this.player.money);
-    GameEvents.emit(EVENTS.BIG_MESSAGE, { title: 'ARRÊTÉ', sub: '- 250 $', tone: 'bad' });
-    this.audio.fail();
-    if (this.missions.active) this.missions.fail('Tu as été arrêté');
-    this.respawnAt(STATION);
+    this.beginDown({
+      eyebrow: 'Interpellation',
+      title: 'Arrêté',
+      cause: 'La police t’a mis la main dessus.',
+      fee: 250,
+      point: STATION,
+      failText: 'Tu as été arrêté',
+    });
   }
 
-  wasted() {
+  wasted(cause = 'Tu as été abattu.') {
+    if (this.down || this.godMode) return;
     this.stats.wasted++;
-    this.player.money = Math.max(0, this.player.money - 500);
-    GameEvents.emit(EVENTS.MONEY, this.player.money);
-    GameEvents.emit(EVENTS.BIG_MESSAGE, { title: 'MORT', sub: '- 500 $ de frais d’hôpital', tone: 'bad' });
-    this.audio.fail();
-    if (this.missions.active) this.missions.fail('Tu es mort');
-    this.respawnAt(HOSPITAL);
+    this.beginDown({
+      eyebrow: 'Conséquence',
+      title: 'Vous êtes inconscient',
+      cause,
+      fee: 500,
+      point: HOSPITAL,
+      failText: 'Tu es mort',
+    });
   }
 
-  respawnAt(point) {
+  beginDown({ eyebrow, title, cause, fee, point, failText }) {
+    this.down = { point, timer: 0 };
+    this.player.money = Math.max(0, this.player.money - fee);
+    GameEvents.emit(EVENTS.MONEY, this.player.money);
+    this.audio.fail();
+    this.audio.updateEngine(false, 0, 0);
+    if (this.missions.active) this.missions.fail(failText);
+
+    // Le personnage s'effondre sur place.
+    this.player.setVisible(true);
+    this.player.mesh.rotation.z = Math.PI / 2 - 0.15;
+    this.player.mesh.position.y = 0.35;
+
+    document.getElementById('death-eyebrow').textContent = eyebrow;
+    document.getElementById('death-title').textContent = title;
+    document.getElementById('death-cause').textContent = cause;
+    document.getElementById('death-list').innerHTML = [
+      ['Frais', `- ${fee} $`],
+      ['Argent restant', `${this.player.money.toLocaleString('fr-FR')} $`],
+      ['Réapparition', point === STATION ? 'Commissariat' : 'Hôpital'],
+    ]
+      .map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`)
+      .join('');
+
+    document.getElementById('respawn-button').disabled = true;
+    document.getElementById('death-screen').hidden = false;
+    this.input.release();
+    this.save();
+  }
+
+  updateDown(dt) {
+    this.down.timer += dt;
+    const button = document.getElementById('respawn-button');
+    if (this.down.timer > 1.6 && button.disabled) button.disabled = false;
+    if (this.down.timer > 4.5) this.respawn();
+  }
+
+  respawn() {
+    if (!this.down) return;
+    const point = this.down.point;
+    this.down = null;
+    document.getElementById('death-screen').hidden = true;
+
     this.exitVehicle();
     this.police.clear();
+    this.player.mesh.rotation.z = 0;
+    this.player.mesh.position.y = 0;
     this.player.pos.copy(point);
     this.player.health = 100;
     this.player.armor = 0;
     this.player.alive = true;
     this.player.vy = 0;
+    // Trois secondes d'invulnérabilité : on ne remeurt pas à peine relevé.
+    this.player.invulnerable = 3;
+    document.getElementById('invuln').hidden = false;
+    this.renderer.domElement.requestPointerLock();
     this.save();
   }
 
@@ -330,6 +394,18 @@ class Game {
       return;
     }
     if (this.state !== 'playing') return;
+
+    if (this.down) {
+      this.updateDown(dt);
+      this.camera3p.update(dt, this.player.pos, 1.2);
+      this.world.update(dt, this.playerPos());
+      return; // plus aucune commande pendant la séquence
+    }
+
+    if (this.player.invulnerable > 0) {
+      this.player.invulnerable -= dt;
+      if (this.player.invulnerable <= 0) document.getElementById('invuln').hidden = true;
+    }
 
     this.stats.timePlayed += dt;
     this.camera3p.handleMouse(input.mouse);
@@ -390,7 +466,7 @@ class Game {
     if (!this.police.searching && this.player.health < 100) this.player.heal(dt * 1.6);
     if (!this.player.alive) {
       this.player.alive = true;
-      this.wasted();
+      this.wasted(this.lastCause || 'Tu as été abattu.');
     }
 
     this.updatePrompt();
