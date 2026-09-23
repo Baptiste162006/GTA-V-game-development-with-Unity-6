@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.11 — 2026-09-23
+
+### Ajouté — identité visuelle « Nocturne urbain »
+- **Toutes les couleurs dans un seul fichier** (`game/uiTheme.js`). Le CSS les
+  lit par variables, le canvas de la carte par une fonction : une seule table à
+  changer pour repeindre le jeu. Plus aucune couleur écrite en dur ailleurs.
+- **Trois thèmes** : Nocturne urbain (défaut), Contraste élevé, Daltonisme.
+  Changeables dans Options → Interface, conservés d'une partie à l'autre.
+- Palette : fond bleu nuit, panneaux anthracite bleuté, **corail** en accent,
+  **bleu électrique** en secondaire, **or doux pour l'argent** (il était vert
+  vif), **cyan pour les objectifs**, bleu glacier pour l'armure.
+- **Taille du HUD** (75 à 150 %) et **opacité** (40 à 100 %) réglables. Mesuré :
+  la mini-carte passe de 145 à 291 px entre les deux extrêmes.
+
+### Accessibilité — une couleur ne dit jamais rien toute seule
+- **Vie** : icône cœur, **valeur chiffrée**, segments visibles, et couleur par
+  palier — menthe au-dessus de 55 %, ambre au-dessus de 25 %, corail en
+  dessous. Plus de dégradé rouge/vert, l'opposition la moins lisible pour un
+  daltonien.
+- **Armure** : icône losange, valeur chiffrée, segments, bleu glacier.
+- **Marqueurs de carte** : chaque catégorie a sa forme — flèche pour le joueur,
+  **hexagone cerclé** pour l'objectif, **losange** pour la police.
+- **Munitions faibles** : pictogramme d'alerte en plus de la couleur.
+- **Étoiles de recherche** : texte clair avec halo, plutôt qu'un simple jaune.
+- Vérifié à 1280×720 et 1920×1080, de jour, de nuit, sous orage et sous neige.
+
+### Corrigé
+- L'icône d'armure tombait sur un caractère de repli qui ressemblait à celle de
+  la vie : les deux jauges se confondaient.
+- Une variable locale `color` masquait la fonction de thème du même nom dans le
+  dessin de la mini-carte.
+
 ## v0.10 — 2026-09-23
 
 ### Ajouté — orage, saisons et neige

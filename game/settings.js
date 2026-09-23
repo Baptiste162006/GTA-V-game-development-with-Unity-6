@@ -1,8 +1,14 @@
+import { applyTheme } from './uiTheme.js';
+
 const KEY = 'san-felipe-settings-v1';
 
 // Chaque réglage déclare ses bornes et la façon de l'appliquer au jeu : le menu
 // se construit tout seul à partir de cette table.
 export const DEFINITIONS = {
+  theme: { label: 'Thème', group: 'Interface', type: 'choice', options: ['nocturne', 'contraste', 'daltonisme'], def: 'nocturne' },
+  hudScale: { label: 'Taille du HUD', group: 'Interface', type: 'range', min: 75, max: 150, step: 25, unit: '%', def: 100 },
+  hudOpacity: { label: 'Opacité du HUD', group: 'Interface', type: 'range', min: 40, max: 100, step: 10, unit: '%', def: 100 },
+
   quality: { label: 'Qualité', group: 'Affichage', type: 'choice', options: ['faible', 'moyen', 'eleve', 'auto'], def: 'eleve' },
   renderScale: { label: 'Résolution de rendu', group: 'Affichage', type: 'range', min: 60, max: 100, step: 5, unit: '%', def: 100 },
   shadows: { label: 'Ombres', group: 'Affichage', type: 'toggle', def: true },
@@ -68,6 +74,15 @@ export class Settings {
   // Applique tout au jeu. Appelé au démarrage et à chaque changement.
   apply(game) {
     const v = this.values;
+
+    applyTheme(v.theme);
+    // `zoom` plutôt que `font-size` : les tailles du HUD sont en pixels, donc
+    // agrandir la police seule ne redimensionnerait ni les jauges ni la carte.
+    const hud = document.getElementById('hud');
+    if (hud) {
+      hud.style.zoom = v.hudScale / 100;
+      hud.style.opacity = v.hudOpacity / 100;
+    }
 
     // Le champ de vision est recalculé chaque image selon le contexte (à pied,
     // véhicule, visée, lunette) : rien à poser ici, sinon la distance et la

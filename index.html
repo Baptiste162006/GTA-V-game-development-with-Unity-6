@@ -4,19 +4,33 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
 
 <style>
-  /* Le jeu assume un seul parti pris visuel : une console de bord nocturne. */
+  /* Identité « Nocturne urbain » : bleu nuit, corail, bleu électrique.
+     Ces valeurs sont les défauts de secours — `game/uiTheme.js` les réécrit au
+     démarrage et permet d'en changer (contraste élevé, daltonisme). Aucune
+     couleur ne doit être écrite en dur ailleurs. */
   :root {
-    --ground: #101318;
-    --panel: rgba(20, 24, 31, 0.78);
-    --panel-solid: #161a21;
-    --edge: rgba(236, 230, 218, 0.14);
-    --ink: #ece6da;
-    --ink-dim: #9aa1ab;
-    --accent: #ff6b3d;
-    --money: #86d98a;
-    --police: #5aa2ff;
-    --gold: #ffcf5c;
-    --danger: #ff4b3a;
+    --ground: #0B1020;
+    --panel: rgba(16, 22, 38, 0.82);
+    --panel-hover: rgba(27, 38, 62, 0.94);
+    --panel-solid: #101626;
+    --edge: #334155;
+    --edge-active: #FF6B4A;
+    --ink: #F5F1E8;
+    --ink-dim: #A8B3C7;
+    --ink-off: #68738A;
+    --accent: #FF6B4A;
+    --accent-hover: #FF9A62;
+    --accent-2: #4DA3FF;
+    --health-high: #55D6A5;
+    --health-mid: #F6C453;
+    --health-low: #EF5B5B;
+    --armor: #71B7FF;
+    --money: #E8C66A;
+    --danger: #FF5C70;
+    --objective: #55C7E8;
+    --success: #B18CFF;
+    --gold: #E8C66A;
+    --police: #4DA3FF;
     --display: 'Archivo Black', 'Arial Black', system-ui, sans-serif;
     --ui: 'Barlow Condensed', 'Helvetica Neue', system-ui, sans-serif;
   }
@@ -56,7 +70,8 @@
     backdrop-filter: blur(6px);
   }
 
-  #objective { max-width: 100%; border-left: 3px solid var(--accent); }
+  #objective { max-width: 100%; border-left: 3px solid var(--objective); }
+  #objective-label::before { content: '\25C7 '; color: var(--objective); }
   #objective-label {
     font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
   }
@@ -73,14 +88,28 @@
   #money.flash { animation: pop 0.45s ease-out; }
   @keyframes pop { from { transform: scale(1.22); filter: brightness(1.7); } to { transform: none; } }
   #stars { display: flex; gap: 2px; font-size: 20px; line-height: 1; }
-  .star { color: rgba(236, 230, 218, 0.22); }
-  .star.on { color: var(--gold); text-shadow: 0 0 10px rgba(255, 207, 92, 0.55); }
+  .star { color: var(--ink-off); opacity: 0.45; }
+  .star.on { color: var(--ink); text-shadow: 0 0 9px var(--danger), 0 0 2px var(--danger); }
 
   .bar { width: 190px; height: 9px; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--edge); }
   .bar > i { display: block; height: 100%; transition: width 0.18s linear; }
-  #health-fill { background: linear-gradient(90deg, #d8483a, #7bd07f); }
-  #armor-fill { background: linear-gradient(90deg, #3d6ea8, #7fb6f0); }
-  .bar-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
+  /* Palier de couleur posé par le HUD, jamais un dégradé rouge/vert : cette
+     opposition est la moins lisible pour un daltonien. La valeur chiffrée et
+     l'icône disent la même chose que la teinte. */
+  #health-fill { background: var(--health-high); }
+  #armor-fill { background: var(--armor); }
+  /* Segments : un repère de forme, lisible même sans distinguer les teintes. */
+  .bar { position: relative; }
+  .bar::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(90deg, transparent 0 17px, rgba(11, 16, 32, 0.55) 17px 19px);
+  }
+  .bar-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim);
+    display: flex; justify-content: space-between; gap: 8px;
+  }
+  .bar-label b { color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+  .bar-label.low { color: var(--health-low); }
 
   #speed-box { display: flex; align-items: baseline; gap: 8px; }
   #speed { font-size: 40px; font-weight: 700; line-height: 0.9; font-variant-numeric: tabular-nums; }
@@ -91,6 +120,8 @@
   #weapon-name { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-dim); }
   #ammo { font-size: 26px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
   #ammo.low { color: var(--danger); animation: blink 0.7s steps(2, end) infinite; }
+  /* Un signe, pas seulement une teinte. */
+  #ammo.low::before { content: '\26A0 '; }
   #ammo.reloading { color: var(--gold); }
   @keyframes blink { 50% { opacity: 0.35; } }
 
@@ -263,7 +294,7 @@
     border: 0; border-left: 3px solid transparent; border-radius: 0;
     padding: 9px 12px; cursor: pointer; transition: color 0.12s, border-color 0.12s, transform 0.12s;
   }
-  .nav-item:hover { color: var(--ink); filter: none; }
+  .nav-item:hover { color: var(--ink); background: var(--panel-hover); filter: none; }
   /* Pas de `transform` ici : décaler l'entrée surlignée la faisait glisser sous
      le curseur, ce qui relançait un `mouseenter` sur la voisine — le menu
      oscillait entre deux entrées dès qu'on bougeait la souris. On décale le
@@ -346,9 +377,9 @@
   </div>
 
   <div class="corner bl">
-    <div class="bar-label">Vie</div>
+    <div class="bar-label" id="health-label"><span>&#9829; Vie</span><b id="health-value">100</b></div>
     <div class="bar"><i id="health-fill" style="width:100%"></i></div>
-    <div class="bar-label">Armure</div>
+    <div class="bar-label" id="armor-label"><span>&#9670; Armure</span><b id="armor-value">0</b></div>
     <div class="bar"><i id="armor-fill" style="width:0%"></i></div>
   </div>
 

@@ -1,13 +1,31 @@
 import { GameEvents, EVENTS } from './events.js';
 import { CITY, MAX_LINE } from './world.js';
+import { color, healthColor } from './uiTheme.js';
 
 const MAP_SCALE = 1.45; // pixels par mètre
+
+// Polygone régulier : sert à donner une forme propre à chaque marqueur de la
+// carte — hexagone pour un objectif, losange pour la police.
+function polygon(c, x, y, r, sides, rotation = 0) {
+  c.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const a = rotation + (i / sides) * Math.PI * 2;
+    const px = x + Math.cos(a) * r;
+    const py = y + Math.sin(a) * r;
+    if (i === 0) c.moveTo(px, py);
+    else c.lineTo(px, py);
+  }
+  c.closePath();
+}
 
 export class HUD {
   constructor() {
     this.el = {
       health: document.getElementById('health-fill'),
+      healthValue: document.getElementById('health-value'),
+      healthLabel: document.getElementById('health-label'),
       armor: document.getElementById('armor-fill'),
+      armorValue: document.getElementById('armor-value'),
       money: document.getElementById('money'),
       stars: document.getElementById('stars'),
       clock: document.getElementById('clock'),
@@ -112,8 +130,16 @@ export class HUD {
   update(dt, state) {
     const { player, world, police, vehicle, weather, weapons } = state;
 
-    this.el.health.style.width = `${Math.max(0, player.health)}%`;
-    this.el.armor.style.width = `${Math.max(0, player.armor)}%`;
+    // La jauge dit trois choses à la fois : longueur, couleur par palier et
+    // valeur chiffrée. Qui ne distingue pas la teinte lit le nombre.
+    const vie = Math.max(0, Math.round(player.health));
+    const armure = Math.max(0, Math.round(player.armor));
+    this.el.health.style.width = `${vie}%`;
+    this.el.health.style.background = healthColor(vie / 100);
+    this.el.armor.style.width = `${armure}%`;
+    if (this.el.healthValue) this.el.healthValue.textContent = vie;
+    if (this.el.armorValue) this.el.armorValue.textContent = armure;
+    if (this.el.healthLabel) this.el.healthLabel.classList.toggle('low', vie <= 25);
     this.el.clock.textContent = world.clock;
     this.el.district.textContent = world.districtName(player.pos.x, player.pos.z);
     if (weather) this.el.weather.textContent = weather.label;
@@ -166,10 +192,10 @@ export class HUD {
     const scale = size / span;
     const toMap = (x, z) => [(x + span / 2) * scale, (z + span / 2) * scale];
 
-    c.fillStyle = '#14171d';
+    c.fillStyle = color('map-bg');
     c.fillRect(0, 0, size, size);
 
-    c.fillStyle = '#2b313c';
+    c.fillStyle = color('map-road');
     for (let i = -CITY.RINGS; i < CITY.RINGS; i++) {
       for (let j = -CITY.RINGS; j < CITY.RINGS; j++) {
         const [mx, my] = toMap(i * CITY.CELL + CITY.CELL / 2 - CITY.BLOCK / 2, j * CITY.CELL + CITY.CELL / 2 - CITY.BLOCK / 2);
@@ -181,13 +207,13 @@ export class HUD {
       const [sx, sy] = toMap(police.searchCenter.x, police.searchCenter.z);
       c.beginPath();
       c.arc(sx, sy, police.searchRadius * scale, 0, Math.PI * 2);
-      c.fillStyle = 'rgba(255, 70, 60, 0.18)';
+      c.fillStyle = color('danger') + '2e';
       c.fill();
-      c.strokeStyle = 'rgba(255, 90, 74, 0.9)';
+      c.strokeStyle = color('danger');
       c.stroke();
     }
 
-    c.fillStyle = '#7d8592';
+    c.fillStyle = color('map-block');
     for (const car of traffic.cars) {
       const [x, y] = toMap(car.vehicle.pos.x, car.vehicle.pos.z);
       c.fillRect(x - 1, y - 1, 2, 2);
@@ -195,10 +221,12 @@ export class HUD {
 
     if (missions.markerPos) {
       const [mx, my] = toMap(missions.markerPos.x, missions.markerPos.z);
-      c.fillStyle = `#${missions.markerColor.toString(16).padStart(6, '0')}`;
-      c.beginPath();
-      c.arc(mx, my, 5, 0, Math.PI * 2);
+      c.fillStyle = color('objective');
+      polygon(c, mx, my, 6, 6, Math.PI / 6);
       c.fill();
+      c.strokeStyle = color('ink');
+      c.lineWidth = 1;
+      c.stroke();
     }
 
     const pos = player.inVehicle ? player.inVehicle.pos : player.pos;
@@ -207,7 +235,7 @@ export class HUD {
     c.save();
     c.translate(px, py);
     c.rotate(-yaw + Math.PI);
-    c.fillStyle = '#ff7a45';
+    c.fillStyle = color('accent');
     c.beginPath();
     c.moveTo(0, -8);
     c.lineTo(6, 7);
@@ -233,11 +261,11 @@ export class HUD {
     c.arc(half, half, half - 1, 0, Math.PI * 2);
     c.clip();
 
-    c.fillStyle = '#1b1f27';
+    c.fillStyle = color('map-bg');
     c.fillRect(0, 0, size, size);
 
     // Îlots (donc les rues restent en négatif).
-    c.fillStyle = '#2b313c';
+    c.fillStyle = color('map-road');
     const range = Math.ceil(half / MAP_SCALE / CITY.CELL) + 1;
     const ci = Math.round(px / CITY.CELL);
     const cj = Math.round(pz / CITY.CELL);
@@ -256,29 +284,29 @@ export class HUD {
       const [sx, sy] = toMap(police.searchCenter.x, police.searchCenter.z);
       c.beginPath();
       c.arc(sx, sy, police.searchRadius * MAP_SCALE, 0, Math.PI * 2);
-      c.fillStyle = 'rgba(255, 70, 60, 0.16)';
+      c.fillStyle = color('danger') + '29';
       c.fill();
-      c.strokeStyle = 'rgba(255, 90, 74, 0.85)';
+      c.strokeStyle = color('danger');
       c.lineWidth = 2;
       c.stroke();
     }
 
     // Circulation puis police, pour que les bleus passent au-dessus.
-    c.fillStyle = '#7d8592';
+    c.fillStyle = color('map-block');
     for (const car of traffic.cars) {
       const [x, y] = toMap(car.vehicle.pos.x, car.vehicle.pos.z);
       c.fillRect(x - 1.5, y - 1.5, 3, 3);
     }
-    c.fillStyle = '#e8e2d5';
+    c.fillStyle = color('ink');
     for (const v of traffic.parked) {
       const [x, y] = toMap(v.pos.x, v.pos.z);
       c.fillRect(x - 1.5, y - 1.5, 3, 3);
     }
+    // Police : losange, et non un rond — la forme suffit à la reconnaître.
     for (const unit of police.units) {
       const [x, y] = toMap(unit.vehicle.pos.x, unit.vehicle.pos.z);
-      c.fillStyle = Math.sin(performance.now() / 120) > 0 ? '#5aa2ff' : '#ff5a4a';
-      c.beginPath();
-      c.arc(x, y, 3, 0, Math.PI * 2);
+      c.fillStyle = Math.sin(performance.now() / 120) > 0 ? color('police') : color('danger');
+      polygon(c, x, y, 4, 4, 0);
       c.fill();
     }
 
@@ -288,12 +316,15 @@ export class HUD {
       const dx = mx - half;
       const dy = my - half;
       const d = Math.hypot(dx, dy);
-      const color = `#${missions.markerColor.toString(16).padStart(6, '0')}`;
-      c.fillStyle = color;
+      // Hexagone, pas un rond : sur la carte chaque catégorie a sa forme, pour
+      // rester distinguable sans compter sur la couleur seule.
+      c.fillStyle = color('objective');
       if (d < half - 8) {
-        c.beginPath();
-        c.arc(mx, my, 4.5, 0, Math.PI * 2);
+        polygon(c, mx, my, 5, 6, Math.PI / 6);
         c.fill();
+        c.strokeStyle = color('ink');
+        c.lineWidth = 1;
+        c.stroke();
       } else {
         const k = (half - 9) / d;
         const ex = half + dx * k;
@@ -317,7 +348,7 @@ export class HUD {
     c.save();
     c.translate(half, half);
     c.rotate(-yaw + Math.PI);
-    c.fillStyle = '#ff7a45';
+    c.fillStyle = color('accent');
     c.beginPath();
     c.moveTo(0, -7);
     c.lineTo(5, 6);
@@ -330,7 +361,7 @@ export class HUD {
     // Bord de carte.
     const [bx0, by0] = toMap(-MAX_LINE - CITY.CELL / 2, -MAX_LINE - CITY.CELL / 2);
     const span = (MAX_LINE * 2 + CITY.CELL) * MAP_SCALE;
-    c.strokeStyle = 'rgba(232, 226, 213, 0.25)';
+    c.strokeStyle = color('map-edge');
     c.lineWidth = 1;
     c.strokeRect(bx0, by0, span, span);
 
