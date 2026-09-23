@@ -187,7 +187,22 @@ export class PauseMenu {
         name.textContent = def.label;
         line.appendChild(name);
 
-        if (def.type === 'toggle') {
+        if (def.type === 'choice') {
+          const box = document.createElement('span');
+          box.className = 'choices';
+          for (const option of def.options) {
+            const b = document.createElement('button');
+            b.className = 'chip';
+            b.textContent = option;
+            b.classList.toggle('on', settings.get(key) === option);
+            b.addEventListener('click', () => {
+              settings.set(key, option);
+              this.show('options');
+            });
+            box.appendChild(b);
+          }
+          line.appendChild(box);
+        } else if (def.type === 'toggle') {
           const input = document.createElement('input');
           input.type = 'checkbox';
           input.id = `opt-${key}`;

@@ -33,6 +33,7 @@ export class Traffic {
     this.parked = [];
     this.onPedHit = null;
     this.onCarHit = null;
+    this.maxCars = MAX_CARS;
     this.pedBudget = MAX_PEDS; // la pluie vide les trottoirs
     this.pedHurry = 1;
   }
@@ -171,7 +172,7 @@ export class Traffic {
       this.hitPedestrians(v, false);
     }
 
-    while (this.cars.length < MAX_CARS) {
+    while (this.cars.length < this.maxCars) {
       const before = this.cars.length;
       this.spawnCar(playerPos);
       if (this.cars.length === before) break; // position refusée, on réessaiera

@@ -23,8 +23,21 @@ export const VEHICLE_SPECS = {
   moto: { label: 'Moto', accel: 18.5, top: 59, turn: 3.0, mass: 0.5, value: 16000, colors: [0x14181f, 0xb8232b, 0x2b6fb8, 0xe0e0e0], size: [0.8, 1.2, 2.15], bike: true },
 };
 
+// Les formes d'un véhicule ne dépendent que de son modèle : quinze jeux de
+// géométries suffisent pour toute la circulation. Seules les couleurs, donc les
+// matériaux, restent propres à chaque exemplaire.
+const SHAPE_CACHE = new Map();
+function shapes(specName) {
+  let set = SHAPE_CACHE.get(specName);
+  if (!set) {
+    set = {};
+    SHAPE_CACHE.set(specName, set);
+  }
+  return (key, make) => (set[key] ||= make());
+}
+
 // Deux-roues : cadre étroit, selle, guidon, deux roues alignées.
-function buildBikeMesh(spec, color) {
+function buildBikeMesh(spec, color, geo) {
   const [w, h, l] = spec.size;
   const g = new THREE.Group();
   // La caisse est un groupe séparé des roues : elle seule plonge et roule.
@@ -33,25 +46,25 @@ function buildBikeMesh(spec, color) {
   const bodyMat = new THREE.MeshLambertMaterial({ color });
   const trimMat = new THREE.MeshLambertMaterial({ color: 0x1a1d22 });
 
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(w * 0.55, h * 0.3, l * 0.62), bodyMat);
+  const frame = new THREE.Mesh(geo('frame', () => new THREE.BoxGeometry(w * 0.55, h * 0.3, l * 0.62)), bodyMat);
   frame.position.y = h * 0.52;
   frame.castShadow = true;
   body.add(frame);
 
-  const seat = new THREE.Mesh(new THREE.BoxGeometry(w * 0.6, h * 0.14, l * 0.3), trimMat);
+  const seat = new THREE.Mesh(geo('seat', () => new THREE.BoxGeometry(w * 0.6, h * 0.14, l * 0.3)), trimMat);
   seat.position.set(0, h * 0.72, -l * 0.12);
   body.add(seat);
 
-  const tank = new THREE.Mesh(new THREE.SphereGeometry(w * 0.34, 10, 8), bodyMat);
+  const tank = new THREE.Mesh(geo('tank', () => new THREE.SphereGeometry(w * 0.34, 10, 8)), bodyMat);
   tank.scale.set(1, 0.8, 1.5);
   tank.position.set(0, h * 0.7, l * 0.14);
   body.add(tank);
 
-  const bar = new THREE.Mesh(new THREE.BoxGeometry(w * 1.05, 0.05, 0.05), trimMat);
+  const bar = new THREE.Mesh(geo('bar', () => new THREE.BoxGeometry(w * 1.05, 0.05, 0.05)), trimMat);
   bar.position.set(0, h * 0.95, l * 0.36);
   body.add(bar);
 
-  const wheelGeo = new THREE.CylinderGeometry(h * 0.36, h * 0.36, 0.14, 12);
+  const wheelGeo = geo('wheel', () => new THREE.CylinderGeometry(h * 0.36, h * 0.36, 0.14, 12));
   wheelGeo.rotateZ(Math.PI / 2);
   const wheels = [];
   const steerPivots = [];
@@ -69,10 +82,10 @@ function buildBikeMesh(spec, color) {
 
   const headMat = new THREE.MeshBasicMaterial({ color: 0x2a2a26 });
   const tailMat = new THREE.MeshBasicMaterial({ color: 0x3a1512 });
-  const lamp = new THREE.Mesh(new THREE.BoxGeometry(w * 0.4, 0.12, 0.08), headMat);
+  const lamp = new THREE.Mesh(geo('lamp', () => new THREE.BoxGeometry(w * 0.4, 0.12, 0.08)), headMat);
   lamp.position.set(0, h * 0.78, l / 2);
   body.add(lamp);
-  const tail = new THREE.Mesh(new THREE.BoxGeometry(w * 0.35, 0.1, 0.06), tailMat);
+  const tail = new THREE.Mesh(geo('tail', () => new THREE.BoxGeometry(w * 0.35, 0.1, 0.06)), tailMat);
   tail.position.set(0, h * 0.75, -l / 2);
   body.add(tail);
 
@@ -84,7 +97,8 @@ export function buildVehicleMesh(specName, colorOverride) {
   const spec = VEHICLE_SPECS[specName];
   const [w, h, l] = spec.size;
   const color = colorOverride ?? spec.colors[Math.floor(Math.random() * spec.colors.length)];
-  if (spec.bike) return buildBikeMesh(spec, color);
+  const geo = shapes(specName);
+  if (spec.bike) return buildBikeMesh(spec, color, geo);
   const g = new THREE.Group();
   // La caisse est un groupe séparé des roues : elle seule plonge et roule.
   const body = new THREE.Group();
@@ -93,23 +107,23 @@ export function buildVehicleMesh(specName, colorOverride) {
   const glassMat = new THREE.MeshLambertMaterial({ color: 0x141a22 });
   const trimMat = new THREE.MeshLambertMaterial({ color: 0x1a1d22 });
 
-  const chassis = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.55, l), bodyMat);
+  const chassis = new THREE.Mesh(geo('chassis', () => new THREE.BoxGeometry(w, h * 0.55, l)), bodyMat);
   chassis.position.y = h * 0.42;
   chassis.castShadow = true;
   body.add(chassis);
 
   const cabinLen = specName === 'van' ? l * 0.6 : l * 0.46;
-  const cabin = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, h * 0.5, cabinLen), glassMat);
+  const cabin = new THREE.Mesh(geo('cabin', () => new THREE.BoxGeometry(w * 0.9, h * 0.5, cabinLen)), glassMat);
   cabin.position.set(0, h * 0.86, specName === 'van' ? l * 0.06 : -l * 0.04);
   cabin.castShadow = true;
   body.add(cabin);
 
   // Toit de la teinte de la caisse, pour ne pas avoir une bulle de verre.
-  const roof = new THREE.Mesh(new THREE.BoxGeometry(w * 0.82, h * 0.12, cabinLen * 0.8), bodyMat);
+  const roof = new THREE.Mesh(geo('roof', () => new THREE.BoxGeometry(w * 0.82, h * 0.12, cabinLen * 0.8)), bodyMat);
   roof.position.set(0, h * 1.08, cabin.position.z);
   body.add(roof);
 
-  const wheelGeo = new THREE.CylinderGeometry(h * 0.33, h * 0.33, 0.28, 12);
+  const wheelGeo = geo('wheel', () => new THREE.CylinderGeometry(h * 0.33, h * 0.33, 0.28, 12));
   wheelGeo.rotateZ(Math.PI / 2);
   const wheels = [];
   const steerPivots = [];
@@ -128,7 +142,7 @@ export function buildVehicleMesh(specName, colorOverride) {
 
   const headMat = new THREE.MeshBasicMaterial({ color: 0x2a2a26 });
   const tailMat = new THREE.MeshBasicMaterial({ color: 0x3a1512 });
-  const headGeo = new THREE.BoxGeometry(w * 0.22, 0.16, 0.1);
+  const headGeo = geo('head', () => new THREE.BoxGeometry(w * 0.22, 0.16, 0.1));
   const heads = [];
   for (const x of [-w * 0.32, w * 0.32]) {
     const lamp = new THREE.Mesh(headGeo, headMat);
@@ -146,16 +160,16 @@ export function buildVehicleMesh(specName, colorOverride) {
     // Bande latérale de livrée + rampe lumineuse.
     const stripe = { police: 0xf2f2f2, ambulance: 0xd8322c, pompiers: 0xf2f2f2 }[specName];
     for (const side of [-1, 1]) {
-      const door = new THREE.Mesh(new THREE.BoxGeometry(0.04, h * 0.28, l * 0.42), new THREE.MeshLambertMaterial({ color: stripe }));
+      const door = new THREE.Mesh(geo('door', () => new THREE.BoxGeometry(0.04, h * 0.28, l * 0.42)), new THREE.MeshLambertMaterial({ color: stripe }));
       door.position.set((side * w) / 2, h * 0.5, 0);
       body.add(door);
     }
     lightbar = new THREE.Group();
-    const barBase = new THREE.Mesh(new THREE.BoxGeometry(w * 0.66, 0.1, 0.34), trimMat);
+    const barBase = new THREE.Mesh(geo('barBase', () => new THREE.BoxGeometry(w * 0.66, 0.1, 0.34)), trimMat);
     lightbar.add(barBase);
-    const blue = new THREE.Mesh(new THREE.BoxGeometry(w * 0.3, 0.16, 0.3), new THREE.MeshBasicMaterial({ color: 0x1a4fd0 }));
+    const blue = new THREE.Mesh(geo('gyro', () => new THREE.BoxGeometry(w * 0.3, 0.16, 0.3)), new THREE.MeshBasicMaterial({ color: 0x1a4fd0 }));
     blue.position.x = -w * 0.17;
-    const red = new THREE.Mesh(new THREE.BoxGeometry(w * 0.3, 0.16, 0.3), new THREE.MeshBasicMaterial({ color: 0xd01a1a }));
+    const red = new THREE.Mesh(geo('gyro', () => new THREE.BoxGeometry(w * 0.3, 0.16, 0.3)), new THREE.MeshBasicMaterial({ color: 0xd01a1a }));
     red.position.x = w * 0.17;
     lightbar.add(blue, red);
     lightbar.position.set(0, h * 1.2, cabin.position.z);
@@ -352,8 +366,11 @@ export class Vehicle {
 
   dispose() {
     this.scene.remove(this.mesh);
+    // Les géométries sont partagées par tous les exemplaires du même modèle :
+    // les libérer ici ferait retomber tous les autres. Seuls les matériaux,
+    // créés pour cette voiture, lui appartiennent vraiment.
     this.mesh.traverse((o) => {
-      if (o.geometry) o.geometry.dispose();
+      if (o.material) o.material.dispose();
     });
   }
 }

@@ -87,6 +87,20 @@ export class DebugConsole {
         el.hidden = !el.hidden;
         return `Compteur FPS : ${el.hidden ? 'OFF' : 'ON'}`;
       },
+      perf: () => `Compteurs : ${game.perf.toggle() ? 'ON' : 'OFF'}`,
+      quality: (level) => {
+        if (!level) return `Qualité : ${game.settings.get('quality')}`;
+        game.settings.set('quality', level);
+        return `Qualité : ${game.settings.get('quality')} (faible, moyen, eleve, auto)`;
+      },
+      stress: (kind = 'traffic') => {
+        if (kind === 'traffic') { game.traffic.maxCars = 30; return '30 véhicules en circulation'; }
+        if (kind === 'police') { game.debug.commands.stars('5'); return 'Recherche au maximum'; }
+        if (kind === 'weather') { game.weather.set('rain', true); return 'Pluie forcée'; }
+        if (kind === 'combat') { game.debug.commands.gang('8'); return '8 ennemis hostiles'; }
+        return 'Cibles : traffic, police, weather, combat';
+      },
+      mesure: () => JSON.stringify(game.perf.snapshot()),
       stats: () => JSON.stringify(game.stats, null, 1),
     };
 

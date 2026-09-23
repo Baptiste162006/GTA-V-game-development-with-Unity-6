@@ -10,6 +10,7 @@ import { Enemies } from './enemies.js';
 import { VehicleEffects } from './vehicleEffects.js';
 import { Settings } from './settings.js';
 import { PauseMenu } from './menu.js';
+import { Performance, applyPreset } from './performance.js';
 import { HUD } from './hud.js';
 import { Input } from './input.js';
 import { AudioEngine } from './audio.js';
@@ -64,8 +65,13 @@ class Game {
     this.menu = new PauseMenu(this);
     this.shakeScale = 1;
     this.baseFov = 64;
-    this.settings.onChange = () => this.settings.apply(this);
+    this.perf = new Performance(this);
+    this.settings.onChange = (key, value) => {
+      this.settings.apply(this);
+      if (key === 'quality' && value !== 'auto') applyPreset(this, value);
+    };
     this.settings.apply(this);
+    if (this.settings.get('quality') !== 'auto') applyPreset(this, this.settings.get('quality'));
 
     if (restored.money) this.player.money = restored.money;
     if (restored.hour !== undefined) this.world.hour = restored.hour;
@@ -452,7 +458,7 @@ class Game {
     // La météo pilote le monde, l'adhérence, la vue de la police et les trottoirs.
     this.weather.update(dt, this.playerPos());
     this.police.sightMul = this.weather.sight;
-    this.traffic.pedBudget = Math.round(18 * (1 - this.weather.rain * 0.65 - this.weather.fog * 0.2));
+    this.traffic.pedBudget = Math.round((this.pedCap || 18) * (1 - this.weather.rain * 0.65 - this.weather.fog * 0.2));
     this.traffic.pedHurry = 1 + this.weather.rain * 0.8;
 
     this.traffic.update(dt, this.playerPos(), vehicle, this.playerPos());
@@ -516,6 +522,26 @@ class Game {
     w.update(dt);
   }
 
+  // Mode auto : on descend d'un cran si ça rame durablement, on remonte si
+  // c'est large. Jamais en pleine poursuite, pour ne pas changer sous le nez.
+  autoQuality(raw) {
+    this.autoTimer = (this.autoTimer || 0) + raw;
+    if (this.autoTimer < 6) return;
+    this.autoTimer = 0;
+    if (this.police.searching) return;
+    const levels = ['faible', 'moyen', 'eleve'];
+    const current = levels.indexOf(this.autoLevel || 'moyen');
+    const fps = this.perf.fps;
+    let next = current;
+    if (fps && fps < 45 && current > 0) next = current - 1;
+    else if (fps > 75 && current < 2) next = current + 1;
+    if (next !== current) {
+      this.autoLevel = levels[next];
+      applyPreset(this, this.autoLevel);
+      GameEvents.emit(EVENTS.NOTIFY, { text: `Qualité ajustée : ${this.autoLevel}` });
+    }
+  }
+
   mapState() {
     return {
       player: this.player,
@@ -547,6 +573,8 @@ class Game {
 
     // Le compteur utilise le temps réel : avec le dt plafonné il annoncerait
     // toujours 20 FPS dès que l'affichage rame.
+    this.perf.sample(raw);
+    if (this.settings.get('quality') === 'auto') this.autoQuality(raw);
     this.fpsAccum += raw;
     this.fpsFrames++;
     if (this.fpsAccum > 0.5) {

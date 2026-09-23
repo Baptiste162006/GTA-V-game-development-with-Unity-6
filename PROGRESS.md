@@ -58,8 +58,26 @@ Feux tricolores et priorités · intérieurs visitables · motos · hélicoptèr
 stations · bourse · réseaux sociaux parodiques · multijoueur · easter eggs · succès.
 
 ## 📊 Mesures (Chromium, rendu logiciel SwiftShader)
-- Draw calls : **≈ 290** (budget : 500)
-- Triangles : **≈ 66 000** (budget : 100 000)
-- Erreurs console : **0**
-- Distance de freinage depuis 90 km/h : **12,6 m** au sec, **17,4 m** sous la pluie
-- FPS : non mesurable ici (pas de GPU) ; le compteur en jeu dit désormais la vérité
+Protocole complet et comparaison avant/après dans **`PERFORMANCE.md`** ; banc d'essai
+reproductible dans `bench.mjs`.
+
+Scène figée, qualité élevée, carrefour de Downtown :
+
+| Compteur | Avant | Après | Budget |
+| --- | ---: | ---: | ---: |
+| Draw calls | 153 | **97** | 500 |
+| Triangles | 50 162 | 50 482 | 100 000 |
+| Géométries | 321 | **94** | — |
+| Meshes dans la scène | 233 | **113** | — |
+| Mémoire JS | 15 Mo | **13 Mo** | — |
+
+En jeu, circulation et piétons compris : **≈ 280 draw calls**, **≈ 69 000 triangles**.
+
+- Coût de dix véhicules supplémentaires : **0 géométrie** (50 avant la passe).
+- Coût de dix personnages supplémentaires : **0 géométrie** (90 avant la passe).
+- Erreurs console : **0** sur les cinq tests automatisés (jeu, météo, menu, mort, visée).
+- Distance de freinage depuis 90 km/h : **12 m** au sec, **17,1 m** sous la pluie.
+- Dégâts pistolet : **78 à la tête** (×3), **26 au corps**, **0 au-dessus de la tête**.
+- FPS : non mesurable ici faute de GPU — et les millisecondes de rendu du pilote logiciel ne
+  veulent rien dire, ce qui est expliqué dans `PERFORMANCE.md`. Le compteur en jeu, lui, lit
+  le temps réel et dit la vérité.

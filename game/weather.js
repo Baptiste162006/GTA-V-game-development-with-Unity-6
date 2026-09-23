@@ -51,6 +51,7 @@ export class WeatherSystem {
     this.grip = 1;
     this.sight = 1;
 
+    this.dropBudget = DROP_COUNT;
     this.buildRain();
   }
 
@@ -147,6 +148,8 @@ export class WeatherSystem {
     const visible = this.rain > 0.02;
     this.rainMesh.visible = visible;
     if (!visible) return;
+    // Le preset graphique limite le nombre de gouttes effectivement dessinées.
+    this.rainMesh.geometry.setDrawRange(0, Math.min(DROP_COUNT, this.dropBudget));
 
     this.rainMat.opacity = this.rain * 0.75;
     const pos = this.rainMesh.geometry.attributes.position;

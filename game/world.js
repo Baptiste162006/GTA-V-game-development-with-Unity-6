@@ -161,6 +161,47 @@ function scaleBoxUV(geo, w, h, d, unit = 3.2) {
   uv.needsUpdate = true;
 }
 
+// Fusionne des géométries statiques (position / normale / uv, indexées) en une
+// seule. Les immeubles d'un îlot deviennent un seul draw call, sans rien
+// changer à l'image : les UV sont déjà cuites par scaleBoxUV.
+function mergeGeometries(list) {
+  let vertices = 0;
+  let indices = 0;
+  for (const g of list) {
+    vertices += g.attributes.position.count;
+    indices += g.index ? g.index.count : g.attributes.position.count;
+  }
+  const pos = new Float32Array(vertices * 3);
+  const nor = new Float32Array(vertices * 3);
+  const uvs = new Float32Array(vertices * 2);
+  const index = vertices > 65535 ? new Uint32Array(indices) : new Uint16Array(indices);
+
+  let vo = 0;
+  let io = 0;
+  for (const g of list) {
+    const p = g.attributes.position;
+    pos.set(p.array, vo * 3);
+    nor.set(g.attributes.normal.array, vo * 3);
+    uvs.set(g.attributes.uv.array, vo * 2);
+    if (g.index) {
+      const a = g.index.array;
+      for (let k = 0; k < a.length; k++) index[io++] = a[k] + vo;
+    } else {
+      for (let k = 0; k < p.count; k++) index[io++] = k + vo;
+    }
+    vo += p.count;
+    g.dispose();
+  }
+
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  out.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  out.setIndex(new THREE.BufferAttribute(index, 1));
+  out.computeBoundingSphere();
+  return out;
+}
+
 export class World {
   constructor(scene, seed = 20260921) {
     this.scene = scene;
@@ -276,21 +317,19 @@ export class World {
     this.scene.add(dashes);
   }
 
-  addBuilding(x, z, w, d, h, materialIndex) {
+  // Enregistre la collision et renvoie la géométrie déjà placée, relativement
+  // au centre de l'îlot : l'appelant fusionne tout l'îlot en un seul mesh.
+  addBuilding(x, z, w, d, h, originX, originZ) {
     const geo = new THREE.BoxGeometry(w, h, d);
     scaleBoxUV(geo, w, h, d);
-    const mesh = new THREE.Mesh(geo, this.buildingMats[materialIndex]);
-    mesh.position.set(x, h / 2, z);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    this.scene.add(mesh);
+    geo.translate(x - originX, h / 2, z - originZ);
 
     const box = { minX: x - w / 2, maxX: x + w / 2, minZ: z - d / 2, maxZ: z + d / 2, h };
     this.buildings.push(box);
     const key = `${Math.floor(x / CITY.CELL)},${Math.floor(z / CITY.CELL)}`;
     if (!this.grid.has(key)) this.grid.set(key, []);
     this.grid.get(key).push(box);
-    return mesh;
+    return geo;
   }
 
   buildCity() {
@@ -311,7 +350,34 @@ export class World {
     const sidewalkMat = new THREE.MeshLambertMaterial({ color: 0x9a9a92 });
     const grassMat = new THREE.MeshLambertMaterial({ color: 0x4a7a44 });
     const sidewalkGeo = new THREE.PlaneGeometry(CITY.BLOCK, CITY.BLOCK);
+    sidewalkGeo.rotateX(-Math.PI / 2);
     const trees = [];
+
+    // Tout ce qui est statique est regroupé : deux InstancedMesh pour les
+    // trottoirs et les pelouses, un mât et une balise instanciés, et un mesh
+    // fusionné par îlot pour les immeubles et leurs corniches.
+    const blocks = (CITY.RINGS * 2) * (CITY.RINGS * 2);
+    const plates = [
+      new THREE.InstancedMesh(sidewalkGeo, sidewalkMat, blocks),
+      new THREE.InstancedMesh(sidewalkGeo, grassMat, blocks),
+    ];
+    for (const mesh of plates) {
+      mesh.receiveShadow = true;
+      mesh.count = 0;
+    }
+    const plateMatrix = new THREE.Matrix4();
+
+    const mastGeo = new THREE.CylinderGeometry(0.25, 0.25, 8, 6);
+    const mastMat = new THREE.MeshLambertMaterial({ color: 0x3a3f47 });
+    const beaconGeo = new THREE.SphereGeometry(0.5, 8, 6);
+    const beaconMat = new THREE.MeshBasicMaterial({ color: 0xff3b30 });
+    const masts = new THREE.InstancedMesh(mastGeo, mastMat, blocks * 4);
+    const beacons = new THREE.InstancedMesh(beaconGeo, beaconMat, blocks * 4);
+    masts.count = 0;
+    beacons.count = 0;
+    this.beacons = [beacons];
+
+    const corniceMat = new THREE.MeshLambertMaterial({ color: 0x5c5c58 });
 
     for (let i = -CITY.RINGS; i < CITY.RINGS; i++) {
       for (let j = -CITY.RINGS; j < CITY.RINGS; j++) {
@@ -322,11 +388,9 @@ export class World {
         const matIndex = districtKeys.indexOf(key);
         const isPark = this.rng() < d.park;
 
-        const plate = new THREE.Mesh(sidewalkGeo, isPark ? grassMat : sidewalkMat);
-        plate.rotation.x = -Math.PI / 2;
-        plate.position.set(cx, 0.04, cz);
-        plate.receiveShadow = true;
-        this.scene.add(plate);
+        const plate = plates[isPark ? 1 : 0];
+        plateMatrix.makeTranslation(cx, 0.04, cz);
+        plate.setMatrixAt(plate.count++, plateMatrix);
 
         if (isPark) {
           for (let t = 0; t < 7; t++) {
@@ -350,36 +414,41 @@ export class World {
                 [area / 4, area / 4, area / 2, area / 2],
               ];
 
+        const shells = [];
+        const cornices = [];
         for (const [ox, oz, cw, cd] of cells) {
           const gap = 1.6 + this.rng() * 2;
           const w = Math.max(6, cw - gap);
           const dd = Math.max(6, cd - gap);
           const h = d.min + this.rng() * (d.max - d.min);
-          const b = this.addBuilding(cx + ox, cz + oz, w, dd, h, matIndex);
+          const bx = cx + ox;
+          const bz = cz + oz;
+          shells.push(this.addBuilding(bx, bz, w, dd, h, cx, cz));
 
           if (h > 30 && this.rng() < 0.5) {
-            const mast = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.25, 0.25, 8, 6),
-              new THREE.MeshLambertMaterial({ color: 0x3a3f47 })
-            );
-            mast.position.set(b.position.x, h + 4, b.position.z);
-            this.scene.add(mast);
-            const lamp = new THREE.Mesh(
-              new THREE.SphereGeometry(0.5, 8, 6),
-              new THREE.MeshBasicMaterial({ color: 0xff3b30 })
-            );
-            lamp.position.set(b.position.x, h + 8.4, b.position.z);
-            this.scene.add(lamp);
-            (this.beacons ||= []).push(lamp);
+            plateMatrix.makeTranslation(bx, h + 4, bz);
+            masts.setMatrixAt(masts.count++, plateMatrix);
+            plateMatrix.makeTranslation(bx, h + 8.4, bz);
+            beacons.setMatrixAt(beacons.count++, plateMatrix);
           } else if (this.rng() < 0.4) {
-            const cornice = new THREE.Mesh(
-              new THREE.BoxGeometry(w + 1.2, 0.8, dd + 1.2),
-              new THREE.MeshLambertMaterial({ color: 0x5c5c58 })
-            );
-            cornice.position.set(b.position.x, h + 0.4, b.position.z);
-            cornice.castShadow = true;
-            this.scene.add(cornice);
+            const cornice = new THREE.BoxGeometry(w + 1.2, 0.8, dd + 1.2);
+            cornice.translate(bx - cx, h + 0.4, bz - cz);
+            cornices.push(cornice);
           }
+        }
+
+        if (shells.length) {
+          const mesh = new THREE.Mesh(mergeGeometries(shells), this.buildingMats[matIndex]);
+          mesh.position.set(cx, 0, cz);
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+          this.scene.add(mesh);
+        }
+        if (cornices.length) {
+          const mesh = new THREE.Mesh(mergeGeometries(cornices), corniceMat);
+          mesh.position.set(cx, 0, cz);
+          mesh.castShadow = true;
+          this.scene.add(mesh);
         }
 
         // Places de stationnement le long du trottoir.
@@ -394,6 +463,14 @@ export class World {
         this.parkedSpots.push(spot);
       }
     }
+
+    for (const mesh of plates) {
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.count) this.scene.add(mesh);
+    }
+    masts.instanceMatrix.needsUpdate = true;
+    beacons.instanceMatrix.needsUpdate = true;
+    this.scene.add(masts, beacons);
 
     this.plantTrees(trees);
 

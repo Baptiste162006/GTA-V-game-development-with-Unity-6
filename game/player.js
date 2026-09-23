@@ -9,8 +9,29 @@ const JUMP = 5.4;
 // Silhouette humaine en volumes galbés (capsules, cylindres coniques, sphères) :
 // aucun modèle à télécharger, et ça ne ressemble pas à un empilement de cubes.
 // Hauteur totale ≈ 1,85 m. Les hanches, genoux et épaules sont de vrais pivots.
+// Les formes sont identiques d'un personnage à l'autre : on les construit une
+// seule fois et tout le monde les partage. Seules les couleurs changent, donc
+// seuls les matériaux restent propres à chaque personnage.
+let SHAPES = null;
+function characterShapes() {
+  if (SHAPES) return SHAPES;
+  SHAPES = {
+    torso: new THREE.CylinderGeometry(0.205, 0.15, 0.54, 12),
+    hips: new THREE.CylinderGeometry(0.16, 0.185, 0.2, 12),
+    head: new THREE.SphereGeometry(0.13, 14, 12),
+    cap: new THREE.SphereGeometry(0.134, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.58),
+    arm: new THREE.CapsuleGeometry(0.062, 0.34, 4, 8),
+    hand: new THREE.SphereGeometry(0.068, 10, 8),
+    thigh: new THREE.CapsuleGeometry(0.093, 0.24, 4, 8),
+    shin: new THREE.CapsuleGeometry(0.078, 0.25, 4, 8),
+    shoe: new THREE.BoxGeometry(0.135, 0.085, 0.28),
+  };
+  return SHAPES;
+}
+
 export function buildCharacter({ shirt = 0x2f4f6f, pants = 0x232730, skin = 0xd6a07a, hair = 0x2a211c } = {}) {
   const g = new THREE.Group();
+  const S = characterShapes();
   const matShirt = new THREE.MeshLambertMaterial({ color: shirt });
   const matPants = new THREE.MeshLambertMaterial({ color: pants });
   const matSkin = new THREE.MeshLambertMaterial({ color: skin });
@@ -25,33 +46,32 @@ export function buildCharacter({ shirt = 0x2f4f6f, pants = 0x232730, skin = 0xd6
   };
 
   // Buste : cône tronqué large aux épaules, resserré à la taille, aplati de profil.
-  const torso = add(g, new THREE.CylinderGeometry(0.205, 0.15, 0.54, 12), matShirt, 0, 1.32, 0);
+  const torso = add(g, S.torso, matShirt, 0, 1.32, 0);
   torso.scale.z = 0.62;
-  add(g, new THREE.CylinderGeometry(0.16, 0.185, 0.2, 12), matPants, 0, 0.99, 0).scale.z = 0.72;
+  add(g, S.hips, matPants, 0, 0.99, 0).scale.z = 0.72;
 
-  const head = add(g, new THREE.SphereGeometry(0.13, 14, 12), matSkin, 0, 1.73, 0);
+  const head = add(g, S.head, matSkin, 0, 1.73, 0);
   head.scale.set(1, 1.2, 1.06);
   // Calotte de cheveux : demi-sphère posée sur le crâne.
-  const cap = add(head, new THREE.SphereGeometry(0.134, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.58), matHair, 0, 0.012, -0.008);
+  const cap = add(head, S.cap, matHair, 0, 0.012, -0.008);
   cap.scale.set(1, 1.05, 1.02);
 
   // Bras : capsule + main. Pivot à l'épaule.
   const armL = new THREE.Group();
   armL.position.set(-0.213, 1.53, 0);
-  add(armL, new THREE.CapsuleGeometry(0.062, 0.34, 4, 8), matShirt, 0, -0.232, 0);
-  add(armL, new THREE.SphereGeometry(0.068, 10, 8), matSkin, 0, -0.5, 0);
+  add(armL, S.arm, matShirt, 0, -0.232, 0);
+  add(armL, S.hand, matSkin, 0, -0.5, 0);
   const armR = armL.clone();
   armR.position.x = 0.213;
 
   // Jambes : cuisse, puis genou articulé portant le mollet et la chaussure.
   const legL = new THREE.Group();
   legL.position.set(-0.105, 0.9, 0);
-  add(legL, new THREE.CapsuleGeometry(0.093, 0.24, 4, 8), matPants, 0, -0.21, 0);
+  add(legL, S.thigh, matPants, 0, -0.21, 0);
   const kneeL = new THREE.Group();
   kneeL.position.y = -0.42;
-  add(kneeL, new THREE.CapsuleGeometry(0.078, 0.25, 4, 8), matPants, 0, -0.2, 0);
-  const shoe = add(kneeL, new THREE.BoxGeometry(0.135, 0.085, 0.28), matHair, 0, -0.395, 0.045);
-  shoe.geometry.translate(0, 0, 0);
+  add(kneeL, S.shin, matPants, 0, -0.2, 0);
+  add(kneeL, S.shoe, matHair, 0, -0.395, 0.045);
   legL.add(kneeL);
   const legR = legL.clone();
   legR.position.x = 0.105;

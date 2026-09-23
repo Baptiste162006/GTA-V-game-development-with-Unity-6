@@ -1,5 +1,49 @@
 # CHANGELOG
 
+## v0.9 — 2026-09-23
+
+### Ajouté — outils et presets de performance
+- **Panneau de compteurs en direct** (`game/performance.js`, commande `perf`) : FPS réel et
+  temps par image, pire image, draw calls, triangles, géométries, textures, véhicules,
+  piétons, ennemis, gouttes, traces, fumée, qualité, résolution et mémoire JS. Il ne se
+  réécrit que 5 fois par seconde et n'alloue rien par image.
+- **Quatre presets graphiques** — Faible, Moyen, Élevé, Auto — qui pilotent d'un coup la
+  résolution de rendu, les ombres et la taille de leur carte, la densité de circulation et de
+  piétons, le nombre de gouttes de pluie et la distance de vue. Réglables au menu pause
+  (pastilles) ou par la commande `quality`.
+- **Mode Auto** : descend d'un cran sous 45 FPS, remonte au-dessus de 75, au plus une fois
+  toutes les 6 secondes, et jamais pendant une poursuite.
+- **Commandes de mesure** : `perf`, `mesure` (instantané JSON), `quality`, `stress traffic |
+  police | weather | combat`.
+- **Banc d'essai reproductible** (`bench.mjs`) sur scène figée, et **`PERFORMANCE.md`** avec
+  le protocole et les chiffres avant/après.
+
+### Optimisé
+- **Formes partagées entre personnages** : `buildCharacter` allouait neuf géométries neuves à
+  chaque passant. Elles sont construites une fois pour toutes ; seules les couleurs restent
+  propres à chacun. **Dix personnages de plus coûtaient 90 géométries, ils en coûtent 0.**
+- **Formes partagées entre véhicules** : les dimensions ne dépendent que du modèle, donc
+  quinze jeux de géométries suffisent pour toute la circulation. **Dix berlines de plus
+  coûtaient 50 géométries, elles en coûtent 0.**
+- **Îlots fusionnés** : les immeubles d'un même îlot et leurs corniches ne font plus qu'un
+  seul mesh. Les UV étant déjà cuites, l'image est identique.
+- **Trottoirs, pelouses, mâts et balises instanciés** au lieu d'un mesh — et parfois d'un
+  matériau neuf — par élément.
+- **Carte d'ombres dimensionnée** : 1024² en qualité faible et moyenne (elle couvre une boîte
+  de 170 m, soit déjà six texels par mètre), 2048² réservé à la qualité élevée.
+- Résultat sur scène figée, qualité élevée : **draw calls 153 → 97** à Downtown (−37 %),
+  **géométries 321 → 94** (−71 %), **meshes 233 → 113** (−52 %), mémoire JS 15 → 13 Mo,
+  pour exactement le même nombre de triangles.
+
+### Corrigé
+- Le plafond de piétons d'un preset était écrasé à chaque image par le calcul météo : la
+  qualité faible gardait 18 piétons. La météo réduit maintenant ce plafond sans le dépasser.
+- `Vehicle.dispose()` libérait des géométries désormais partagées par tous les exemplaires du
+  même modèle ; il ne libère plus que les matériaux, qui lui appartiennent vraiment.
+- Le compteur de gouttes annonçait la taille du tampon (3 600) au lieu du nombre réellement
+  dessiné.
+- Le panneau de mesures se superposait à la bannière d'objectif.
+
 ## v0.8 — 2026-09-21
 
 ### Ajouté — menu pause complet

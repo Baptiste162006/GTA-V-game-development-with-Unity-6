@@ -64,7 +64,7 @@ Les phares s'allument tout seuls à la tombée de la nuit.
 | `setmoney 100000` | Fixe le montant |
 | `stars 4` | Fixe le niveau de recherche (0-5) |
 | `clearwanted` | Efface la recherche |
-| `spawn sportive` | Fait apparaître un véhicule (`citadine`, `berline`, `sportive`, `taxi`, `van`, `police`) |
+| `spawn sportive` | Fait apparaître un véhicule : `citadine`, `berline`, `sportive`, `taxi`, `van`, `police`, `muscle`, `luxe`, `suv`, `pickup`, `camion`, `bus`, `ambulance`, `pompiers`, `scooter`, `moto` |
 | `tp 120 -60` | Téléporte en x / z |
 | `time 22` | Change l'heure du jeu |
 | `weather rain` | Force la météo (`clear`, `cloudy`, `rain`, `fog`) |
@@ -72,4 +72,8 @@ Les phares s'allument tout seuls à la tombée de la nuit.
 | `gang 3` | Fait apparaître 3 ennemis hostiles devant toi |
 | `job` | Propose un nouveau job |
 | `fps` | Affiche le compteur d'images par seconde |
+| `perf` | Panneau de mesures en direct (draw calls, triangles, mémoire…) |
+| `mesure` | Le même instantané en JSON |
+| `quality moyen` | Preset graphique (`faible`, `moyen`, `eleve`, `auto`) |
+| `stress combat` | Charge la scène (`traffic`, `police`, `weather`, `combat`) |
 | `stats` | Dump des statistiques de la partie |

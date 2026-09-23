@@ -3,6 +3,7 @@ const KEY = 'san-felipe-settings-v1';
 // Chaque réglage déclare ses bornes et la façon de l'appliquer au jeu : le menu
 // se construit tout seul à partir de cette table.
 export const DEFINITIONS = {
+  quality: { label: 'Qualité', group: 'Affichage', type: 'choice', options: ['faible', 'moyen', 'eleve', 'auto'], def: 'eleve' },
   fov: { label: 'Champ de vision', group: 'Affichage', type: 'range', min: 55, max: 95, step: 1, unit: '°', def: 64 },
   renderScale: { label: 'Résolution de rendu', group: 'Affichage', type: 'range', min: 60, max: 100, step: 5, unit: '%', def: 100 },
   shadows: { label: 'Ombres', group: 'Affichage', type: 'toggle', def: true },
@@ -31,7 +32,9 @@ export class Settings {
   set(key, value) {
     const def = DEFINITIONS[key];
     if (!def) return;
-    this.values[key] = def.type === 'toggle' ? !!value : Math.min(def.max, Math.max(def.min, value));
+    if (def.type === 'toggle') this.values[key] = !!value;
+    else if (def.type === 'choice') this.values[key] = def.options.includes(value) ? value : def.def;
+    else this.values[key] = Math.min(def.max, Math.max(def.min, value));
     this.save();
     if (this.onChange) this.onChange(key, this.values[key]);
   }
