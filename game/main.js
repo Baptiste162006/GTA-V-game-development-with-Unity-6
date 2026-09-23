@@ -447,7 +447,11 @@ class Game {
       this.combat(dt, input);
       // Visée : caméra épaule, champ resserré, et le joueur regarde où on vise.
       const aiming = this.weapons.aiming;
-      if (aiming) this.player.yaw = this.camera3p.yaw;
+      // + PI : la caméra se trouve dans la direction (sin yaw, cos yaw) depuis
+      // le joueur, et un maillage tourné de `yaw` regarde précisément par là.
+      // Sans le demi-tour, viser faisait pivoter le personnage face à la
+      // caméra — il visait dans son dos.
+      if (aiming) this.player.yaw = this.camera3p.yaw + Math.PI;
       // Visée : on reste plus loin et plus décalé qu'avant. À 2,5 m le corps
       // couvrait le viseur dès qu'on avait le dos au mur.
       this.camera3p.update(dt, this.player.pos, aiming ? 1.66 : 1.5, aiming ? -2.6 : 0, aiming ? 1.25 : 0);
