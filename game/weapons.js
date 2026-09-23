@@ -15,12 +15,18 @@ export const WEAPONS = {
 const ORDER = ['poings', 'pistolet', 'uzi', 'pompe', 'fusil', 'sniper'];
 const HEAD_Y = 1.5; // au-dessus : tir à la tête
 
-// Petit modèle d'arme tenu en main, assemblé en boîtes sombres.
+// Petit modèle d'arme tenu en main. Vue de dos en visée, il se présente
+// presque dans l'axe de la caméra : à peine 10x22 px à l'écran pour un
+// pistolet, aussi étroit soit-il. Le vrai problème n'était pas la taille mais
+// le contraste — un métal presque noir sur une silhouette sombre disparaît.
+// D'où un gris acier plus clair, et un petit repère non éclairé (le guidon)
+// qui reste visible même à l'ombre.
 function buildWeaponMesh(name) {
   const g = new THREE.Group();
   if (name === 'poings') return g;
-  const metal = new THREE.MeshLambertMaterial({ color: 0x23262b });
-  const grip = new THREE.MeshLambertMaterial({ color: 0x14161a });
+  const metal = new THREE.MeshLambertMaterial({ color: 0x767e8c });
+  const grip = new THREE.MeshLambertMaterial({ color: 0x2b2d33 });
+  const marker = new THREE.MeshBasicMaterial({ color: 0xff6b3d });
   const spec = WEAPONS[name];
   const long = spec.length;
   const thick = long > 0.5 ? 0.055 : 0.042;
@@ -28,6 +34,12 @@ function buildWeaponMesh(name) {
   const body = new THREE.Mesh(new THREE.BoxGeometry(thick, long > 0.5 ? 0.075 : 0.095, long), metal);
   body.position.z = long * 0.24;
   g.add(body);
+
+  // Guidon lumineux au bout du canon : repère non éclairé (visible à l'ombre),
+  // couleur corail de l'identité du jeu.
+  const sight = new THREE.Mesh(new THREE.BoxGeometry(thick * 0.5, 0.018, 0.018), marker);
+  sight.position.set(0, (long > 0.5 ? 0.075 : 0.095) / 2 + 0.01, long * 0.24 + long / 2 - 0.02);
+  g.add(sight);
 
   // Crosse pour les armes d'épaule, poignée seule pour les armes de poing.
   const handle = new THREE.Mesh(new THREE.BoxGeometry(thick, 0.13, 0.06), grip);
@@ -44,6 +56,10 @@ function buildWeaponMesh(name) {
     scope.position.set(0, 0.07, long * 0.12);
     g.add(scope);
   }
+  // Légèrement agrandi : la longueur reste raisonnable pour ne pas déformer la
+  // pose de tir, mais l'épaisseur — ce qu'on voit réellement de dos — gagne en
+  // lisibilité.
+  g.scale.set(1.35, 1.35, 1.15);
   return g;
 }
 

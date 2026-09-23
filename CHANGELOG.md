@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.13 — 2026-09-23
+
+### Corrigé — arme invisible en visée
+- L'arme tenue en main était pratiquement invisible en visée : mesurée à
+  10×22 px sur 1280×720 pour le pistolet, dans un métal presque noir
+  (`0x23262b`) sur une silhouette déjà sombre. Le vrai problème n'était pas
+  la taille mais le **contraste** — même en plein jour, elle disparaissait
+  dans l'ombre du personnage.
+- **Métal éclairci** (gris acier `0x767e8c`), **guidon lumineux** au bout du
+  canon en corail non éclairé (`MeshBasicMaterial`, donc visible même de
+  nuit ou à l'ombre — vérifié aux deux), et **épaisseur agrandie de 35 %**
+  (la longueur ne l'est que de 15 %, pour ne pas déformer la pose de tir).
+  Mesuré : pistolet 10×22 px → 13×30 px ; le fusil d'assaut, plus long,
+  devient clairement lisible le long du bras.
+- Écarté en cours de route : une « arme mal orientée » qui s'est révélée être
+  un artefact de mon script de test (matrices de transformation non mises à
+  jour avant la mesure) — vérifié avec la vraie boucle du jeu, l'alignement
+  entre le canon et l'axe de visée est correct à 3,8° près.
+
 ## v0.12 — 2026-09-23
 
 ### Ajouté — caméra à pied et vie du personnage
