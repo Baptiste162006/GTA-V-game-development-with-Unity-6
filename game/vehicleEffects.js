@@ -54,10 +54,10 @@ export class VehicleEffects {
     this.marks.instanceMatrix.needsUpdate = true;
   }
 
-  addPuff(x, z, strength = 1) {
+  addPuff(x, z, strength = 1, height = 0.25) {
     const puff = this.puffs[this.puffIndex];
     this.puffIndex = (this.puffIndex + 1) % MAX_PUFFS;
-    puff.mesh.position.set(x, 0.25, z);
+    puff.mesh.position.set(x, height, z);
     puff.mesh.scale.setScalar(0.5 + strength * 0.4);
     puff.mesh.visible = true;
     puff.max = 0.7 + strength * 0.4;

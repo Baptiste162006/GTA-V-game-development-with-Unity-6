@@ -26,6 +26,10 @@ export const VEHICLE_SPECS = {
 // Les formes d'un véhicule ne dépendent que de son modèle : quinze jeux de
 // géométries suffisent pour toute la circulation. Seules les couleurs, donc les
 // matériaux, restent propres à chaque exemplaire.
+// Un ton unique, réutilisé par tous les véhicules : la carrosserie tire vers
+// cette couleur avec les dégâts, jamais vers une teinte neuve à chaque frame.
+const DIRT_COLOR = new THREE.Color(0x2a2a28);
+
 const SHAPE_CACHE = new Map();
 function shapes(specName) {
   let set = SHAPE_CACHE.get(specName);
@@ -187,6 +191,8 @@ export class Vehicle {
     this.specName = specName;
     this.spec = VEHICLE_SPECS[specName];
     this.mesh = buildVehicleMesh(specName, colorOverride);
+    // Copie, pas référence : `bodyMat.color` va être modifié par les dégâts.
+    this.baseColor = this.mesh.userData.parts.bodyMat.color.clone();
     this.mesh.position.copy(pos);
     this.mesh.rotation.y = yaw;
     scene.add(this.mesh);
@@ -206,6 +212,8 @@ export class Vehicle {
     this.gripMul = 1; // < 1 par temps de pluie : freinage plus long, virages plus mous
     this.lastSpeed = 0;
     this.pitch = 0;
+    this.squat = 0; // décalage vertical de la caisse : ressort de suspension
+    this.squatVel = 0;
     this.braking = false;
     this.lightsOn = false;
     this.slip = 0; // 0 = adhérence, 1 = les roues patinent
@@ -280,6 +288,8 @@ export class Vehicle {
         if (impact > 4) {
           this.damage = Math.min(100, this.damage + impact * 0.55);
           if (this.onCrash) this.onCrash(impact / this.spec.top);
+          // Lu par animate() au prochain appel : un choc tasse la suspension.
+          this.impact = Math.max(this.impact || 0, impact);
         }
         this.speed *= impact > 12 ? -0.16 : 0.45;
       }
@@ -321,11 +331,27 @@ export class Vehicle {
     // axe incliné dès que les roues sont tournées.
     for (const pivot of parts.steerPivots) pivot.rotation.y = -this.steer * 0.42;
 
-    // Assiette : plongée au freinage, léger cabrage à l'accélération.
+    // Assiette : plongée au freinage, léger cabrage à l'accélération. Le
+    // signe était inversé — mesuré avec la position réelle des phares, le nez
+    // plongeait à l'accélération et se relevait au freinage, l'inverse de la
+    // physique et du commentaire ci-dessus.
     const accel = (this.speed - this.lastSpeed) / Math.max(dt, 0.001);
     this.lastSpeed = this.speed;
-    this.pitch = THREE.MathUtils.lerp(this.pitch, THREE.MathUtils.clamp(accel * 0.0022, -0.05, 0.05), 1 - Math.exp(-7 * dt));
+    this.pitch = THREE.MathUtils.lerp(this.pitch, THREE.MathUtils.clamp(-accel * 0.0022, -0.05, 0.05), 1 - Math.exp(-7 * dt));
     parts.body.rotation.x = this.pitch;
+
+    // Suspension : un ressort-amortisseur simple. Une forte variation de
+    // vitesse ou un choc pousse la caisse vers le bas, elle remonte ensuite en
+    // oscillant puis se stabilise — les roues, elles, ne bougent jamais.
+    this.squatVel -= Math.min(0.22, Math.abs(accel) * 0.0022);
+    if (this.impact) {
+      this.squatVel -= Math.min(0.85, this.impact * 0.05);
+      this.impact = 0;
+    }
+    const springK = 220, dampC = 16;
+    this.squatVel += (-springK * this.squat - dampC * this.squatVel) * dt;
+    this.squat += this.squatVel * dt;
+    parts.body.position.y = this.squat;
 
     // Feux stop, prioritaires sur les feux de position.
     parts.tailMat.color.setHex(this.braking ? 0xff2a1e : this.lightsOn ? 0xff3b2f : 0x3a1512);
@@ -340,6 +366,23 @@ export class Vehicle {
       const phase = Math.sin(t * 9) > 0;
       parts.lightbar.userData.blue.material.color.setHex(on && phase ? 0x6aa8ff : 0x14204a);
       parts.lightbar.userData.red.material.color.setHex(on && !phase ? 0xff5a4a : 0x4a1414);
+    }
+
+    // Carrosserie qui ternit avec les dégâts : `lerpColors` remplace la teinte
+    // en place, sans allouer de couleur neuve à chaque image.
+    const dirt = THREE.MathUtils.clamp(this.damage / 100, 0, 1);
+    parts.bodyMat.color.lerpColors(this.baseColor, DIRT_COLOR, dirt * 0.55);
+
+    // Fumée du moteur, uniquement pour le véhicule du joueur (seul à avoir un
+    // réservoir d'effets) : rare tant que la carrosserie tient, franche une
+    // fois bien abîmée.
+    if (this.fx && this.damage > 55) {
+      this.smokeTimer = (this.smokeTimer ?? 0) - dt;
+      if (this.smokeTimer <= 0) {
+        this.smokeTimer = THREE.MathUtils.lerp(2.2, 0.5, THREE.MathUtils.clamp((this.damage - 55) / 45, 0, 1));
+        const hood = this.pos.clone().addScaledVector(this.forward, this.spec.size[2] * 0.42);
+        this.fx.addPuff(hood.x, hood.z, 0.4 + dirt * 0.5, 0.55);
+      }
     }
   }
 

@@ -11,7 +11,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.8** · Étape en cours : *
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
 | Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, respiration à l'arrêt, caméra épaule anti-mur |
 | Effets véhicule | `game/vehicleEffects.js` | Traces et fumée recyclées en anneau |
-| Véhicules (15 types) | `game/vehicle.js` | Physique arcade, dégâts, roulis, gyrophares |
+| Véhicules (15 types) | `game/vehicle.js` | Physique arcade, dégâts visibles, suspension, roulis, gyrophares |
 | Circulation et piétons | `game/traffic.js` | 14 voitures, 18 piétons, 12 voitures garées |
 | Police 5 étoiles | `game/police.js` | Poursuite, agents à pied, tirs, arrestation, évasion |
 | Missions | `game/missions.js` | Tutoriel 4 étapes + 2 jobs répétables |
@@ -81,6 +81,8 @@ En jeu, circulation et piétons compris : **≈ 280 draw calls**, **≈ 69 000 t
   indépendant du FOV et de la distance choisis en options — la version précédente, calculée
   à la main, s'était déréglée dès qu'on a rapproché la caméra, effaçant le joueur à moitié
   **en pleine rue**.
+- Assiette des véhicules corrigée : le nez plongeait à l'accélération et se relevait au
+  freinage — l'inverse de la physique. Vérifié avec la position réelle des phares.
 - Erreurs console : **0** sur les huit tests automatisés (jeu, météo, menu, mort, visée,
   caméra, saisons, thème).
 - Distance de freinage depuis 90 km/h : **12 m** au sec, **17,1 m** sous la pluie.

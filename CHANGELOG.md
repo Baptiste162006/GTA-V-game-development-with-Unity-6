@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.14 — 2026-09-23
+
+### Corrigé — l'assiette des véhicules était inversée
+- Mesuré avec la position réelle des phares : le nez **plongeait à
+  l'accélération** et **se relevait au freinage** — l'inverse de la physique
+  et du commentaire du code lui-même (« plongée au freinage, léger cabrage à
+  l'accélération »). Signe corrigé. Vérifié : accélération 0,56 → 0,63 m
+  (nez qui se relève), freinage 0,56 → 0,50 m (nez qui plonge).
+
+### Ajouté — suspension et dégâts visibles
+- **Compression de suspension** : un ressort-amortisseur simple fait plonger
+  la caisse sous une forte accélération, un freinage franc ou un choc, puis
+  la ramène en oscillant. Les roues ne bougent jamais — seule la caisse
+  (chassis, cabine, toit, feux) est concernée. Mesuré : ~1 cm en conduite
+  normale, jusqu'à 2,3 cm sur un choc simulé à 22 m/s.
+- **Dégâts visibles** : la carrosserie ternit progressivement avec les
+  dégâts (0 à 100), sans allocation par image. Le véhicule du joueur, une
+  fois bien abîmé (au-delà de 55 %), laisse échapper une fumée de moteur
+  occasionnelle — de plus en plus fréquente à mesure que les dégâts
+  augmentent — réutilisant le même réservoir de fumée que les traces de
+  drift, sans pool supplémentaire.
+
 ## v0.13 — 2026-09-23
 
 ### Corrigé — arme invisible en visée
