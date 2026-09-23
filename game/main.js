@@ -5,6 +5,7 @@ import { Traffic } from './traffic.js';
 import { Police } from './police.js';
 import { MissionManager } from './missions.js';
 import { WeatherSystem } from './weather.js';
+import { SeasonSystem } from './seasons.js';
 import { WeaponSystem, WEAPONS } from './weapons.js';
 import { Enemies } from './enemies.js';
 import { VehicleEffects } from './vehicleEffects.js';
@@ -46,10 +47,16 @@ class Game {
     this.traffic = new Traffic(this.scene, this.world);
     this.police = new Police(this.scene, this.world, this.traffic);
     this.weather = new WeatherSystem(this.scene, this.world);
+    this.seasons = new SeasonSystem(this.scene, this.world);
+    // La météo demande à la saison si la précipitation tombe en pluie ou en neige.
+    this.weather.seasons = this.seasons;
     this.enemies = new Enemies(this.scene, this.world, this.traffic);
     this.weapons = new WeaponSystem(this.scene, this.camera, this.player);
     this.vehicleFx = new VehicleEffects(this.scene);
     this.audio = new AudioEngine();
+    // Branché ici et pas au constructeur de la météo : le moteur audio n'existe
+    // qu'à partir de cette ligne, et le tonnerre partait donc dans le vide.
+    this.weather.audio = this.audio;
     this.input = new Input(this.renderer.domElement);
     this.hud = new HUD();
     this.missions = new MissionManager(this.scene, {
@@ -64,7 +71,7 @@ class Game {
     this.settings = new Settings();
     this.menu = new PauseMenu(this);
     this.shakeScale = 1;
-    this.baseFov = 64;
+    this.camHeight = 1.55;
     this.perf = new Performance(this);
     this.settings.onChange = (key, value) => {
       this.settings.apply(this);
@@ -454,16 +461,18 @@ class Game {
       if (aiming) this.player.yaw = this.camera3p.yaw + Math.PI;
       // Visée : on reste plus loin et plus décalé qu'avant. À 2,5 m le corps
       // couvrait le viseur dès qu'on avait le dos au mur.
-      this.camera3p.update(dt, this.player.pos, aiming ? 1.66 : 1.5, aiming ? -2.6 : 0, aiming ? 1.25 : 0);
+      this.camera3p.update(dt, this.player.pos, aiming ? 1.66 : this.camHeight ?? 1.5, aiming ? -2.6 : 0, aiming ? 1.25 : 0);
       this.fadePlayer(dt);
-      const fov = aiming ? (this.weapons.spec.scope ? this.baseFov * 0.4 : this.baseFov * 0.75) : this.baseFov;
-      this.camera.fov += (fov - this.camera.fov) * (1 - Math.exp(-11 * dt));
-      this.camera.updateProjectionMatrix();
       this.audio.updateEngine(false, 0, 0);
     }
 
+    this.updateFov(dt);
+
     // La météo pilote le monde, l'adhérence, la vue de la police et les trottoirs.
     this.weather.update(dt, this.playerPos());
+    // Une journée de jeu dure 720 s : on convertit le pas de temps en fraction
+    // de jour pour faire avancer la saison.
+    this.seasons.update(dt, dt / 720, this.playerPos(), this.weather);
     this.police.sightMul = this.weather.sight;
     this.traffic.pedBudget = Math.round((this.pedCap || 18) * (1 - this.weather.rain * 0.65 - this.weather.fog * 0.2));
     this.traffic.pedHurry = 1 + this.weather.rain * 0.8;
@@ -547,6 +556,34 @@ class Game {
       applyPreset(this, this.autoLevel);
       GameEvents.emit(EVENTS.NOTIFY, { text: `Qualité ajustée : ${this.autoLevel}` });
     }
+  }
+
+  // Un champ de vision par situation. Large en voiture pour la sensation de
+  // vitesse, resserré en visée pour la précision, très resserré à la lunette.
+  targetFov() {
+    const v = this.settings;
+    if (this.player.inVehicle) return v.get('fovVehicle');
+    if (this.weapons.aiming) return v.get(this.weapons.spec.scope ? 'fovSniper' : 'fovAim');
+    return v.get('fovFoot');
+  }
+
+  updateFov(dt) {
+    const target = this.targetFov();
+    // Environ 0,2 s pour arriver : assez vif pour répondre au clic droit, assez
+    // doux pour ne pas donner un à-coup.
+    const k = 1 - Math.exp(-dt / 0.07);
+    const next = this.camera.fov + (target - this.camera.fov) * k;
+    // Trois centièmes de degré : on évite de reconstruire la matrice de
+    // projection à chaque image pour rien.
+    if (Math.abs(next - this.camera.fov) < 0.03) {
+      if (this.camera.fov !== target) {
+        this.camera.fov = target;
+        this.camera.updateProjectionMatrix();
+      }
+      return;
+    }
+    this.camera.fov = next;
+    this.camera.updateProjectionMatrix();
   }
 
   // Quand la caméra est contre le joueur — dos au mur, coin de rue — on le

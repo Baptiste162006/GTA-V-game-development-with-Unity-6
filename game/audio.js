@@ -147,6 +147,38 @@ export class AudioEngine {
     o.stop(this.ctx.currentTime + dur);
   }
 
+  // Tonnerre : un grondement filtré, d'autant plus sourd et long que l'éclair
+  // est tombé loin. Un coup proche claque, un coup lointain roule.
+  thunder(distance = 1200) {
+    if (!this.ctx || this.muted) return;
+    const far = Math.min(1, distance / 3000);
+    const now = this.ctx.currentTime;
+    const dur = 1.1 + far * 2.6;
+
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.noiseBuffer;
+    src.loop = true;
+    src.playbackRate.value = 0.22 + (1 - far) * 0.18;
+
+    const band = this.ctx.createBiquadFilter();
+    band.type = 'lowpass';
+    // Loin, les aigus se perdent en route : il ne reste que le grave.
+    band.frequency.value = 130 + (1 - far) * 520;
+    band.Q.value = 0.8;
+
+    const g = this.ctx.createGain();
+    const peak = (0.3 - far * 0.2) * (this.thunderScale ?? 1);
+    g.gain.setValueAtTime(0.0001, now);
+    // Attaque franche de près, montée molle de loin.
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), now + 0.02 + far * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+    src.connect(band).connect(g).connect(this.master);
+    src.start(now);
+    src.stop(now + dur + 0.05);
+    return { distance: Math.round(distance), duree: +dur.toFixed(2) };
+  }
+
   crash(force = 1) {
     if (!this.ctx || this.muted) return;
     const src = this.ctx.createBufferSource();

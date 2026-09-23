@@ -1,5 +1,50 @@
 # CHANGELOG
 
+## v0.10 — 2026-09-23
+
+### Ajouté — orage, saisons et neige
+- **Orage** : cinquième météo. Éclairs irréguliers (toutes les 4 à 14 s), en
+  double flash qui éclaire réellement la scène — le soleil et le ciel prennent
+  le flash, donc les ombres portées suivent. **Tonnerre retardé par la
+  distance** : le son part après `distance / 343 m/s`, et il est d'autant plus
+  sourd et long que l'éclair est tombé loin. Vérifié : éclair à 1 372 m,
+  silence à 3 s, tonnerre à 5 s.
+- **Quatre saisons** qui tournent en continu (deux journées de jeu chacune,
+  bascule étalée sur les dernières heures) : printemps, été, automne, hiver.
+  Chacune a sa palette d'herbe et de feuillage, et sa taille de feuillage —
+  les arbres se dénudent en hiver.
+- **Feuilles mortes** qui tombent et dérivent au vent en automne.
+- **Neige** : en hiver, la pluie tombe en neige. Flocons qui se balancent,
+  **accumulation progressive au sol** (sol et trottoirs qui blanchissent), et
+  **adhérence réduite à 40 %**. La neige fond ensuite, bien plus lentement
+  qu'elle ne tombe, et d'autant plus vite que la saison est chaude.
+- **Vent** : il fait dériver la pluie, la neige et les feuilles, et tourne
+  lentement — la pluie ne tombe pas toujours du même côté.
+- **Champ de particules commun** (`game/particles.js`) : pluie, neige et
+  feuilles partagent le même réservoir pré-alloué, recyclé en tampon
+  circulaire, avec budget par preset graphique.
+- Commandes : `season`, `neige`, `eclair`, et `storm` pour `weather`.
+
+### Ajouté — un champ de vision par situation
+- **Quatre champs de vision réglables** au lieu d'un seul : à pied 80° (70-90),
+  véhicule 88° (75-100), visée 60° (50-70), lunette 35° (20-45). Un seul
+  réglage ne pouvait pas convenir aux quatre : large en voiture pour la
+  sensation de vitesse, resserré en visée pour la précision.
+- **Distance et hauteur de caméra réglables**. La distance par défaut passe de
+  6,5 m à 5,4 m : le personnage occupait 12,7 % de la hauteur d'écran à 95° de
+  champ, il en occupe 20,9 %.
+- Transition mesurée à **0,22 s** entre deux champs de vision, et
+  `updateProjectionMatrix()` n'est appelé que lorsque la valeur change
+  vraiment.
+- Le champ de vision revient correctement à sa valeur après une visée, une
+  sortie de véhicule et une pause — vérifié par test.
+
+### Corrigé
+- Le bandeau météo annonçait « Pluie » alors qu'il neigeait.
+- Le tonnerre partait dans le vide : la météo était construite **avant** le
+  moteur audio et en recevait donc une référence vide. Aucun tonnerre n'a
+  jamais retenti avant cette version.
+
 ## v0.9 — 2026-09-23
 
 ### Ajouté — outils et presets de performance

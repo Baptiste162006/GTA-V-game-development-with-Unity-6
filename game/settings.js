@@ -4,10 +4,19 @@ const KEY = 'san-felipe-settings-v1';
 // se construit tout seul à partir de cette table.
 export const DEFINITIONS = {
   quality: { label: 'Qualité', group: 'Affichage', type: 'choice', options: ['faible', 'moyen', 'eleve', 'auto'], def: 'eleve' },
-  fov: { label: 'Champ de vision', group: 'Affichage', type: 'range', min: 55, max: 95, step: 1, unit: '°', def: 64 },
   renderScale: { label: 'Résolution de rendu', group: 'Affichage', type: 'range', min: 60, max: 100, step: 5, unit: '%', def: 100 },
   shadows: { label: 'Ombres', group: 'Affichage', type: 'toggle', def: true },
   minimap: { label: 'Mini-carte', group: 'Affichage', type: 'toggle', def: true },
+
+  // Un seul champ de vision ne peut pas convenir aux quatre situations : large
+  // en voiture pour la sensation de vitesse, resserré en visée pour la
+  // précision. Valeurs en degrés verticaux, comme les attend Three.js.
+  fovFoot: { label: 'Champ — à pied', group: 'Caméra', type: 'range', min: 70, max: 90, step: 1, unit: '°', def: 80 },
+  fovVehicle: { label: 'Champ — véhicule', group: 'Caméra', type: 'range', min: 75, max: 100, step: 1, unit: '°', def: 88 },
+  fovAim: { label: 'Champ — visée', group: 'Caméra', type: 'range', min: 50, max: 70, step: 1, unit: '°', def: 60 },
+  fovSniper: { label: 'Champ — lunette', group: 'Caméra', type: 'range', min: 20, max: 45, step: 1, unit: '°', def: 35 },
+  camDistance: { label: 'Distance caméra', group: 'Caméra', type: 'range', min: 40, max: 90, step: 2, unit: ' dm', def: 54 },
+  camHeight: { label: 'Hauteur caméra', group: 'Caméra', type: 'range', min: 120, max: 200, step: 5, unit: ' cm', def: 155 },
 
   sensitivity: { label: 'Sensibilité souris', group: 'Contrôles', type: 'range', min: 10, max: 300, step: 5, unit: '%', def: 100 },
   invertY: { label: 'Inverser l’axe Y', group: 'Contrôles', type: 'toggle', def: false },
@@ -60,9 +69,12 @@ export class Settings {
   apply(game) {
     const v = this.values;
 
-    game.camera.fov = v.fov;
-    game.camera.updateProjectionMatrix();
-    game.baseFov = v.fov;
+    // Le champ de vision est recalculé chaque image selon le contexte (à pied,
+    // véhicule, visée, lunette) : rien à poser ici, sinon la distance et la
+    // hauteur de la caméra, qui elles sont des réglages directs.
+    game.camera3p.baseDistance = v.camDistance / 10;
+    game.camera3p.targetDistance = v.camDistance / 10;
+    game.camHeight = v.camHeight / 100;
 
     game.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75) * (v.renderScale / 100));
 

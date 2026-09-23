@@ -25,11 +25,13 @@ devant l'orage et le téléphone parce que c'était le plus gros manque de gamep
 - [x] Son de pluie synthétisé
 - [ ] Reste à faire : flaques et éclaboussures, essuie-glaces visibles
 
-## ⏳ Étape 2 — Orage et saisons
-- [ ] Orage : éclairs (flash de lumière + ombre portée), tonnerre décalé, vent
-- [ ] Automne : feuilles qui tombent, arbres qui se dénudent, palette orangée
-- [ ] Hiver : neige qui tombe, accumulation progressive au sol, adhérence 40 %
-- [ ] Saison qui change la palette de l'herbe, des arbres et du ciel
+## ✅ Étape 2 — Orage et saisons (terminée)
+- [x] Orage : éclairs (flash de lumière + ombre portée), tonnerre décalé, vent
+- [x] Automne : feuilles qui tombent, arbres qui se dénudent, palette orangée
+- [x] Hiver : neige qui tombe, accumulation progressive au sol, adhérence 40 %
+- [x] Saison qui change la palette de l'herbe et des arbres
+- [ ] Reste à faire : PNJ qui s'abritent, trafic plus prudent sous l'orage,
+      essuie-glaces, vent visible dans le feuillage, formes d'arbres variées
 
 ## ⏳ Étape 3 — Téléphone
 - [ ] Ouverture à la touche `K`, interface en bas à droite

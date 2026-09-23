@@ -208,7 +208,8 @@ export class World {
     this.rng = mulberry32(seed);
     this.hour = 8.5;
     // Renseignés par WeatherSystem ; neutres tant qu'il n'existe pas.
-    this.weatherMods = { sunMul: 1, fogAdd: 0, fogGrey: 0, wet: 0 };
+    this.weatherMods = { sunMul: 1, fogAdd: 0, fogGrey: 0, wet: 0, flash: 0 };
+    this.seasonMods = { snow: 0, warmth: 0, sidewalk: 0 };
     this.buildings = [];
     this.grid = new Map();
     this.parkedSpots = [];
@@ -347,8 +348,10 @@ export class World {
     );
     const districtKeys = Object.keys(DISTRICTS);
 
-    const sidewalkMat = new THREE.MeshLambertMaterial({ color: 0x9a9a92 });
-    const grassMat = new THREE.MeshLambertMaterial({ color: 0x4a7a44 });
+    // Gardés sur l'instance : les saisons repeignent l'herbe et la neige
+    // blanchit les trottoirs.
+    const sidewalkMat = (this.sidewalkMat = new THREE.MeshLambertMaterial({ color: 0x9a9a92 }));
+    const grassMat = (this.grassMat = new THREE.MeshLambertMaterial({ color: 0x4a7a44 }));
     const sidewalkGeo = new THREE.PlaneGeometry(CITY.BLOCK, CITY.BLOCK);
     sidewalkGeo.rotateX(-Math.PI / 2);
     const trees = [];
@@ -486,9 +489,9 @@ export class World {
     const trunkGeo = new THREE.CylinderGeometry(0.28, 0.38, 3, 6);
     const trunkMat = new THREE.MeshLambertMaterial({ color: 0x5b4330 });
     const leafGeo = new THREE.IcosahedronGeometry(2.1, 0);
-    const leafMat = new THREE.MeshLambertMaterial({ color: 0x3f7a3a, flatShading: true });
+    const leafMat = (this.leafMat = new THREE.MeshLambertMaterial({ color: 0x3f7a3a, flatShading: true }));
     const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, positions.length);
-    const leaves = new THREE.InstancedMesh(leafGeo, leafMat, positions.length);
+    const leaves = (this.leaves = new THREE.InstancedMesh(leafGeo, leafMat, positions.length));
     leaves.castShadow = true;
     const m = new THREE.Matrix4();
     const q = new THREE.Quaternion();
@@ -570,10 +573,29 @@ export class World {
     if (!this.scene.fog) this.scene.fog = new THREE.FogExp2(fog.getHex(), 0.0032);
     this.scene.fog.color.copy(fog);
 
-    // Bitume mouillé : il fonce et attrape un reflet.
-    this.groundMat.shininess = w.wet * 70;
+    // Éclair : il éclaire vraiment la scène, il ne se contente pas de blanchir
+    // l'écran. Le soleil et le ciel prennent le flash, donc les ombres portées
+    // suivent le temps de l'éclair.
+    const flash = w.flash || 0;
+    if (flash > 0) {
+      this.sun.intensity += flash * 2.6;
+      this.hemi.intensity += flash * 1.8;
+      const bolt = new THREE.Color(0xdde8ff);
+      this.skyUniforms.topColor.value.lerp(bolt, flash * 0.7);
+      this.skyUniforms.midColor.value.lerp(bolt, flash * 0.75);
+      this.skyUniforms.bottomColor.value.lerp(bolt, flash * 0.6);
+    }
+
+    const s = this.seasonMods;
+
+    // Bitume mouillé : il fonce et attrape un reflet. La neige le recouvre.
+    this.groundMat.shininess = w.wet * 70 * (1 - s.snow * 0.7);
     this.groundMat.specular.setRGB(w.wet * 0.42, w.wet * 0.45, w.wet * 0.5);
     this.groundMat.color.setHex(0x41464f).multiplyScalar(1 - w.wet * 0.16);
+    if (s.snow > 0) this.groundMat.color.lerp(new THREE.Color(0xdfe6ee), s.snow * 0.72);
+    if (this.sidewalkMat) {
+      this.sidewalkMat.color.setHex(0x9a9a92).lerp(new THREE.Color(0xeef3f8), s.snow * 0.88);
+    }
 
     // Nuit : fenêtres et lampadaires s'allument, étoiles apparaissent.
     const night = THREE.MathUtils.clamp((0.55 - this.sun.intensity) / 0.5, 0, 1);

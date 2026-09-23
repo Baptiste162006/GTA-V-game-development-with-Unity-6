@@ -1,16 +1,18 @@
 import * as THREE from 'three';
+import { ParticleField, streakTexture } from './particles.js';
 
-// Quatre temps possibles. Les valeurs sont des cibles : tout est interpolé
+// Cinq temps possibles. Les valeurs sont des cibles : tout est interpolé
 // en continu, donc le ciel ne saute jamais d'un état à l'autre.
 export const WEATHER = {
-  clear: { label: 'Clair', clouds: 0.0, rain: 0.0, fog: 0.0, wet: 0.0, grip: 1.0, sight: 1.0 },
-  cloudy: { label: 'Nuageux', clouds: 0.55, rain: 0.0, fog: 0.12, wet: 0.1, grip: 0.97, sight: 0.92 },
-  rain: { label: 'Pluie', clouds: 0.85, rain: 1.0, fog: 0.35, wet: 1.0, grip: 0.7, sight: 0.75 },
-  fog: { label: 'Brouillard', clouds: 0.5, rain: 0.0, fog: 1.0, wet: 0.25, grip: 0.95, sight: 0.4 },
+  clear: { label: 'Clair', clouds: 0.0, rain: 0.0, fog: 0.0, wet: 0.0, grip: 1.0, sight: 1.0, wind: 0.1, storm: 0 },
+  cloudy: { label: 'Nuageux', clouds: 0.55, rain: 0.0, fog: 0.12, wet: 0.1, grip: 0.97, sight: 0.92, wind: 0.3, storm: 0 },
+  rain: { label: 'Pluie', clouds: 0.85, rain: 1.0, fog: 0.35, wet: 1.0, grip: 0.7, sight: 0.75, wind: 0.45, storm: 0 },
+  fog: { label: 'Brouillard', clouds: 0.5, rain: 0.0, fog: 1.0, wet: 0.25, grip: 0.95, sight: 0.4, wind: 0.05, storm: 0 },
+  storm: { label: 'Orage', clouds: 0.98, rain: 1.0, fog: 0.45, wet: 1.0, grip: 0.62, sight: 0.6, wind: 1.0, storm: 1 },
 };
 
-const ORDER = ['clear', 'cloudy', 'rain', 'fog'];
-const WEIGHTS = [40, 30, 20, 10];
+const ORDER = ['clear', 'cloudy', 'rain', 'fog', 'storm'];
+const WEIGHTS = [36, 27, 18, 9, 10];
 const MIN_DURATION = 150; // 2 min 30 minimum par météo
 const MAX_DURATION = 330;
 const TRANSITION = 18; // secondes pour passer d'un temps à l'autre
@@ -18,24 +20,16 @@ const TRANSITION = 18; // secondes pour passer d'un temps à l'autre
 const DROP_COUNT = 3600;
 const FIELD = 90; // arête de la boîte de pluie qui suit le joueur
 
-function streakTexture() {
-  const c = document.createElement('canvas');
-  c.width = 4;
-  c.height = 16;
-  const g = c.getContext('2d');
-  const grad = g.createLinearGradient(0, 0, 0, 16);
-  grad.addColorStop(0, 'rgba(255,255,255,0)');
-  grad.addColorStop(0.5, 'rgba(255,255,255,0.9)');
-  grad.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 4, 16);
-  return new THREE.CanvasTexture(c);
-}
+// Un éclair toutes les 4 à 14 s pendant un orage.
+const STRIKE_MIN = 4;
+const STRIKE_MAX = 14;
+const SOUND_SPEED = 343; // m/s : le tonnerre arrive après la lumière
 
 export class WeatherSystem {
-  constructor(scene, world) {
+  constructor(scene, world, audio = null) {
     this.scene = scene;
     this.world = world;
+    this.audio = audio;
 
     this.current = 'clear';
     this.next = 'clear';
@@ -50,36 +44,40 @@ export class WeatherSystem {
     this.wet = 0;
     this.grip = 1;
     this.sight = 1;
+    this.wind = 0.1;
+    this.storm = 0;
+    this.windAngle = Math.random() * Math.PI * 2;
 
-    this.dropBudget = DROP_COUNT;
-    this.buildRain();
-  }
+    // Éclairs.
+    this.flash = 0;
+    this.strikeTimer = STRIKE_MIN;
+    this.pendingThunder = [];
+    this.doubleFlash = 0;
+    this.lastStrike = null;
 
-  buildRain() {
-    const positions = new Float32Array(DROP_COUNT * 3);
-    this.speeds = new Float32Array(DROP_COUNT);
-    for (let i = 0; i < DROP_COUNT; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * FIELD;
-      positions[i * 3 + 1] = Math.random() * 45;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * FIELD;
-      this.speeds[i] = 26 + Math.random() * 16;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    this.rainMat = new THREE.PointsMaterial({
-      map: streakTexture(),
+    this.field = new ParticleField(scene, {
+      count: DROP_COUNT,
+      field: FIELD,
+      height: 45,
+      texture: streakTexture(),
       color: 0x9fb6cf,
       // Fines : à 0,85 les gouttes proches devenaient de gros flocons blancs.
       size: 0.26,
-      transparent: true,
-      opacity: 0,
-      depthWrite: false,
-      fog: false,
+      fallMin: 26,
+      fallMax: 42,
+      opacityMax: 0.75,
     });
-    this.rainMesh = new THREE.Points(geo, this.rainMat);
-    this.rainMesh.frustumCulled = false;
-    this.rainMesh.visible = false;
-    this.scene.add(this.rainMesh);
+    // Noms conservés : le reste du jeu et les tests les utilisent.
+    this.rainMesh = this.field.mesh;
+    this.rainMat = this.field.material;
+  }
+
+  get dropBudget() {
+    return this.field.budget;
+  }
+
+  set dropBudget(n) {
+    this.field.budget = n;
   }
 
   pickNext() {
@@ -114,11 +112,52 @@ export class WeatherSystem {
     this.wet = THREE.MathUtils.lerp(a.wet, b.wet, t);
     this.grip = THREE.MathUtils.lerp(a.grip, b.grip, t);
     this.sight = THREE.MathUtils.lerp(a.sight, b.sight, t);
+    this.wind = THREE.MathUtils.lerp(a.wind, b.wind, t);
+    this.storm = THREE.MathUtils.lerp(a.storm, b.storm, t);
   }
 
   get label() {
     // Pendant une transition, on annonce déjà la météo qui arrive.
-    return WEATHER[this.blend > 0.5 ? this.next : this.current].label;
+    const base = WEATHER[this.blend > 0.5 ? this.next : this.current];
+    // En hiver la pluie tombe en neige : autant le dire au joueur.
+    if (this.seasons && this.seasons.snowfall > 0.35) return 'Neige';
+    return base.label;
+  }
+
+  // Un éclair : double flash lumineux, puis tonnerre après le temps qu'il faut
+  // au son pour parcourir la distance. C'est ce décalage qui rend l'orage
+  // crédible — on voit d'abord, on entend ensuite.
+  strike(distance = 300 + Math.random() * 2900) {
+    this.flash = 1;
+    this.doubleFlash = 0.09;
+    this.lastStrike = { distance: Math.round(distance), delay: +(distance / SOUND_SPEED).toFixed(2) };
+    this.pendingThunder.push({ delay: distance / SOUND_SPEED, distance });
+    return this.lastStrike;
+  }
+
+  updateLightning(dt) {
+    // Décroissance rapide : un éclair dure moins d'un dixième de seconde.
+    if (this.flash > 0) this.flash = Math.max(0, this.flash - dt * 9);
+    if (this.doubleFlash > 0) {
+      this.doubleFlash -= dt;
+      if (this.doubleFlash <= 0) this.flash = Math.max(this.flash, 0.55);
+    }
+
+    for (let i = this.pendingThunder.length - 1; i >= 0; i--) {
+      const t = this.pendingThunder[i];
+      t.delay -= dt;
+      if (t.delay <= 0) {
+        this.audio?.thunder(t.distance);
+        this.pendingThunder.splice(i, 1);
+      }
+    }
+
+    if (this.storm < 0.35) return;
+    this.strikeTimer -= dt * this.storm;
+    if (this.strikeTimer <= 0) {
+      this.strikeTimer = STRIKE_MIN + Math.random() * (STRIKE_MAX - STRIKE_MIN);
+      this.strike();
+    }
   }
 
   update(dt, focus) {
@@ -134,39 +173,21 @@ export class WeatherSystem {
       }
     }
     this.applyBlend();
+    this.updateLightning(dt);
+
+    // Le vent tourne lentement : la pluie ne dérive pas toujours du même côté.
+    this.windAngle += dt * 0.05;
 
     // Le monde lit ces modificateurs dans son cycle jour/nuit.
     this.world.weatherMods.sunMul = 1 - this.clouds * 0.72;
     this.world.weatherMods.fogAdd = this.fog * 0.022;
     this.world.weatherMods.fogGrey = Math.min(1, this.clouds * 0.75 + this.fog * 0.5);
     this.world.weatherMods.wet = this.wet;
+    this.world.weatherMods.flash = this.flash;
 
-    this.updateRain(dt, focus);
-  }
-
-  updateRain(dt, focus) {
-    const visible = this.rain > 0.02;
-    this.rainMesh.visible = visible;
-    if (!visible) return;
-    // Le preset graphique limite le nombre de gouttes effectivement dessinées.
-    this.rainMesh.geometry.setDrawRange(0, Math.min(DROP_COUNT, this.dropBudget));
-
-    this.rainMat.opacity = this.rain * 0.75;
-    const pos = this.rainMesh.geometry.attributes.position;
-    const drift = 3.5 * this.rain;
-
-    for (let i = 0; i < DROP_COUNT; i++) {
-      const i3 = i * 3;
-      pos.array[i3 + 1] -= this.speeds[i] * dt;
-      pos.array[i3] += drift * dt;
-      if (pos.array[i3 + 1] < 0) {
-        // On recycle la goutte en haut de la boîte.
-        pos.array[i3] = (Math.random() - 0.5) * FIELD;
-        pos.array[i3 + 1] = 40 + Math.random() * 8;
-        pos.array[i3 + 2] = (Math.random() - 0.5) * FIELD;
-      }
-    }
-    pos.needsUpdate = true;
-    this.rainMesh.position.set(focus.x, 0, focus.z);
+    // La saison décide si la précipitation tombe en pluie ou en neige ; sans
+    // saisons branchées, tout tombe en pluie.
+    const asRain = this.seasons ? this.seasons.rainfall : this.rain;
+    this.field.update(dt, focus, asRain ?? this.rain, this.wind, this.windAngle);
   }
 }

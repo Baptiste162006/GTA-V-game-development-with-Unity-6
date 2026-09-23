@@ -67,7 +67,10 @@ Les phares s'allument tout seuls à la tombée de la nuit.
 | `spawn sportive` | Fait apparaître un véhicule : `citadine`, `berline`, `sportive`, `taxi`, `van`, `police`, `muscle`, `luxe`, `suv`, `pickup`, `camion`, `bus`, `ambulance`, `pompiers`, `scooter`, `moto` |
 | `tp 120 -60` | Téléporte en x / z |
 | `time 22` | Change l'heure du jeu |
-| `weather rain` | Force la météo (`clear`, `cloudy`, `rain`, `fog`) |
+| `weather rain` | Force la météo (`clear`, `cloudy`, `rain`, `fog`, `storm`) |
+| `season hiver` | Force la saison (`printemps`, `ete`, `automne`, `hiver`) |
+| `neige 0.5` | Fixe la couverture de neige au sol (0 à 1) |
+| `eclair` | Déclenche un éclair et son tonnerre |
 | `give all` | Débloque tout l'arsenal (ou `give sniper`) |
 | `gang 3` | Fait apparaître 3 ennemis hostiles devant toi |
 | `job` | Propose un nouveau job |

@@ -72,11 +72,25 @@ export class DebugConsole {
         game.enemies.spawnSquad(new THREE.Vector3(p.x + 14, 0, p.z + 14), count, true);
         return `${count} ennemis hostiles devant toi`;
       },
+      season: (name) => {
+        if (!name) return `Saison : ${game.seasons.label} (couverture de neige ${Math.round(game.seasons.cover * 100)} %)`;
+        return game.seasons.set(name)
+          ? `Saison : ${game.seasons.label}`
+          : 'Saisons : printemps, ete, automne, hiver';
+      },
+      neige: (n) => {
+        game.seasons.cover = Math.max(0, Math.min(1, Number(n) ?? 1));
+        return `Couverture de neige : ${Math.round(game.seasons.cover * 100)} %`;
+      },
+      eclair: () => {
+        const s = game.weather.strike();
+        return `Éclair à ${s.distance} m — tonnerre dans ${s.delay} s`;
+      },
       weather: (name) => {
         if (!name) return `Météo actuelle : ${game.weather.label}`;
         return game.weather.set(name, true)
           ? `Météo : ${game.weather.label}`
-          : 'Météos : clear, cloudy, rain, fog';
+          : 'Météos : clear, cloudy, rain, fog, storm';
       },
       job: () => {
         game.missions.offerJob();
