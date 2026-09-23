@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.18 — 2026-09-23
+
+### Ajouté — réaction du joueur à ses propres dégâts
+- Le joueur qui encaisse un tir a maintenant un **flash blanc** sur les
+  quatre matériaux de son personnage et un **écart directionnel du buste**
+  à l'opposé du tir — jusqu'ici seul le HUD réagissait (arc rouge,
+  vignette), jamais le personnage lui-même, contrairement aux ennemis qui
+  ont ce retour depuis la v0.8. Corrige la lacune identifiée dans
+  `PROJECT_STATUS.md` (jalon 2 de `MILESTONES.md`).
+- Vérifié : aucun flash avant un coup, flash déclenché immédiatement après
+  (0,42 sur une échelle 0-0,6), retombé à 0 en moins d'une seconde, sans
+  résidu ; le côté du recul suit la position réelle du tireur ; bloqué
+  pendant l'invulnérabilité (respawn).
+- Cinq tests automatisés (combat, mort, visée), zéro erreur console.
+
 ## v0.17 — 2026-09-23
 
 ### Ajouté — feuille de route de production

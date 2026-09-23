@@ -131,6 +131,8 @@ export class Player {
     this.inVehicle = null;
     this.alive = true;
     this.invulnerable = 0;
+    this.hitFlash = 0; // repris par animate() : flash + écart du buste au tir
+    this.hitSide = 1;
   }
 
   get headPos() {
@@ -143,6 +145,15 @@ export class Player {
     const toArmor = Math.min(this.armor, amount * 0.6);
     this.armor -= toArmor;
     this.health -= amount - toArmor;
+    // Le joueur encaisse comme les ennemis : un flash et un écart directionnel
+    // du buste, repris dans animate(). Rien n'existait ici avant — seul le
+    // HUD (arc rouge, vignette) réagissait, jamais le personnage lui-même.
+    this.hitFlash = 1;
+    if (from) {
+      const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
+      const to = from.clone().sub(this.pos);
+      this.hitSide = Math.sign(right.dot(to)) || 1;
+    }
     if (this.onDamage) this.onDamage(amount, from, cause);
     if (this.health <= 0) {
       this.health = 0;
@@ -227,6 +238,20 @@ export class Player {
     rig.torso.rotation.z = Math.sin(this.phase) * 0.04 * amp + sway * 0.02 * idleAmt;
     rig.torso.position.y = 1.32 + Math.abs(Math.sin(this.phase)) * 0.045 * amp + breathe * 0.012 * idleAmt;
     rig.head.rotation.y = Math.sin(this.phase * 0.5) * 0.06 * amp + sway * 0.05 * idleAmt;
+
+    // Réaction aux dégâts : flash blanc sur les mêmes quatre matériaux que
+    // colore le personnage, et écart du buste à l'opposé du tir. Toujours
+    // recalculé, jamais gardé sous condition, sinon l'émissif reste bloqué
+    // sur un résidu au lieu de revenir pile à zéro.
+    this.hitFlash = Math.max(0, this.hitFlash - dt * 6);
+    const flashOn = this.hitFlash * 0.6;
+    for (const m of this.mesh.userData.materials) m.emissive.setScalar(flashOn);
+    if (this.hitFlash > 0) {
+      rig.torso.rotation.z += this.hitSide * this.hitFlash * 0.12;
+      rig.head.rotation.z = -this.hitSide * this.hitFlash * 0.08;
+    } else {
+      rig.head.rotation.z = 0;
+    }
 
     if (!this.onGround) {
       rig.legL.rotation.x = 0.45;

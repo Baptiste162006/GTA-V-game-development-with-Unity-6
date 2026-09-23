@@ -62,7 +62,7 @@ par quartier.
 jeu, façades étendues à 5 styles minimum, zéro régression de performance
 mesurée.
 
-## 2. Personnage et caméra — PARTIELLEMENT FAITE
+## 2. Personnage et caméra — PARTIELLEMENT FAITE (réaction aux dégâts livrée en v0.18)
 
 **Objectif.** Proportions, animations, visée, arme visible, réactions à la
 mort/aux chutes.
@@ -71,9 +71,10 @@ mort/aux chutes.
 respiration à l'arrêt, marche/course par oscillation, visée alignée à 3,8°
 de l'axe réel, arme visible et contrastée.
 
-**Pas fait.** Réaction visuelle du joueur à ses propres dégâts (les
-ennemis en ont une depuis la v0.8, pas le joueur — vérifié en lisant
-`Player.damage()`). Accroupissement. Pose d'entrée/sortie de véhicule.
+**Fait depuis (v0.18)** : flash + écart directionnel du buste sur les
+dégâts encaissés, symétrique à celui des ennemis.
+
+**Pas fait.** Accroupissement. Pose d'entrée/sortie de véhicule.
 
 **Critères d'acceptation.** Le joueur qui encaisse un tir a une réaction
 visible (flash et/ou recul), symétrique à celle des ennemis. Aucune
