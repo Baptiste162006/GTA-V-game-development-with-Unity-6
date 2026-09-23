@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## Documentation — 2026-09-23 (aucun fichier de jeu modifié)
+
+- `V1_SCOPE.md` réécrit : tableau des affirmations corrigées par le code
+  (pas de lance-roquettes, 6 quartiers et non 8, sauvegarde limitée à
+  argent/stats/heure, menu sans Sauvegarder/Réinitialiser/Quitter, audio
+  sans bus ni pas ni rechargement) ; spécifications cibles HUD, menu
+  pause, options en sections, écran de chargement, audio ; liste
+  explicite de tout ce qui est reporté en V2, avec la raison.
+- `BACKLOG.md` : nouvelles entrées audio/UI/gameplay, checklist de bugs à
+  repasser avant chaque version, sauvegarde complète passée en P0.
+- `MILESTONES.md` : jalons 5 et 6 ramenés de « largement faits » à
+  « partiels », avec critères, risques et tests.
+- `PROJECT_STATUS.md`, `VERTICAL_SLICE.md`, `PROGRESS.md` alignés.
+
 ## v0.18 — 2026-09-23
 
 ### Ajouté — réaction du joueur à ses propres dégâts

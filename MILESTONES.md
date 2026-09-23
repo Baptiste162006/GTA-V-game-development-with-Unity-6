@@ -140,36 +140,74 @@ dans `enemies.js`, pas un nouveau système.
 **Condition de passage au jalon 5.** Non bloquant — la mission
 scénarisée du jalon 7 peut se construire avec un seul profil d'ennemi.
 
-## 5. Audio et game feel — LARGEMENT FAITE
+## 5. Audio et game feel — PARTIELLE
 
-**Fait.** Moteur, sirène, klaxon, chocs, tir par arme, tonnerre retardé
-par la distance (v0.10, vérifié : 1 372 m → 5 s), jingles de réussite/échec,
-notifications en fondu (v0.12).
+**Fait.** Moteur, sirène, klaxon, chocs, crissement, pluie, tir par arme,
+clic à vide, tonnerre retardé par la distance, jingles de réussite/échec.
 
-**Pas fait.** Musique ou ambiance de fond en boucle.
+**Pas fait** (détail dans `V1_SCOPE.md` § Audio) : bus Master/Musique/
+Effets/Ambiance/UI, pool de voix, rechargement, impacts par matériau, pas,
+démarrage/arrêt/roulement moteur, ambiance de ville, sons d'interface,
+boucle musicale, explosion.
 
-**Modèle conseillé.** Sonnet, et seulement si le silence ambiant gêne
-réellement en jouant la tranche verticale — ce n'est pas un manque
-structurel.
+**Fichiers.** `audio.js`, `settings.js`, `menu.js` (curseurs), points
+d'appel dans `weapons.js`, `player.js`, `vehicle.js`.
 
-**Condition de passage au jalon 6.** Non bloquant.
+**Critères d'acceptation.** Chaque bus a son curseur et le volume 0 est
+muet ; aucun son ne continue en pause ; une rafale d'UZI de 5 s ne dépasse
+pas la limite de voix ; chaque action de la checklist audio (`BACKLOG.md`)
+produit un son.
 
-## 6. HUD, pause et options — LARGEMENT FAITE
+**Risques.** Saturation/clipping, sons qui fuient en pause, coût CPU de la
+synthèse — mesurer le nombre de nœuds actifs.
 
-**Fait.** Thème « Nocturne urbain » centralisé + 2 variantes (v0.11), menu
-pause navigable sans bug d'oscillation, 19 réglages persistés et appliqués
-en direct, FOV séparé par contexte (v0.12).
+**Modèle conseillé.** Sonnet (un fichier central + appels ponctuels).
 
-**Pas fait.** Remappage des touches. Trois emplacements de sauvegarde
-(un seul aujourd'hui — suffisant pour la V1, voir `V1_SCOPE.md`).
+**Test.** Script qui compte les nœuds audio actifs pendant une fusillade,
+en pause et après mort.
 
-**Condition de passage au jalon 7.** Déjà remplie — rien ne bloque la
-suite depuis ce jalon.
+**Condition de passage.** Non bloquant pour le jalon 7, bloquant pour la
+V1 (jalon 10).
+
+## 6. HUD, pause, options, sauvegarde — PARTIELLE
+
+**Fait.** Thème centralisé + 3 variantes, menu pause navigable (Reprendre,
+Carte, Missions, Statistiques, Options, Commandes, Recommencer), 19
+réglages persistés et appliqués en direct, FOV par contexte.
+
+**Pas fait.** Entrée Sauvegarder (avec message), Réinitialiser la
+sauvegarde (avec confirmation), Quitter ; sauvegarde complète (aujourd'hui
+argent + statistiques + heure seulement) ; options en sections
+Vidéo/Audio/Contrôles/Accessibilité/À propos + réinitialiser ; remappage
+des touches ; écran de chargement ; vérification HUD multi-ratios.
+
+**Fichiers.** `main.js` (`save`/`loadSave`), `menu.js`, `settings.js`,
+`input.js`, `index.html`, `hud.js`.
+
+**Critères d'acceptation.** Sauvegarder → recharger la page → même
+position, armes, munitions, argent, heure, météo, saison ; réinitialiser
+→ partie neuve après confirmation, annuler ne change rien ; ancienne
+sauvegarde (format actuel) toujours lue sans erreur.
+
+**Risques.** Casser les sauvegardes existantes ; restaurer un état
+incohérent (joueur dans un mur, véhicule disparu) ; régression de la
+navigation du menu (déjà eu un bug d'oscillation).
+
+**Modèle conseillé.** Sonnet.
+
+**Test.** Script aller-retour sauvegarde/rechargement + script de menu
+existant (`menutest`).
+
+**Condition de passage au jalon 7.** Sauvegarde complète en place : sans
+elle, la progression des missions scénarisées serait perdue au
+rechargement.
 
 ## 7. Mission de la tranche verticale — NON COMMENCÉE
 
 **Objectif.** Voir `VERTICAL_SLICE.md` en détail — 5 à 10 minutes, la
 boucle en 9 étapes y est décrite précisément.
+
+**Dépend de** la sauvegarde complète (jalon 6).
 
 **Ce qui manque réellement** : un système de missions scénarisées avec
 prérequis et échec possible. Le tutoriel et les jobs actuels

@@ -40,13 +40,14 @@ Contenu de la zone, ce qui existe déjà vs. ce qui manque :
 6. Il échappe à la police ou atteint une zone de fuite (`police.js` existe
    déjà, jusqu'à 5 étoiles).
 7. Il reçoit une récompense (argent — déjà câblé dans `missions.js`).
-8. Il peut sauvegarder (déjà là, un emplacement).
+8. Il sauvegarde depuis le menu pause — **à faire** : aujourd'hui la
+   sauvegarde est automatique et ne garde qu'argent, statistiques et heure.
 9. Il revient en exploration libre.
 
 **Ce qui manque pour que cette boucle soit une vraie mission** plutôt qu'une
 suite d'actions libres déjà possibles aujourd'hui : un enchaînement avec
 étapes, prérequis et échec possible — c'est exactement le travail de
-« missions scénarisées » identifié comme P1 dans `PROJECT_STATUS.md`. Sans
+« missions scénarisées » identifié comme P0 dans `BACKLOG.md`. Sans
 lui, la boucle ci-dessus se joue déjà telle quelle, mais sans fil rouge.
 
 ## Qualité cible
@@ -55,9 +56,9 @@ lui, la boucle ci-dessus se joue déjà telle quelle, mais sans fil rouge.
 - Arme visible — acquis (v0.13).
 - Visée correcte — acquis (v0.12, v0.13).
 - Voiture avec pneus/feux/dégâts simples — acquis (v0.14).
-- Audio — acquis, synthétisé.
+- Audio — partiel : pas de pas, de rechargement ni d'ambiance de ville (`V1_SCOPE.md` § Audio).
 - HUD cohérent — acquis (v0.11).
-- Menu pause — acquis.
+- Menu pause — partiel : manquent Sauvegarder, Réinitialiser, Quitter, options en sections.
 - Pas de bugs bloquants — vrai aujourd'hui (voir `PROJECT_STATUS.md` §3).
 - FPS cible : 60 sur un PC moyen avec accélération matérielle réelle — **non
   mesuré**, seul le rendu logiciel (SwiftShader) a été testé jusqu'ici.

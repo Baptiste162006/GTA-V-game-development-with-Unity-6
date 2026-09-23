@@ -4,6 +4,11 @@ Dernière mise à jour : 2026-09-23. Chaque ligne de ce document vient d'une
 lecture du code au moment de l'écrire, ou d'une mesure automatisée — pas
 d'une intuition sur ce qui « devrait » exister.
 
+> Mis à jour le 2026-09-23 (v0.18) : le menu, la sauvegarde et l'audio
+> étaient notés « fonctionnels » alors qu'il leur manque des éléments
+> exigés pour la V1 — corrigés en PARTIEL ci-dessous. Détail et
+> spécifications cibles : `V1_SCOPE.md`.
+
 ## 1. État global
 
 - **Version** : v0.16.
@@ -41,7 +46,7 @@ primitives), **NON COMMENCÉ**.
 | Collision | FONCTIONNEL | `world.js` | AABB en grille spatiale, cercle repoussé pour piéton/joueur, deux cercles pour véhicule | Joueur à pied traverse un véhicule à l'arrêt (bug connu, non corrigé) | Voir ci-contre | — | Sonnet | P2 |
 | Déplacement | FONCTIONNEL | `player.js` | Marche/course/marche lente/saut, collisions, orientation par la direction de mouvement | — | Aucun | — | — | — |
 | Caméra | FONCTIONNEL | `player.js`, `main.js` | Épaule, anti-mur par ratio distance obtenue/voulue (v0.12, corrigé après une régression trouvée en testant), FOV par contexte (à pied/véhicule/visée/lunette) | Peut encore paraître basse dos à un mur extrême | Aucun bloquant connu | — | — | — |
-| Personnage joueur | PROVISOIRE | `player.js` | Silhouette en 9 primitives partagées, marche/course/respiration à l'arrêt/saut/mort | Pas de visage, mains, vêtements détaillés ; **aucune réaction visuelle aux dégâts** (vérifié : `Player.damage()` ne touche que la vie/l'armure) | Aucun | — | Sonnet (réaction dégâts) / Opus (vrai modèle) | P0 |
+| Personnage joueur | PROVISOIRE | `player.js` | Silhouette en 9 primitives partagées, marche/course/respiration/saut/mort, réaction aux dégâts (flash + écart du buste, v0.18) | Pas de visage, mains, vêtements détaillés | Aucun | — | Opus (vrai modèle, V2) | P3 |
 | PNJ | PROVISOIRE | `traffic.js`, `enemies.js` | Même silhouette partagée, panique/renversement, gangs avec IA de tir | Pas de variété de silhouette, pas d'animation idle propre en dehors du joueur | Traversent sans regarder (volontaire, documenté) | Personnage joueur | Sonnet | P2 |
 | Véhicules | PARTIEL | `vehicle.js` | 16 modèles, physique arcade, dégâts visibles + fumée (v0.14), suspension corrigée (v0.14), roulis, gyrophares | Vitres sans reflet, jantes = disque plein, pas de déformation de carrosserie | Aucun bloquant | — | Sonnet | P1 |
 | Pneus / physique véhicule | FONCTIONNEL | `vehicle.js` | Rotation asservie à la vitesse réelle, pivot de direction, adhérence liée à la météo, patinage | — | Aucun | Météo | — | — |
@@ -57,10 +62,10 @@ primitives), **NON COMMENCÉ**.
 | Cycle jour/nuit | FONCTIONNEL | `world.js` | Ciel dégradé shader, étoiles, fenêtres qui s'allument, halos de lampadaires | — | Aucun | — | — | — |
 | HUD | FONCTIONNEL | `hud.js`, `uiTheme.js` | Thème « Nocturne urbain » centralisé + 2 variantes (contraste, daltonisme) depuis la v0.11, vie/armure avec icône + segments + valeur chiffrée (jamais la couleur seule) | — | Aucun | — | — | — |
 | Mini-carte | FONCTIONNEL | `hud.js` | Marqueurs à forme distincte par catégorie (flèche/hexagone/losange, v0.11), grande carte au menu pause | — | Aucun | — | — | — |
-| Pause / options | FONCTIONNEL | `menu.js`, `settings.js` | 19 réglages appliqués en direct et persistés, bug d'oscillation du menu corrigé (v0.9→correctif), navigation clavier | Pas de remappage de touches | Aucun bloquant | — | — | — |
-| Sauvegarde | PARTIEL | `main.js` | Un seul emplacement localStorage (argent, stats, heure) | Pas de 3 emplacements de sauvegarde (prévu MILESTONES étape 9) | Best-effort si localStorage bloqué (documenté, pas un bug) | — | Sonnet | P3 |
-| Audio | FONCTIONNEL | `audio.js` | Tout synthétisé (WebAudio) : moteur, sirène, klaxon, chocs, tir par arme, tonnerre, jingles | Pas de musique ni d'ambiance de fond en boucle | Aucun | — | Sonnet | P3 |
-| Missions | PARTIEL | `missions.js` | Tutoriel 4 étapes + 2 jobs répétables (livraison, commande garage) | **Aucune mission scénarisée avec progression/prérequis** — c'est la plus grosse case vide du gameplay | Aucun | — | Sonnet/Opus selon ampleur | P1 |
+| Pause / options | PARTIEL | `menu.js`, `settings.js` | 7 entrées (Reprendre, Carte, Missions, Statistiques, Options, Commandes, Recommencer), 19 réglages appliqués en direct et persistés, navigation clavier sans oscillation | Pas de Sauvegarder / Réinitialiser / Quitter ; options en une liste sans sections ; pas de remappage ; pas de réinitialisation des options ; pas d'écran de chargement | Aucun bloquant | — | Sonnet | P0 (sauvegarde) / P1 (reste) |
+| Sauvegarde | PARTIEL | `main.js` | Automatique, un emplacement localStorage : argent, stats, heure **seulement** | Position, véhicule, armes/munitions, missions, météo, saison non sauvegardés ; aucune entrée manuelle ni réinitialisation | Best-effort si localStorage bloqué (documenté) | — | Sonnet | P0 |
+| Audio | PARTIEL | `audio.js` | Synthétisé (WebAudio) : moteur, sirène, klaxon, chocs, crissement, pluie, tir par arme, clic à vide, tonnerre, jingles | Pas de bus Musique/Effets/Ambiance/UI, pas de pool de voix, pas de rechargement, pas de pas, pas d'impacts par matériau, pas d'ambiance de ville, pas de musique, sons UI génériques | Aucun | — | Sonnet | P1 |
+| Missions | PARTIEL | `missions.js` | Tutoriel 4 étapes + 2 jobs répétables (livraison, commande garage) | **Aucune mission scénarisée avec progression/prérequis** — la plus grosse case vide du gameplay | Aucun | Sauvegarde complète | Opus (système) puis Sonnet | P0 |
 | Économie | PROVISOIRE | `main.js`, `missions.js` | Argent, primes de job, frais d'hôpital/amende d'arrestation | Pas de business, propriété, revenu passif | — | — | Sonnet | P3 |
 | Téléphone | NON COMMENCÉ | — | — | Carte plein écran, contacts, messages, banque — rien n'existe | — | — | — | P2 (si retenu en V1) |
 | Personnages multiples | NON COMMENCÉ | — | — | Un seul personnage jouable | — | — | — | Hors V1 |
