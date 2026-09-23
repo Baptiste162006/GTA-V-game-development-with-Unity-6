@@ -29,7 +29,7 @@ export class PauseMenu {
       b.className = 'nav-item';
       b.textContent = section.label;
       b.addEventListener('click', () => this.choose(i));
-      b.addEventListener('mouseenter', () => this.highlight(i));
+      b.addEventListener('mouseenter', () => this.highlight(i, false));
       this.nav.appendChild(b);
       return b;
     });
@@ -66,10 +66,18 @@ export class PauseMenu {
     }
   }
 
-  highlight(i) {
+  // `focusIt` : seuls le clavier et le clic déplacent le focus. Au survol on ne
+  // le vole pas, sinon la souris arrache le focus au clavier en permanence.
+  highlight(i, focusIt = true) {
+    // Sans ce garde, chaque `mouseenter` reconstruisait tout le panneau — y
+    // compris le canvas de la carte — alors que rien n'avait changé.
+    if (i === this.index && this.section === SECTIONS[i].id) {
+      if (focusIt) this.buttons[i].focus();
+      return;
+    }
     this.index = i;
     this.buttons.forEach((b, k) => b.classList.toggle('on', k === i));
-    this.buttons[i].focus();
+    if (focusIt) this.buttons[i].focus();
     this.show(SECTIONS[i].id);
   }
 
@@ -121,7 +129,10 @@ export class PauseMenu {
     else if (id === 'options') this.renderOptions();
     else if (id === 'controls') this.renderControls();
     else if (id === 'map') this.renderMap();
-    else this.panel.innerHTML = '<p class="note">Appuie sur Entrée pour reprendre la partie.</p>';
+    else if (id === 'restart') {
+      this.panel.innerHTML =
+        '<p class="note">Relance une partie neuve. Les réglages sont conservés, la progression non sauvegardée est perdue.</p>';
+    } else this.panel.innerHTML = '<p class="note">Appuie sur Entrée pour reprendre la partie.</p>';
   }
 
   row(label, value) {

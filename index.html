@@ -249,6 +249,12 @@
   @keyframes pulse { 50% { opacity: 0.35; } }
 
   /* --- menu pause --- */
+  /* Ancré en haut, pas centré : une section haute (la carte) et une section
+     courte (Reprendre) n'ont pas la même hauteur de panneau. Centré, le menu
+     entier remontait ou descendait à chaque changement de section — la
+     colonne de navigation glissait alors sous le curseur, ce qui déclenchait
+     le survol de la voisine, et le menu oscillait sans fin. */
+  #pause-screen { place-items: start center; padding-top: min(9vh, 70px); }
   .pause-layout { display: grid; grid-template-columns: 210px 1fr; gap: 36px; align-items: start; }
   .pause-side nav { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
   .nav-item {
@@ -258,10 +264,15 @@
     padding: 9px 12px; cursor: pointer; transition: color 0.12s, border-color 0.12s, transform 0.12s;
   }
   .nav-item:hover { color: var(--ink); filter: none; }
-  .nav-item.on { color: var(--ink); border-left-color: var(--accent); transform: translateX(4px); }
+  /* Pas de `transform` ici : décaler l'entrée surlignée la faisait glisser sous
+     le curseur, ce qui relançait un `mouseenter` sur la voisine — le menu
+     oscillait entre deux entrées dès qu'on bougeait la souris. On décale le
+     texte sans bouger la zone cliquable. */
+  .nav-item.on { color: var(--ink); border-left-color: var(--accent); padding-left: 16px; }
   .nav-item:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .pause-main h1 { font-size: clamp(28px, 5vw, 44px); margin-top: 0; }
-  #pause-panel { display: grid; gap: 2px; max-width: 520px; }
+  /* Hauteur plancher : le fond du menu ne saute pas d'une section à l'autre. */
+  #pause-panel { display: grid; gap: 2px; max-width: 520px; align-content: start; min-height: 430px; }
   #pause-panel .eyebrow { margin: 18px 0 4px; }
   .option { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--edge); font-size: 15px; }
   .option span { flex: 1; color: var(--ink-dim); }
