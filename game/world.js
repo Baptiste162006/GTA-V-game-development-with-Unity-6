@@ -100,44 +100,105 @@ function lerpKeys(hour) {
   return { a, b, t };
 }
 
-function facadeTexture() {
+// Trois styles de façade, pour que deux immeubles voisins ne soient pas de
+// simples copies l'un de l'autre. `variant` : 0 = bureaux (fenêtres larges en
+// bandeaux), 1 = tours étroites (fenêtres hautes et resserrées), 2 = brique
+// (petites fenêtres carrées, joints visibles).
+function facadeTexture(variant = 0) {
   const c = document.createElement('canvas');
   c.width = c.height = 128;
   const g = c.getContext('2d');
-  g.fillStyle = '#d8d8d8';
-  g.fillRect(0, 0, 128, 128);
-  // Bandeau d'étage + fenêtres.
-  for (let y = 0; y < 128; y += 32) {
-    g.fillStyle = '#bcbcbc';
-    g.fillRect(0, y, 128, 4);
-    for (let x = 0; x < 128; x += 32) {
-      const shade = 90 + Math.floor(Math.random() * 50);
-      g.fillStyle = `rgb(${shade},${shade + 6},${shade + 12})`;
-      g.fillRect(x + 7, y + 11, 18, 15);
-      g.fillStyle = 'rgba(255,255,255,0.18)';
-      g.fillRect(x + 7, y + 11, 18, 4);
+
+  if (variant === 1) {
+    // Tour étroite : fenêtres hautes, séparées par de fins meneaux verticaux.
+    g.fillStyle = '#cfcfcf';
+    g.fillRect(0, 0, 128, 128);
+    for (let y = 0; y < 128; y += 32) {
+      g.fillStyle = '#b2b2b2';
+      g.fillRect(0, y, 128, 3);
+      for (let x = 0; x < 128; x += 16) {
+        const shade = 85 + Math.floor(Math.random() * 45);
+        g.fillStyle = `rgb(${shade},${shade + 6},${shade + 14})`;
+        g.fillRect(x + 3, y + 6, 9, 24);
+      }
+    }
+  } else if (variant === 2) {
+    // Brique : petites fenêtres carrées, appareillage visible entre les rangs.
+    g.fillStyle = '#b9846a';
+    g.fillRect(0, 0, 128, 128);
+    for (let y = 0; y < 128; y += 4) {
+      g.fillStyle = y % 8 === 0 ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
+      g.fillRect(0, y, 128, 1);
+    }
+    for (let y = 8; y < 128; y += 32) {
+      for (let x = 6; x < 128; x += 32) {
+        const shade = 70 + Math.floor(Math.random() * 40);
+        g.fillStyle = `rgb(${shade},${shade + 4},${shade + 6})`;
+        g.fillRect(x, y, 14, 14);
+        g.fillStyle = 'rgba(0,0,0,0.25)';
+        g.strokeRect(x, y, 14, 14);
+      }
+    }
+  } else {
+    // Bureaux : bandeaux larges, le style d'origine.
+    g.fillStyle = '#d8d8d8';
+    g.fillRect(0, 0, 128, 128);
+    for (let y = 0; y < 128; y += 32) {
+      g.fillStyle = '#bcbcbc';
+      g.fillRect(0, y, 128, 4);
+      for (let x = 0; x < 128; x += 32) {
+        const shade = 90 + Math.floor(Math.random() * 50);
+        g.fillStyle = `rgb(${shade},${shade + 6},${shade + 12})`;
+        g.fillRect(x + 7, y + 11, 18, 15);
+        g.fillStyle = 'rgba(255,255,255,0.18)';
+        g.fillRect(x + 7, y + 11, 18, 4);
+      }
     }
   }
+
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = 4;
   return t;
 }
 
-function windowLightTexture() {
+// Fenêtres allumées de nuit, assorties à chaque style de façade ci-dessus —
+// même disposition de grille, pour que le calque lumineux tombe pile sur les
+// fenêtres du jour.
+function windowLightTexture(variant = 0) {
   const c = document.createElement('canvas');
   c.width = c.height = 128;
   const g = c.getContext('2d');
   g.fillStyle = '#000';
   g.fillRect(0, 0, 128, 128);
   const warm = ['#ffd9a0', '#ffc46b', '#fff0cc', '#9fd8ff'];
-  for (let y = 0; y < 128; y += 32) {
-    for (let x = 0; x < 128; x += 32) {
-      if (Math.random() < 0.45) continue; // fenêtre éteinte
-      g.fillStyle = warm[Math.floor(Math.random() * warm.length)];
-      g.fillRect(x + 7, y + 11, 18, 15);
+
+  if (variant === 1) {
+    for (let y = 0; y < 128; y += 32) {
+      for (let x = 0; x < 128; x += 16) {
+        if (Math.random() < 0.45) continue;
+        g.fillStyle = warm[Math.floor(Math.random() * warm.length)];
+        g.fillRect(x + 3, y + 6, 9, 24);
+      }
+    }
+  } else if (variant === 2) {
+    for (let y = 8; y < 128; y += 32) {
+      for (let x = 6; x < 128; x += 32) {
+        if (Math.random() < 0.45) continue;
+        g.fillStyle = warm[Math.floor(Math.random() * warm.length)];
+        g.fillRect(x, y, 14, 14);
+      }
+    }
+  } else {
+    for (let y = 0; y < 128; y += 32) {
+      for (let x = 0; x < 128; x += 32) {
+        if (Math.random() < 0.45) continue;
+        g.fillStyle = warm[Math.floor(Math.random() * warm.length)];
+        g.fillRect(x + 7, y + 11, 18, 15);
+      }
     }
   }
+
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   return t;
@@ -334,17 +395,22 @@ export class World {
   }
 
   buildCity() {
-    const facade = facadeTexture();
-    const windows = windowLightTexture();
-    this.buildingMats = Object.values(DISTRICTS).map(
-      (d) =>
-        new THREE.MeshLambertMaterial({
-          color: d.color,
-          map: facade,
-          emissive: 0xffffff,
-          emissiveMap: windows,
-          emissiveIntensity: 0,
-        })
+    // Trois styles de façade partagés par toute la ville ; chaque quartier les
+    // reçoit dans sa propre teinte. `buildingMats[districtIndex][variant]`.
+    const VARIANTS = 3;
+    const facades = [facadeTexture(0), facadeTexture(1), facadeTexture(2)];
+    const windowSets = [windowLightTexture(0), windowLightTexture(1), windowLightTexture(2)];
+    this.buildingMats = Object.values(DISTRICTS).map((d) =>
+      facades.map(
+        (facade, v) =>
+          new THREE.MeshLambertMaterial({
+            color: d.color,
+            map: facade,
+            emissive: 0xffffff,
+            emissiveMap: windowSets[v],
+            emissiveIntensity: 0,
+          })
+      )
     );
     const districtKeys = Object.keys(DISTRICTS);
 
@@ -382,6 +448,27 @@ export class World {
 
     const corniceMat = new THREE.MeshLambertMaterial({ color: 0x5c5c58 });
 
+    // Mobilier urbain : un banc et une poubelle, chacun une géométrie unique
+    // fusionnée une fois puis instanciée — un banc à trois pièces (assise,
+    // dossier, pieds) ne coûte pas plus qu'un simple cube une fois placé en
+    // InstancedMesh.
+    const benchMat = new THREE.MeshLambertMaterial({ color: 0x4a3a2c });
+    const benchSeat = new THREE.BoxGeometry(1.5, 0.06, 0.5);
+    benchSeat.translate(0, 0.46, 0);
+    const benchBack = new THREE.BoxGeometry(1.5, 0.5, 0.05);
+    benchBack.translate(0, 0.72, -0.24);
+    const benchLegs = new THREE.BoxGeometry(1.42, 0.44, 0.44);
+    benchLegs.translate(0, 0.22, 0);
+    const benchGeo = mergeGeometries([benchSeat, benchBack, benchLegs]);
+    const benches = new THREE.InstancedMesh(benchGeo, benchMat, blocks);
+    benches.count = 0;
+
+    const binMat = new THREE.MeshLambertMaterial({ color: 0x3d4a3e });
+    const binGeo = new THREE.CylinderGeometry(0.28, 0.24, 0.75, 8);
+    binGeo.translate(0, 0.375, 0);
+    const bins = new THREE.InstancedMesh(binGeo, binMat, blocks);
+    bins.count = 0;
+
     for (let i = -CITY.RINGS; i < CITY.RINGS; i++) {
       for (let j = -CITY.RINGS; j < CITY.RINGS; j++) {
         const cx = i * CITY.CELL + CITY.CELL / 2;
@@ -417,7 +504,10 @@ export class World {
                 [area / 4, area / 4, area / 2, area / 2],
               ];
 
-        const shells = [];
+        // Un immeuble par style de façade, regroupé séparément : ça reste un
+        // mesh par style effectivement présent dans l'îlot (un seul la plupart
+        // du temps, jamais plus de trois), pas un par immeuble.
+        const shellsByVariant = [[], [], []];
         const cornices = [];
         for (const [ox, oz, cw, cd] of cells) {
           const gap = 1.6 + this.rng() * 2;
@@ -426,7 +516,8 @@ export class World {
           const h = d.min + this.rng() * (d.max - d.min);
           const bx = cx + ox;
           const bz = cz + oz;
-          shells.push(this.addBuilding(bx, bz, w, dd, h, cx, cz));
+          const variant = Math.floor(this.rng() * VARIANTS);
+          shellsByVariant[variant].push(this.addBuilding(bx, bz, w, dd, h, cx, cz));
 
           if (h > 30 && this.rng() < 0.5) {
             plateMatrix.makeTranslation(bx, h + 4, bz);
@@ -440,8 +531,10 @@ export class World {
           }
         }
 
-        if (shells.length) {
-          const mesh = new THREE.Mesh(mergeGeometries(shells), this.buildingMats[matIndex]);
+        for (let v = 0; v < VARIANTS; v++) {
+          const shells = shellsByVariant[v];
+          if (!shells.length) continue;
+          const mesh = new THREE.Mesh(mergeGeometries(shells), this.buildingMats[matIndex][v]);
           mesh.position.set(cx, 0, cz);
           mesh.castShadow = true;
           mesh.receiveShadow = true;
@@ -464,6 +557,29 @@ export class World {
           : side === 2 ? { x: cx - off, z: cz + along, rot: -Math.PI / 2 }
           : { x: cx + off, z: cz + along, rot: Math.PI / 2 };
         this.parkedSpots.push(spot);
+
+        // Banc et poubelle : sur un autre côté que la voiture garée, avec le
+        // même schéma de position par côté, pour ne pas s'entasser toujours
+        // au même endroit du trottoir.
+        const furnitureSide = (side + 1 + Math.floor(this.rng() * 3)) % 4;
+        const along2 = (this.rng() - 0.5) * 30;
+        const furniture =
+          furnitureSide === 0 ? { x: cx + along2, z: cz - off, rot: 0 }
+          : furnitureSide === 1 ? { x: cx + along2, z: cz + off, rot: Math.PI }
+          : furnitureSide === 2 ? { x: cx - off, z: cz + along2, rot: -Math.PI / 2 }
+          : { x: cx + off, z: cz + along2, rot: Math.PI / 2 };
+        const roll = this.rng();
+        if (roll < 0.55) {
+          plateMatrix.compose(
+            new THREE.Vector3(furniture.x, 0, furniture.z),
+            new THREE.Quaternion().setFromEuler(new THREE.Euler(0, furniture.rot, 0)),
+            new THREE.Vector3(1, 1, 1)
+          );
+          benches.setMatrixAt(benches.count++, plateMatrix);
+        } else if (roll < 0.75) {
+          plateMatrix.makeTranslation(furniture.x, 0, furniture.z);
+          bins.setMatrixAt(bins.count++, plateMatrix);
+        }
       }
     }
 
@@ -474,6 +590,10 @@ export class World {
     masts.instanceMatrix.needsUpdate = true;
     beacons.instanceMatrix.needsUpdate = true;
     this.scene.add(masts, beacons);
+    benches.instanceMatrix.needsUpdate = true;
+    bins.instanceMatrix.needsUpdate = true;
+    if (benches.count) this.scene.add(benches);
+    if (bins.count) this.scene.add(bins);
 
     this.plantTrees(trees);
 
@@ -601,7 +721,7 @@ export class World {
     const night = THREE.MathUtils.clamp((0.55 - this.sun.intensity) / 0.5, 0, 1);
     this.night = night;
     this.scene.fog.density = 0.0030 + night * 0.0016 + w.fogAdd;
-    for (const mat of this.buildingMats) mat.emissiveIntensity = night * 0.95;
+    for (const row of this.buildingMats) for (const mat of row) mat.emissiveIntensity = night * 0.95;
     this.lampMat.color.setRGB(0.16 + night * 0.84, 0.17 + night * 0.72, 0.2 + night * 0.4);
     this.lampPoolMat.opacity = night * 0.16;
     this.starMat.opacity = night * 0.85 * (1 - this.weatherMods.fogGrey);

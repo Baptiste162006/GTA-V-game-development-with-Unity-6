@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.15 — 2026-09-23
+
+### Ajouté — variété des façades et mobilier urbain
+- **Trois styles de façade** au lieu d'un seul : bureaux (bandeaux larges,
+  le style d'origine), tour étroite (fenêtres hautes et resserrées), brique
+  (petites fenêtres carrées, joints visibles). Chaque immeuble tire le sien
+  au hasard, dans la teinte de son quartier — deux immeubles voisins ne sont
+  plus des copies l'un de l'autre. Vérifié en jeu : deux styles différents
+  visibles dans le même cadre.
+- Les immeubles d'un îlot restent fusionnés **par style de façade présent**
+  (un seul mesh la plupart du temps, jamais plus de trois), pour ne pas
+  défaire l'optimisation de la v0.9 : draw calls mesurés entre 226 et 301
+  selon la scène, toujours sous le budget de 500.
+- **Bancs et poubelles**, en `InstancedMesh` comme le reste du mobilier
+  urbain (aucune géométrie créée par élément). Placés sur un trottoir
+  différent de la voiture garée, pour ne pas s'entasser toujours au même
+  endroit du bloc.
+
+### Note
+La génération de la ville est déterministe par graine, mais ajouter de
+nouveaux tirages aléatoires (style de façade, mobilier) déplace le nombre de
+subdivisions choisi pour chaque îlot par rapport aux versions précédentes :
+c'est une ville différente, pas une ville cassée.
+
 ## v0.14 — 2026-09-23
 
 ### Corrigé — l'assiette des véhicules était inversée

@@ -6,7 +6,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.8** · Étape en cours : *
 
 | Système | Fichier | État |
 |---|---|---|
-| Ville procédurale, 8 quartiers | `game/world.js` | 98 immeubles, trottoirs, parcs, lampadaires, marquage |
+| Ville procédurale, 8 quartiers | `game/world.js` | 115 immeubles en 3 styles de façade, trottoirs, bancs, poubelles, parcs, lampadaires, marquage |
 | Cycle jour/nuit (24 h en 12 min) | `game/world.js` | Ciel dégradé, étoiles, fenêtres allumées, halos |
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
 | Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, respiration à l'arrêt, caméra épaule anti-mur |
@@ -83,6 +83,8 @@ En jeu, circulation et piétons compris : **≈ 280 draw calls**, **≈ 69 000 t
   **en pleine rue**.
 - Assiette des véhicules corrigée : le nez plongeait à l'accélération et se relevait au
   freinage — l'inverse de la physique. Vérifié avec la position réelle des phares.
+- Trois styles de façade au lieu d'un, fusionnés par style dans chaque îlot : draw calls
+  mesurés entre 226 et 301 selon la scène, toujours sous le budget de 500.
 - Erreurs console : **0** sur les huit tests automatisés (jeu, météo, menu, mort, visée,
   caméra, saisons, thème).
 - Distance de freinage depuis 90 km/h : **12 m** au sec, **17,1 m** sous la pluie.
