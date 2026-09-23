@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v0.16 — 2026-09-23
+
+### Ajouté — audit de direction artistique
+- **`ART_DIRECTION.md`** : ce qui, dans le rendu actuel, vient de
+  primitives Three.js plutôt que d'un vrai modèle — personnage, véhicules,
+  bâtiments, arbres — avec pour chacun ce qui existe déjà (animation,
+  variété), ce qui manque, ce qui peut rester procédural, un coût mesuré
+  (draw calls, géométries), et un ordre de migration classé par rapport
+  effort/résultat plutôt que par intuition.
+- Point posé explicitement : cet environnement n'a accès à aucun fichier
+  `.glb`/`.gltf` externe. L'architecture de chargement (`GLTFLoader`,
+  `AnimationMixer`, secours procédural) peut être construite, mais tant
+  qu'aucun modèle n'est fourni, le secours procédural **est** le rendu
+  final — jamais présenté comme un simple filet en attendant mieux.
+- Deux lacunes trouvées en relisant le code, pas supposées : le personnage
+  joueur n'a aucune réaction visuelle à ses propres dégâts (contrairement
+  aux ennemis, qui ont un flash et un recul depuis la v0.8) ; les arbres
+  n'ont qu'une seule forme de feuillage, seules l'échelle et la rotation
+  varient.
+
 ## v0.15 — 2026-09-23
 
 ### Ajouté — variété des façades et mobilier urbain
