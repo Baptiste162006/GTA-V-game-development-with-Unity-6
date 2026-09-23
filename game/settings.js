@@ -21,7 +21,7 @@ export const DEFINITIONS = {
   fovVehicle: { label: 'Champ — véhicule', group: 'Caméra', type: 'range', min: 75, max: 100, step: 1, unit: '°', def: 88 },
   fovAim: { label: 'Champ — visée', group: 'Caméra', type: 'range', min: 50, max: 70, step: 1, unit: '°', def: 60 },
   fovSniper: { label: 'Champ — lunette', group: 'Caméra', type: 'range', min: 20, max: 45, step: 1, unit: '°', def: 35 },
-  camDistance: { label: 'Distance caméra', group: 'Caméra', type: 'range', min: 40, max: 90, step: 2, unit: ' dm', def: 54 },
+  camDistance: { label: 'Distance caméra', group: 'Caméra', type: 'range', min: 40, max: 90, step: 2, unit: ' dm', def: 46 },
   camHeight: { label: 'Hauteur caméra', group: 'Caméra', type: 'range', min: 120, max: 200, step: 5, unit: ' cm', def: 155 },
 
   sensitivity: { label: 'Sensibilité souris', group: 'Contrôles', type: 'range', min: 10, max: 300, step: 5, unit: '%', def: 100 },

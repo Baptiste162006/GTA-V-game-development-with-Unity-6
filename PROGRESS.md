@@ -9,7 +9,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.8** · Étape en cours : *
 | Ville procédurale, 8 quartiers | `game/world.js` | 98 immeubles, trottoirs, parcs, lampadaires, marquage |
 | Cycle jour/nuit (24 h en 12 min) | `game/world.js` | Ciel dégradé, étoiles, fenêtres allumées, halos |
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
-| Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, caméra anti-mur |
+| Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, respiration à l'arrêt, caméra épaule anti-mur |
 | Effets véhicule | `game/vehicleEffects.js` | Traces et fumée recyclées en anneau |
 | Véhicules (15 types) | `game/vehicle.js` | Physique arcade, dégâts, roulis, gyrophares |
 | Circulation et piétons | `game/traffic.js` | 14 voitures, 18 piétons, 12 voitures garées |
@@ -75,7 +75,14 @@ En jeu, circulation et piétons compris : **≈ 280 draw calls**, **≈ 69 000 t
 
 - Coût de dix véhicules supplémentaires : **0 géométrie** (50 avant la passe).
 - Coût de dix personnages supplémentaires : **0 géométrie** (90 avant la passe).
-- Erreurs console : **0** sur les cinq tests automatisés (jeu, météo, menu, mort, visée).
+- Caméra à pied : rapprochée de 15 % (5,4 → 4,6 m), taille du personnage à l'écran
+  **17,0 % → 20,7 %**. Le mécanisme anti-blocage (personnage effacé quand la caméra est
+  coincée contre un mur) se fie maintenant à un **ratio distance obtenue / distance voulue**,
+  indépendant du FOV et de la distance choisis en options — la version précédente, calculée
+  à la main, s'était déréglée dès qu'on a rapproché la caméra, effaçant le joueur à moitié
+  **en pleine rue**.
+- Erreurs console : **0** sur les huit tests automatisés (jeu, météo, menu, mort, visée,
+  caméra, saisons, thème).
 - Distance de freinage depuis 90 km/h : **12 m** au sec, **17,1 m** sous la pluie.
 - Dégâts pistolet : **78 à la tête** (×3), **26 au corps**, **0 au-dessus de la tête**.
 - FPS : non mesurable ici faute de GPU — et les millisecondes de rendu du pilote logiciel ne

@@ -589,17 +589,23 @@ class Game {
   // Quand la caméra est contre le joueur — dos au mur, coin de rue — on le
   // rend translucide puis on l'efface, au lieu de lui laisser boucher la vue.
   fadePlayer(dt) {
-    // On se fie à la taille apparente, pas à la distance : en visée le champ
-    // se resserre à 48°, donc à distance égale le corps paraît bien plus gros.
-    // `apparent` vaut ~0,25 en jeu normal et grimpe au-delà de 0,7 quand la
-    // caméra est coincée — c'est là qu'il faut effacer le personnage.
-    const d = Math.max(0.1, this.camera.position.distanceTo(this.player.pos));
-    const apparent = 1 / (d * Math.tan((this.camera.fov * Math.PI) / 360));
+    // Ratio entre la distance de caméra réellement obtenue et celle voulue
+    // avant anti-mur : proche de 1 en terrain ouvert, quel que soit le FOV ou
+    // la distance choisis dans les options — contrairement à une taille
+    // apparente calculée à la main, qui se déréglait à chaque changement de
+    // ces réglages. Il s'effondre uniquement quand un mur force la caméra à
+    // se rapprocher, ce qui est exactement le cas qu'on veut détecter.
+    const cam = this.camera3p;
+    const ratio = cam.naturalDistance > 0.01 ? cam.clampedDistance / cam.naturalDistance : 1;
     // Deux seuils : en visée on est bien plus strict, parce que c'est là que
     // le corps masque le viseur et rend le tir impossible. À pied on ne
     // l'efface que si la caméra est vraiment coincée, dans un angle.
-    const [plein, vide] = this.weapons.aiming ? [0.45, 0.72] : [0.70, 1.05];
-    const wanted = THREE.MathUtils.clamp((vide - apparent) / (vide - plein), 0, 1);
+    // Calibré sur deux points mesurés : dos à un immeuble en visée (ratio
+    // 0,775 -> invisible) et pleine rue en visée (ratio 1 -> opaque). À pied,
+    // même la caméra poussée dans un angle serré (ratio 0,344, mesuré dos au
+    // mur) doit rester bien visible ; seul un blocage quasi total l'efface.
+    const [plein, vide] = this.weapons.aiming ? [0.85, 0.95] : [0.15, 0.3];
+    const wanted = THREE.MathUtils.clamp((ratio - plein) / (vide - plein), 0, 1);
     this.playerFade = THREE.MathUtils.lerp(this.playerFade ?? 1, wanted, 1 - Math.exp(-12 * dt));
     fadeCharacter(this.player.mesh, this.playerFade);
   }

@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.12 — 2026-09-23
+
+### Ajouté — caméra à pied et vie du personnage
+- **Caméra rapprochée de 15 %** (5,4 m → 4,6 m par défaut) et **abaissée à
+  hauteur d'épaule** au lieu de planer 1,5 m au-dessus. Le décalage vertical
+  n'est plus multiplié par la distance : dézoomer ne lève plus la caméra
+  au-dessus de la tête. Mesuré : hauteur de caméra 3,06 m → 2,54 m, taille du
+  personnage à l'écran 17,0 % → 20,7 %.
+- **Respiration et transfert de poids à l'arrêt** : le personnage restait un
+  mannequin figé dès qu'il ne marchait plus. Une deuxième horloge d'animation
+  tourne en continu et s'éteint dès que la marche reprend, pour ne jamais
+  lutter avec la démarche.
+- **Notifications en fondu** : apparition en fondu + léger glissement,
+  affichage 2,6 s, disparition progressive — au lieu d'apparaître et
+  disparaître d'un coup.
+
+### Corrigé — une régression trouvée en testant le lot ci-dessus
+- Rapprocher la caméra a cassé la détection « personnage coincé contre un
+  mur » ajoutée en v0.9 : elle se fiait à une taille apparente calculée à la
+  main (distance × FOV), qui se déréglait à chaque changement de ces valeurs.
+  Conséquence mesurée : le joueur s'effaçait à moitié **en pleine rue**
+  (opacité 0,71 au lieu de 1) simplement parce que la caméra était plus
+  proche par défaut.
+- Remplacé par un **ratio géométrique** : distance de caméra réellement
+  obtenue après anti-mur, divisée par la distance voulue avant obstruction.
+  Ce ratio ne dépend d'aucun réglage de FOV, de distance ou de hauteur — il
+  ne peut donc plus se dérégler quand ces valeurs changent. Recalibré sur
+  quatre mesures : dos à un immeuble en visée (ratio 0,775 → invisible),
+  pleine rue en visée (ratio 1 → opaque à 100 %), dos au mur à pied dans un
+  angle extrême (ratio 0,344 → **reste opaque**, contrairement à un premier
+  réglage qui l'effaçait complètement), pleine rue à pied (ratio 1 → opaque).
+
 ## v0.11 — 2026-09-23
 
 ### Ajouté — identité visuelle « Nocturne urbain »

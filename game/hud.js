@@ -81,13 +81,19 @@ export class HUD {
     }
   }
 
+  // Fondu à l'entrée et à la sortie, ~2,6 s affichée : le réticule (au centre)
+  // n'est jamais couvert, et rien ici ne bloque les commandes — le panneau
+  // hérite de `pointer-events: none` du HUD.
   notify(text) {
     const div = document.createElement('div');
     div.className = 'notif';
     div.textContent = text;
     this.el.notifications.appendChild(div);
-    setTimeout(() => div.classList.add('out'), 3200);
-    setTimeout(() => div.remove(), 3900);
+    // Un frame de retard : sans ça, le navigateur applique l'état final
+    // directement et la transition n'a rien à animer.
+    requestAnimationFrame(() => requestAnimationFrame(() => div.classList.add('in')));
+    setTimeout(() => { div.classList.remove('in'); div.classList.add('out'); }, 2600);
+    setTimeout(() => div.remove(), 3100);
   }
 
   bigMessage({ title, sub = '', tone = 'good' }) {

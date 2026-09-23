@@ -122,6 +122,7 @@ export class Player {
     this.onGround = true;
     this.speed = 0;
     this.phase = 0;
+    this.idlePhase = 0; // tourne toujours, même immobile : c'est la respiration
     this.radius = 0.45;
 
     this.health = 100;
@@ -206,17 +207,26 @@ export class Player {
     const amp = THREE.MathUtils.clamp(this.speed / 2.2, 0, 1.25);
     const swing = Math.sin(this.phase) * 0.85 * amp;
 
+    // Respiration et léger transfert de poids, actifs à l'arrêt : sans eux le
+    // personnage restait un mannequin figé dès qu'il ne marchait plus.
+    // `idleAmt` s'éteint dès que `amp` grandit, pour ne jamais lutter avec la
+    // démarche — les deux ne s'additionnent jamais à pleine intensité.
+    this.idlePhase += dt;
+    const idleAmt = 1 - THREE.MathUtils.clamp(amp * 4, 0, 1);
+    const breathe = Math.sin(this.idlePhase * 1.1);
+    const sway = Math.sin(this.idlePhase * 0.4);
+
     rig.legL.rotation.x = swing;
     rig.legR.rotation.x = -swing;
     // Le genou ne plie que quand la jambe part en arrière : ça suffit à effacer
     // la démarche « pantin raide ».
     rig.kneeL.rotation.x = Math.max(0, -swing) * 1.15;
     rig.kneeR.rotation.x = Math.max(0, swing) * 1.15;
-    rig.armL.rotation.x = -swing * 0.8;
-    rig.armR.rotation.x = swing * 0.8;
-    rig.torso.rotation.z = Math.sin(this.phase) * 0.04 * amp;
-    rig.torso.position.y = 1.32 + Math.abs(Math.sin(this.phase)) * 0.045 * amp;
-    rig.head.rotation.y = Math.sin(this.phase * 0.5) * 0.06 * amp;
+    rig.armL.rotation.x = -swing * 0.8 + breathe * 0.035 * idleAmt;
+    rig.armR.rotation.x = swing * 0.8 - breathe * 0.035 * idleAmt;
+    rig.torso.rotation.z = Math.sin(this.phase) * 0.04 * amp + sway * 0.02 * idleAmt;
+    rig.torso.position.y = 1.32 + Math.abs(Math.sin(this.phase)) * 0.045 * amp + breathe * 0.012 * idleAmt;
+    rig.head.rotation.y = Math.sin(this.phase * 0.5) * 0.06 * amp + sway * 0.05 * idleAmt;
 
     if (!this.onGround) {
       rig.legL.rotation.x = 0.45;
@@ -280,14 +290,25 @@ export class ThirdPersonCamera {
     // L'axe de visée passe par le joueur ; seule la caméra se décale de côté,
     // sinon tout reste aligné et le personnage masque le viseur.
     const target = new THREE.Vector3(targetPos.x, targetPos.y + targetHeight, targetPos.z);
+    // La composante verticale n'est plus multipliée par la distance en entier :
+    // avant, dézoomer levait la caméra bien au-dessus de la tête. Le décalage
+    // fixe (0.35 m) la maintient proche de la hauteur d'épaule quel que soit
+    // le zoom ; seule la rotation de la souris (pitch) continue d'agir sur la
+    // distance, pour pouvoir regarder le sol ou le ciel.
     const offset = new THREE.Vector3(
-      Math.sin(this.yaw) * Math.cos(this.pitch),
-      Math.sin(this.pitch) + 0.14,
-      Math.cos(this.yaw) * Math.cos(this.pitch)
-    ).multiplyScalar(this.distance);
+      Math.sin(this.yaw) * Math.cos(this.pitch) * this.distance,
+      Math.sin(this.pitch) * this.distance + 0.35,
+      Math.cos(this.yaw) * Math.cos(this.pitch) * this.distance
+    );
 
     let desired = target.clone().add(offset);
+    // Distance réellement obtenue après anti-mur, comparée à celle voulue
+    // avant obstruction : le ratio dit si la caméra est coincée, sans
+    // dépendre du FOV ni de la distance choisis dans les options. `fadePlayer`
+    // (main.js) s'en sert pour savoir quand estomper le joueur.
+    this.naturalDistance = offset.length();
     const allowed = this.clearObstruction(target, desired);
+    this.clampedDistance = allowed;
     desired = target.clone().addScaledVector(offset.clone().normalize(), allowed).add(right);
     desired.y = Math.max(desired.y, 0.8);
 
