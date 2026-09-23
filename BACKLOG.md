@@ -19,7 +19,7 @@ vérification dans le code (voir `V1_SCOPE.md`, « Corrections »).
 
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
 |---|---|---|---|---|---|---|
-| Sauvegarde complète + menu Sauvegarder / Réinitialiser | **P0** | M | `main.js`, `menu.js` | Non commencé | Sonnet | Position, véhicule, armes/munitions, missions, météo, saison ; message « Partie sauvegardée » ; réinitialisation avec confirmation. Prérequis des missions (sinon la progression est perdue). |
+| Sauvegarde complète + menu Sauvegarder / Réinitialiser | — | — | — | ✅ Fait v0.19 | — | Position, véhicule, armes/munitions, missions, météo, saison ; message « Partie sauvegardée » ; réinitialisation avec confirmation ; entrée Quitter ajoutée aussi. |
 | Missions scénarisées (5-8) | **P0** | L | Sauvegarde complète | Non commencé | Opus pour le système de prérequis, Sonnet par mission ensuite | Le plus gros manque de contenu. |
 | 3-5 profils d'ennemis | P1 | S | `enemies.js` | Non commencé | Sonnet | Données (portée, arme, agressivité, vie). |
 | Ramassage d'arme au sol | P2 | M | `weapons.js`, `enemies.js` | Non commencé | Sonnet | — |
@@ -59,7 +59,7 @@ vérification dans le code (voir `V1_SCOPE.md`, « Corrections »).
 |---|---|---|---|---|---|---|
 | Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À propos) + réinitialiser | P1 | M | `menu.js`, `settings.js` | Non commencé | Sonnet | Les 19 réglages existent, seule l'organisation manque. |
 | Remappage des touches | P1 | M | `input.js`, `menu.js` | Non commencé | Sonnet | Action → touche, conflits signalés, persisté. |
-| Entrée Quitter (retour écran titre) | P1 | S | `menu.js` | Non commencé | Sonnet | — |
+| Entrée Quitter (retour écran titre) | — | — | — | ✅ Fait v0.19 | — | — |
 | Écran de chargement avec progression | P2 | S | `main.js`, `index.html` | Non commencé | Sonnet | — |
 | Vérification HUD multi-ratios et échelles | P1 | S | `hud.js` | Non commencé | Sonnet | Script Playwright 16:9/16:10/21:9/étroit. |
 

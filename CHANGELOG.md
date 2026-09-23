@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## v0.19 — 2026-09-23
+
+### Ajouté — sauvegarde complète et menu Sauvegarder / Réinitialiser
+- La sauvegarde (v2, rétrocompatible avec v1) garde désormais la position et
+  l'orientation du joueur, la vie et l'armure, le véhicule courant (modèle,
+  position, couleur, dégâts), l'arme équipée et toutes les munitions,
+  la météo, la saison et l'avancement des missions (tutoriel, jobs
+  terminés) — en plus de l'argent, des statistiques et de l'heure déjà
+  sauvegardés en v1.
+- Menu pause : nouvelle entrée **Sauvegarder** (sauvegarde immédiate,
+  confirmée par une notification « Partie sauvegardée ») et **Réinitialiser
+  la sauvegarde** (confirmation obligatoire avant d'effacer). Nouvelle
+  entrée **Quitter** (sauvegarde puis retour à l'écran-titre).
+- Corrige au passage un bug latent : `if (restored.money)` ignorait un
+  argent restauré à 0 ; devenu `!== undefined`.
+- Vérifié par un script dédié (aller-retour sauvegarde/rechargement de
+  page : argent, position, véhicule, arme, munitions, météo, saison,
+  missions tous restaurés ; le fait de replacer le joueur dans son
+  véhicule sauvegardé n'incrémente plus la statistique « véhicules
+  volés ») et par les 6 scripts de régression existants, tous mis à jour
+  pour les nouvelles entrées du menu — zéro erreur console.
+
+
 ## Documentation — 2026-09-23 (aucun fichier de jeu modifié)
 
 - `V1_SCOPE.md` réécrit : tableau des affirmations corrigées par le code

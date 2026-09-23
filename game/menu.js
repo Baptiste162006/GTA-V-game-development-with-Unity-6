@@ -7,7 +7,15 @@ const SECTIONS = [
   { id: 'stats', label: 'Statistiques' },
   { id: 'options', label: 'Options' },
   { id: 'controls', label: 'Commandes' },
+  { id: 'save', label: 'Sauvegarder', action: 'save' },
+  {
+    id: 'reset',
+    label: 'Réinitialiser la sauvegarde',
+    confirm: 'Effacer la sauvegarde et repartir de zéro ? Cette action est irréversible.',
+    action: 'reset',
+  },
   { id: 'restart', label: 'Recommencer', confirm: 'Recommencer la partie ? La progression non sauvegardée sera perdue.', action: 'restart' },
+  { id: 'quit', label: 'Quitter', confirm: 'Quitter la partie et revenir à l’écran-titre ?', action: 'quit' },
 ];
 
 // Menu pause : colonne de navigation à gauche, contenu à droite. Tout est
@@ -94,6 +102,15 @@ export class PauseMenu {
   run(action) {
     if (action === 'resume') this.game.resume();
     if (action === 'restart') location.reload();
+    if (action === 'save') this.game.saveManual();
+    if (action === 'reset') {
+      this.game.constructor.clearSave();
+      location.reload();
+    }
+    if (action === 'quit') {
+      this.game.save();
+      location.reload();
+    }
   }
 
   askConfirm(question, onYes) {
@@ -132,6 +149,15 @@ export class PauseMenu {
     else if (id === 'restart') {
       this.panel.innerHTML =
         '<p class="note">Relance une partie neuve. Les réglages sont conservés, la progression non sauvegardée est perdue.</p>';
+    } else if (id === 'save') {
+      this.panel.innerHTML =
+        '<p class="note">Sauvegarde immédiatement la partie en cours : position, véhicule, armes et munitions, argent, statistiques, météo, saison et missions.</p>';
+    } else if (id === 'reset') {
+      this.panel.innerHTML =
+        '<p class="note">Efface la sauvegarde et repart d’une partie neuve au prochain lancement. Action irréversible.</p>';
+    } else if (id === 'quit') {
+      this.panel.innerHTML =
+        '<p class="note">Sauvegarde la partie puis revient à l’écran-titre.</p>';
     } else this.panel.innerHTML = '<p class="note">Appuie sur Entrée pour reprendre la partie.</p>';
   }
 

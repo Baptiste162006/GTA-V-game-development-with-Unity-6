@@ -175,11 +175,14 @@ V1 (jalon 10).
 Carte, Missions, Statistiques, Options, Commandes, Recommencer), 19
 réglages persistés et appliqués en direct, FOV par contexte.
 
-**Pas fait.** Entrée Sauvegarder (avec message), Réinitialiser la
-sauvegarde (avec confirmation), Quitter ; sauvegarde complète (aujourd'hui
-argent + statistiques + heure seulement) ; options en sections
-Vidéo/Audio/Contrôles/Accessibilité/À propos + réinitialiser ; remappage
-des touches ; écran de chargement ; vérification HUD multi-ratios.
+**Fait depuis (v0.19)** : sauvegarde complète (position, orientation, vie,
+armure, véhicule courant, arme et munitions, météo, saison, avancement des
+missions) ; entrées de menu Sauvegarder (avec notification), Réinitialiser
+la sauvegarde (avec confirmation) et Quitter.
+
+**Pas fait.** Options en sections Vidéo/Audio/Contrôles/Accessibilité/
+À propos + réinitialisation des options ; remappage des touches ; écran
+de chargement ; vérification HUD multi-ratios.
 
 **Fichiers.** `main.js` (`save`/`loadSave`), `menu.js`, `settings.js`,
 `input.js`, `index.html`, `hud.js`.
@@ -198,9 +201,9 @@ navigation du menu (déjà eu un bug d'oscillation).
 **Test.** Script aller-retour sauvegarde/rechargement + script de menu
 existant (`menutest`).
 
-**Condition de passage au jalon 7.** Sauvegarde complète en place : sans
-elle, la progression des missions scénarisées serait perdue au
-rechargement.
+**Condition de passage au jalon 7.** Remplie depuis v0.19 — la sauvegarde
+complète est en place, la progression des missions scénarisées ne sera
+donc plus perdue au rechargement.
 
 ## 7. Mission de la tranche verticale — NON COMMENCÉE
 

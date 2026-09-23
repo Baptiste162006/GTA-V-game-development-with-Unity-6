@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { World, CITY } from './world.js';
 import { Player, ThirdPersonCamera, fadeCharacter } from './player.js';
+import { Vehicle } from './vehicle.js';
 import { Traffic } from './traffic.js';
 import { Police } from './police.js';
 import { MissionManager } from './missions.js';
@@ -19,6 +20,7 @@ import { GameEvents, EVENTS } from './events.js';
 import { DebugConsole } from './debug.js';
 
 const SAVE_KEY = 'san-felipe-save-v1';
+const SAVE_VERSION = 2;
 const HOSPITAL = new THREE.Vector3(-CITY.CELL * 2 + 9, 0, CITY.CELL * 2);
 const STATION = new THREE.Vector3(CITY.CELL * 2 + 9, 0, -CITY.CELL * 2);
 
@@ -80,8 +82,7 @@ class Game {
     this.settings.apply(this);
     if (this.settings.get('quality') !== 'auto') applyPreset(this, this.settings.get('quality'));
 
-    if (restored.money) this.player.money = restored.money;
-    if (restored.hour !== undefined) this.world.hour = restored.hour;
+    this.applyRestored(restored);
 
     this.wireEvents();
     this.wireUI();
@@ -253,8 +254,11 @@ class Game {
     return this.player.inVehicle ? this.player.inVehicle.pos : this.player.pos;
   }
 
-  enterVehicle(vehicle) {
-    const occupied = this.traffic.isOccupied(vehicle);
+  // `counted` est à false uniquement quand on replace le joueur dans son
+  // propre véhicule après une sauvegarde : ce n'est ni un vol, ni un
+  // nouveau véhicule volé pour les statistiques.
+  enterVehicle(vehicle, { counted = true } = {}) {
+    const occupied = counted && this.traffic.isOccupied(vehicle);
     if (occupied) {
       this.traffic.ejectDriver(vehicle);
       this.police.addCrime(1, vehicle.pos);
@@ -265,7 +269,7 @@ class Game {
     vehicle.fx = this.vehicleFx;
     this.player.inVehicle = vehicle;
     this.player.setVisible(false);
-    this.stats.vehiclesStolen++;
+    if (counted) this.stats.vehiclesStolen++;
     vehicle.onCrash = (force) => {
       this.audio.crash(force);
       if (force > 0.35 && !this.godMode) this.player.damage(force * 14);
@@ -377,16 +381,63 @@ class Game {
   }
 
   // --- sauvegarde (best effort : le localStorage peut être bloqué) ---
+  //
+  // v1 ne gardait que l'argent, les statistiques et l'heure : recharger la
+  // page perdait la position, le véhicule, les armes, la météo, la saison
+  // et la progression des missions. v2 garde tout ça ; une sauvegarde v1
+  // existante reste lisible (les champs manquants gardent leur valeur par
+  // défaut du jeu neuf).
+
+  buildSave() {
+    const v = this.player.inVehicle;
+    return {
+      v: SAVE_VERSION,
+      money: this.player.money,
+      stats: this.stats,
+      hour: this.world.hour,
+      weather: this.weather.current,
+      season: this.seasons.name,
+      missions: { tutorialDone: this.missions.tutorialDone, completed: this.missions.completed },
+      weapons: {
+        owned: { ...this.weapons.owned },
+        ammo: JSON.parse(JSON.stringify(this.weapons.ammo)),
+        index: this.weapons.index,
+      },
+      player: {
+        x: this.player.pos.x,
+        y: this.player.pos.y,
+        z: this.player.pos.z,
+        yaw: this.player.yaw,
+        health: this.player.health,
+        armor: this.player.armor,
+      },
+      vehicle: v
+        ? {
+            specName: v.specName,
+            x: v.pos.x,
+            y: v.pos.y,
+            z: v.pos.z,
+            yaw: v.yaw,
+            color: `#${v.baseColor.getHexString()}`,
+            damage: v.damage,
+          }
+        : null,
+    };
+  }
 
   save() {
     try {
-      localStorage.setItem(
-        SAVE_KEY,
-        JSON.stringify({ money: this.player.money, stats: this.stats, hour: this.world.hour })
-      );
+      localStorage.setItem(SAVE_KEY, JSON.stringify(this.buildSave()));
     } catch {
       /* stockage indisponible : on joue sans sauvegarde */
     }
+  }
+
+  // Sauvegarde manuelle depuis le menu pause : même contenu que la
+  // sauvegarde automatique, mais avec un accusé de réception visible.
+  saveManual() {
+    this.save();
+    GameEvents.emit(EVENTS.NOTIFY, { text: 'Partie sauvegardée' });
   }
 
   static loadSave() {
@@ -398,8 +449,58 @@ class Game {
     }
   }
 
+  static clearSave() {
+    try {
+      localStorage.removeItem(SAVE_KEY);
+    } catch {
+      /* stockage indisponible */
+    }
+  }
+
   snapshot() {
-    return { money: this.player.money, stats: this.stats, hour: this.world.hour };
+    return this.buildSave();
+  }
+
+  applyRestored(restored) {
+    if (restored.money !== undefined) this.player.money = restored.money;
+    if (restored.hour !== undefined) this.world.hour = restored.hour;
+    if (restored.weather) {
+      this.weather.current = restored.weather;
+      this.weather.next = restored.weather;
+      this.weather.blend = 1;
+    }
+    if (restored.season) this.seasons.set(restored.season);
+
+    if (restored.missions) {
+      this.missions.tutorialDone = !!restored.missions.tutorialDone;
+      this.missions.completed = restored.missions.completed || 0;
+    }
+
+    if (restored.weapons) {
+      this.weapons.owned = { ...this.weapons.owned, ...restored.weapons.owned };
+      this.weapons.ammo = { ...this.weapons.ammo, ...restored.weapons.ammo };
+      if (restored.weapons.index !== undefined) this.weapons.select(restored.weapons.index);
+    }
+
+    if (restored.player) {
+      this.player.pos.set(restored.player.x, restored.player.y, restored.player.z);
+      this.player.yaw = restored.player.yaw ?? this.player.yaw;
+      if (restored.player.health !== undefined) this.player.health = restored.player.health;
+      if (restored.player.armor !== undefined) this.player.armor = restored.player.armor;
+    }
+
+    if (restored.vehicle) {
+      const spot = restored.vehicle;
+      const vehicle = new Vehicle(
+        this.scene,
+        spot.specName,
+        new THREE.Vector3(spot.x, spot.y, spot.z),
+        spot.yaw,
+        spot.color
+      );
+      vehicle.damage = spot.damage || 0;
+      this.enterVehicle(vehicle, { counted: false });
+    }
   }
 
   // --- boucle ---

@@ -19,8 +19,8 @@ corrigées ci-dessous, élément par élément.
 | Lance-roquettes parmi les armes | N'existe pas. 6 armes : poings, pistolet, UZI, pompe, fusil d'assaut, sniper (`weapons.js`). |
 | Quartier « banlieue » | N'existe pas. 6 quartiers : Downtown, Little Tokyo, Mirador Hills, Zone Industrielle, Beachside, Vieille Ville (`world.js`). La page d'accueil dit « huit quartiers » — faux, à corriger (BACKLOG). |
 | Saisons/neige « à faire » | Déjà faites (v0.10) : 4 saisons, neige qui s'accumule et réduit l'adhérence. |
-| Sauvegarde complète | Ne stocke que l'argent, les statistiques et l'heure (`main.js` `save()`). Ni position, ni armes/munitions, ni progression de missions, ni météo. Aucune entrée « Sauvegarder » ni « Réinitialiser » dans le menu : sauvegarde automatique silencieuse uniquement. |
-| Menu pause complet | 7 entrées : Reprendre, Carte, Missions, Statistiques, Options, Commandes, Recommencer. Pas de Sauvegarder, pas de Réinitialiser la sauvegarde, pas de Quitter, options en une seule liste sans onglets. |
+| Sauvegarde complète | **Corrigé en v0.19** : garde maintenant position, véhicule, armes/munitions, météo, saison, missions, en plus de l'argent/stats/heure ; entrées « Sauvegarder », « Réinitialiser la sauvegarde » et « Quitter » ajoutées au menu. |
+| Menu pause complet | **Corrigé en v0.19** : Sauvegarder, Réinitialiser la sauvegarde et Quitter ajoutés (10 entrées). Reste en une seule liste sans onglets — voir Options ci-dessous, toujours ❌. |
 | Audio avec bus Musique/Effets/Ambiance | Un seul `master` + des gains par canal (moteur, sirène, pluie, crissement). Pas de musique, pas de pas, pas de son de rechargement, pas d'impact par matériau, pas d'ambiance de ville ; les sons d'interface réutilisent `blip()`. |
 | Clignotants, ronds-points | N'existent pas. Aucun carrefour avec priorité ni feu tricolore. |
 | Écran de chargement | N'existe pas (la génération est quasi instantanée, mais rien ne s'affiche pendant ce temps). |
@@ -52,15 +52,13 @@ corrigées ci-dessous, élément par élément.
 
 ### Menu pause (contenu cible)
 - ✅ Reprendre · ✅ Statistiques · ✅ Carte · ✅ Missions · ✅ Commandes.
-- ❌ **Sauvegarder** — avec message de confirmation « Partie sauvegardée ».
-- ❌ **Réinitialiser la sauvegarde** — avec confirmation explicite
-  (le mécanisme de confirmation existe déjà pour « Recommencer »).
+- ✅ **Sauvegarder** — avec message de confirmation « Partie sauvegardée » (v0.19).
+- ✅ **Réinitialiser la sauvegarde** — avec confirmation explicite (v0.19).
 - 🟡 **Options** — existe en liste unique, à organiser en sections.
-- ❌ **Quitter** — retour à l'écran titre (dans un navigateur on ne peut
-  pas fermer l'onglet : quitter = revenir à l'écran d'accueil).
-- ❌ La sauvegarde doit inclure : position, véhicule courant, armes et
+- ✅ **Quitter** — sauvegarde puis retour à l'écran-titre (v0.19).
+- ✅ La sauvegarde inclut désormais : position, véhicule courant, armes et
   munitions, progression des missions, argent, statistiques, heure, météo,
-  saison.
+  saison (v0.19).
 
 ### Options (sections cibles)
 - 🟡 **Vidéo** : qualité, échelle de rendu, ombres, FOV ×4 — existent.
