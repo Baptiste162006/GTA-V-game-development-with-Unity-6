@@ -1,6 +1,11 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-21 · Version : **v0.8** · Étape en cours : **2 (orage et saisons)**
+Dernière mise à jour : 2026-09-23 · Version : **v0.17** · Jalon en cours : **1 (direction
+artistique — environnement)**, voir `MILESTONES.md`.
+
+Pour une vue d'ensemble à jour, préférer **`PROJECT_STATUS.md`** (statut système par système,
+FONCTIONNEL/PARTIEL/PROVISOIRE/NON COMMENCÉ) et **`V1_SCOPE.md`** (ce qui compte pour la V1).
+Ce fichier garde l'historique détaillé et les mesures.
 
 ## ✅ Terminé
 
@@ -11,7 +16,7 @@ Dernière mise à jour : 2026-09-21 · Version : **v0.8** · Étape en cours : *
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
 | Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, respiration à l'arrêt, caméra épaule anti-mur |
 | Effets véhicule | `game/vehicleEffects.js` | Traces et fumée recyclées en anneau |
-| Véhicules (15 types) | `game/vehicle.js` | Physique arcade, dégâts visibles, suspension, roulis, gyrophares |
+| Véhicules (16 types) | `game/vehicle.js` | Physique arcade, dégâts visibles, suspension, roulis, gyrophares |
 | Circulation et piétons | `game/traffic.js` | 14 voitures, 18 piétons, 12 voitures garées |
 | Police 5 étoiles | `game/police.js` | Poursuite, agents à pied, tirs, arrestation, évasion |
 | Missions | `game/missions.js` | Tutoriel 4 étapes + 2 jobs répétables |

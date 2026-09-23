@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.17 — 2026-09-23
+
+### Ajouté — feuille de route de production
+- **`PROJECT_STATUS.md`** : état réel de 29 systèmes (FONCTIONNEL / PARTIEL
+  / PROVISOIRE / NON COMMENCÉ), fichiers concernés, ce qui marche, ce qui
+  manque, bugs connus, modèle conseillé, priorité — chaque ligne vérifiée
+  en lisant le code au moment d'écrire, pas supposée.
+- **`V1_SCOPE.md`** : ce qui compte pour une V1 partageable (MUST/SHOULD/
+  COULD HAVE) et ce qui n'y a explicitement pas sa place.
+- **`VERTICAL_SLICE.md`** : une boucle de jeu en 9 étapes sur une zone de
+  200×200 m, avec ce qui existe déjà et ce qui manque pour chaque élément,
+  et des critères de validation qui distinguent ce qu'une session Claude
+  Code peut vérifier elle-même de ce qui demande une personne et un
+  enregistreur d'écran.
+- **`MILESTONES.md` réécrit** : l'ancien découpage en 10 étapes numérotées
+  mélangeait du terminé et du jamais commencé sans le dire. Le nouveau
+  classe chaque jalon par statut réel, avec fichiers, critères
+  d'acceptation, risques, modèle conseillé et condition de passage au
+  suivant — plus une section « hors séquence » pour l'architecture GLB,
+  qui ne dépend d'aucun autre jalon mais d'un fichier externe absent ici.
+- **`BACKLOG.md`** : toutes les idées en attente, classées par catégorie,
+  priorité P0-P3 et effort S/M/L, pour ne plus les perdre entre deux
+  sessions sans polluer le jalon en cours.
+- Corrigé au passage : le nombre de véhicules annoncé (15) ne correspondait
+  plus au nombre réel (16, vérifié par comptage) dans `PROGRESS.md` et
+  `README.md`. `ARCHITECTURE.md` listait 12 fichiers `game/` alors qu'il y
+  en a 22 — mis à jour avec les 10 manquants.
+
 ## v0.16 — 2026-09-23
 
 ### Ajouté — audit de direction artistique

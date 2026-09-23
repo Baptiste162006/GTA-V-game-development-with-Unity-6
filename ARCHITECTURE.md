@@ -9,16 +9,30 @@ game/
   main.js           boucle de jeu, états, entrée/sortie de véhicule, crimes, respawn, sauvegarde
   world.js          génération de la ville, quartiers, cycle jour/nuit, collisions
   player.js         personnage (mesh + animation procédurale) et caméra 3e personne
-  vehicle.js        carrosseries, physique arcade, dégâts, gyrophares
+  vehicle.js        carrosseries, physique arcade, dégâts, suspension, gyrophares
+  vehicleEffects.js traces de pneus et fumée, recyclées en anneau
   traffic.js        circulation PNJ, piétons, voitures garées
   police.js         niveau de recherche, poursuite, agents à pied, arrestation
+  weapons.js        armes, visée, dégâts par zone, impacts
+  enemies.js        gangs de quartier, IA de tir, réactions aux coups
   missions.js       machine à étapes, tutoriel, jobs répétables, marqueurs
+  weather.js        météo (clair/nuageux/pluie/brouillard/orage), éclairs, vent
+  seasons.js        4 saisons, neige, accumulation et adhérence
+  particles.js      champ de particules partagé (pluie, neige, feuilles)
   hud.js            HUD DOM + mini-carte canvas 2D
-  audio.js          synthèse sonore WebAudio (moteur, sirène, chocs, jingles)
+  uiTheme.js        tokens de couleur centralisés, 3 thèmes (dont daltonisme)
+  menu.js           menu pause, navigation clavier/souris
+  settings.js       réglages persistés (19), appliqués en direct
+  performance.js    compteurs en direct, presets graphiques
+  audio.js          synthèse sonore WebAudio (moteur, sirène, chocs, tonnerre, jingles)
   input.js          clavier physique (AZERTY/QWERTY) et souris
   events.js         bus d'événements (découple le jeu de l'interface)
   debug.js          console de triche
 ```
+
+Cette liste a été mise à jour le 2026-09-23 — elle avait pris du retard sur
+le code (10 fichiers manquaient). Voir `PROJECT_STATUS.md` pour l'état
+détaillé de chaque système.
 
 ## Principes
 

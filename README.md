@@ -50,7 +50,7 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
   police vous repère de bien moins loin, et les trottoirs se vident.
 - **À pied** — marche, course, marche lente, saut, animation procédurale, caméra 3e personne
   qui évite les murs.
-- **Véhicules** — 15 types, des deux-roues au bus (citadine, berline, sportive, muscle car,
+- **Véhicules** — 16 types, des deux-roues au bus (citadine, berline, sportive, muscle car,
   luxe, 4×4, pick-up, taxi, camionnette, camion, bus, police, ambulance, pompiers, scooter, moto), physique
   arcade, frein à main, dégâts de carrosserie, roues qui braquent et roulent vraiment,
   plongée au freinage, feux stop, traces de pneus et fumée au drift.
