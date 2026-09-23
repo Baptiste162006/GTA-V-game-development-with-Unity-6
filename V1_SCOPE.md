@@ -50,6 +50,37 @@ corrigées ci-dessous, élément par élément.
   en menu, en mort et en cinématique ; aucun élément n'est centré sur la
   croix de visée.
 
+### Mini-carte et HUD — classement des améliorations proposées
+
+Liste complète avec description, priorité, effort et modèle dans
+`BACKLOG.md` § « Mini-carte et HUD ». Rien n'est codé, à valider avant de
+lancer le travail.
+
+**MUST HAVE (V1)** — sans ça la mini-carte reste correcte mais moins
+utile qu'elle ne pourrait l'être pour une démo qu'on envoie à des amis :
+- Distance chiffrée jusqu'à l'objectif — un ajout minime (S) à fort effet
+  de lisibilité.
+- Barre de progression pour le rechargement — remplace un simple
+  changement de couleur peu explicite.
+
+**SHOULD HAVE (V1, si le temps le permet après les MUST HAVE)** :
+- Rotation de la mini-carte façon « suivant le joueur » (avec réglage,
+  nord fixe restant le défaut) — l'idée la plus demandée pour ce genre de
+  jeu, mais un effort M, pas un simple réglage.
+- Boussole/indicateur de cap en haut du HUD.
+- Nom de rue/quartier affiché en continu en jeu.
+- Raccourci pour masquer/afficher la mini-carte.
+
+**COULD HAVE (v1.1)** :
+- Flèche 3D « suivez le point » façon GPS.
+- Zoom mini-carte.
+- Icônes distinctes par type de véhicule sur la mini-carte.
+- Raccourci pour rappeler le texte d'objectif.
+- Distinguer visuellement « recherché » et « poursuite active ».
+- Lisibilité des icônes HUD à `hudScale` minimal — à vérifier avant tout
+  (c'est un test, pas une fonctionnalité), mais toute correction qu'il
+  révélerait passe dans ce lot.
+
 ### Menu pause (contenu cible)
 - ✅ Reprendre · ✅ Statistiques · ✅ Carte · ✅ Missions · ✅ Commandes.
 - ✅ **Sauvegarder** — avec message de confirmation « Partie sauvegardée » (v0.19).

@@ -63,6 +63,28 @@ vérification dans le code (voir `V1_SCOPE.md`, « Corrections »).
 | Écran de chargement avec progression | P2 | S | `main.js`, `index.html` | Non commencé | Sonnet | — |
 | Vérification HUD multi-ratios et échelles | P1 | S | `hud.js` | Non commencé | Sonnet | Script Playwright 16:9/16:10/21:9/étroit. |
 
+### Mini-carte et HUD — améliorations proposées (aucune codée, à valider)
+
+Vérifié dans le code le 2026-09-23 (`game/hud.js`, `drawMinimap`) : la
+mini-carte est toujours nord fixe (aucune rotation) ; seul le triangle du
+joueur pivote sur place. Aucune boussole, aucune distance chiffrée,
+aucun nom de rue affiché en jeu, aucun zoom, une seule échelle fixe.
+
+| Item | P | Effort | Dépendances | Statut | Modèle | Ce que ça change pour le joueur |
+|---|---|---|---|---|---|---|
+| Rotation de la mini-carte façon « suivant le joueur » (option, nord fixe par défaut) | P1 | M | `hud.js` (`drawMinimap`) | À faire | Sonnet | L'avant du joueur pointerait toujours vers le haut de la mini-carte en mode « suivant » — la direction à prendre (« tourne à gauche ») devient immédiate à lire, sans conversion mentale nord→cap. Réglage dans Options pour basculer entre les deux modes, avec un repère de nord (« N ») visible dans les deux cas. |
+| Boussole/indicateur de cap en haut du HUD | P1 | S | `hud.js`, `index.html` | À faire | Sonnet | Une bande fine N/E/S/O avec l'objectif marqué dessus s'il est hors-champ. Complète surtout une mini-carte restée nord fixe. |
+| Flèche 3D « suivez le point » à l'écran (style GPS) | P2 | M | `hud.js`, `main.js`, `missions.js` | À faire | Sonnet | En plus du marqueur cylindrique 3D et de la flèche au bord de la mini-carte déjà là, une flèche discrète en haut de l'écran aide quand l'objectif est loin ou masqué par un bâtiment. |
+| Distance chiffrée jusqu'à l'objectif | P2 | S | `hud.js`, `missions.js` | À faire | Sonnet | Aucun chiffre de distance n'est affiché aujourd'hui, seulement la position relative sur la mini-carte. Un « 240 m » sous le texte d'objectif confirme qu'on se rapproche. |
+| Nom de rue/quartier affiché en continu en jeu | P2 | M | `hud.js`, `world.js` (`districtName` existe déjà) | À faire | Sonnet | `districtName()` n'est utilisé que dans la grande carte du menu pause. L'afficher aussi en jeu (coin d'écran, discret) donne un repère immédiat sans ouvrir le menu. |
+| Zoom mini-carte (2-3 niveaux) | P3 | S | `hud.js` | À faire | Sonnet | L'échelle est fixe (`MAP_SCALE`). Zoomer/dézoomer aide à anticiper un carrefour de loin ou repérer un détail proche. |
+| Icônes distinctes par type de véhicule sur la mini-carte (taxi, ambulance, pompiers) | P3 | M | `hud.js`, `traffic.js` | À faire | Sonnet | Tout véhicule civil est aujourd'hui un simple carré ; seule la police a une forme dédiée (losange). Distinguer les autres rendrait la carte plus lisible en zone dense. |
+| Raccourci pour masquer/afficher la mini-carte | P2 | S | `input.js`, `hud.js` | À faire | Sonnet | Utile en capture d'écran/vidéo, ou pour un joueur qui préfère une mini-carte discrète en conduite. Persisté comme réglage. |
+| Raccourci pour rappeler le texte d'objectif | P3 | S | `input.js`, `hud.js` | À faire | Sonnet | Le texte d'objectif s'efface après un temps (fondu) ; une touche pour le rafficher évite d'ouvrir le menu Missions. |
+| Lisibilité des icônes HUD à `hudScale` minimal (75 %) | P2 | S | `hud.js`, `index.html` | À faire | Sonnet | `hudScale` va de 75 % à 150 % ; personne n'a vérifié que les icônes (pas seulement le texte) restent lisibles au minimum, ni le contraste en plein soleil. |
+| Barre de progression pour le rechargement | P2 | S | `hud.js`, `weapons.js` | À faire | Sonnet | `#ammo.reloading` ne fait aujourd'hui que changer une couleur CSS. Une barre de progression donnerait un retour clair sur le temps restant. |
+| Distinguer visuellement « recherché » (étoiles) et « poursuite active » | P3 | S | `hud.js`, `police.js` | À faire | Sonnet | Les deux états partagent la même zone HUD (étoiles). Un halo ou une bordure d'écran pendant une poursuite active aiderait à les distinguer d'un coup d'œil. |
+
 ## Performance
 
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
