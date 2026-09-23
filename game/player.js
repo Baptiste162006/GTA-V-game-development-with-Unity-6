@@ -77,6 +77,9 @@ export function buildCharacter({ shirt = 0x2f4f6f, pants = 0x232730, skin = 0xd6
   legR.position.x = 0.105;
 
   g.add(armL, armR, legL, legR);
+  // Propres à ce personnage (seules les formes sont partagées) : on peut donc
+  // les rendre translucides sans toucher aux autres.
+  g.userData.materials = [matShirt, matPants, matSkin, matHair];
   g.userData.rig = {
     torso,
     head,
@@ -88,6 +91,22 @@ export function buildCharacter({ shirt = 0x2f4f6f, pants = 0x232730, skin = 0xd6
     kneeR: legR.children[1],
   };
   return g;
+}
+
+// Estompe un personnage quand la caméra lui rentre dedans. Sans ça, dos au
+// mur, le corps occupe le centre de l'écran et on ne voit plus où on vise.
+export function fadeCharacter(mesh, alpha) {
+  const mats = mesh.userData.materials;
+  if (!mats) return;
+  const a = Math.max(0, Math.min(1, alpha));
+  if (mesh.userData.fade === a) return;
+  mesh.userData.fade = a;
+  mesh.visible = a > 0.02;
+  for (const m of mats) {
+    m.transparent = a < 0.999;
+    m.opacity = a;
+    m.depthWrite = a > 0.6;
+  }
 }
 
 export class Player {

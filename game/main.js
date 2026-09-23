@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { World, CITY } from './world.js';
-import { Player, ThirdPersonCamera } from './player.js';
+import { Player, ThirdPersonCamera, fadeCharacter } from './player.js';
 import { Traffic } from './traffic.js';
 import { Police } from './police.js';
 import { MissionManager } from './missions.js';
@@ -448,7 +448,10 @@ class Game {
       // Visée : caméra épaule, champ resserré, et le joueur regarde où on vise.
       const aiming = this.weapons.aiming;
       if (aiming) this.player.yaw = this.camera3p.yaw;
-      this.camera3p.update(dt, this.player.pos, aiming ? 1.68 : 1.5, aiming ? -4 : 0, aiming ? 0.85 : 0);
+      // Visée : on reste plus loin et plus décalé qu'avant. À 2,5 m le corps
+      // couvrait le viseur dès qu'on avait le dos au mur.
+      this.camera3p.update(dt, this.player.pos, aiming ? 1.66 : 1.5, aiming ? -2.6 : 0, aiming ? 1.25 : 0);
+      this.fadePlayer(dt);
       const fov = aiming ? (this.weapons.spec.scope ? this.baseFov * 0.4 : this.baseFov * 0.75) : this.baseFov;
       this.camera.fov += (fov - this.camera.fov) * (1 - Math.exp(-11 * dt));
       this.camera.updateProjectionMatrix();
@@ -540,6 +543,24 @@ class Game {
       applyPreset(this, this.autoLevel);
       GameEvents.emit(EVENTS.NOTIFY, { text: `Qualité ajustée : ${this.autoLevel}` });
     }
+  }
+
+  // Quand la caméra est contre le joueur — dos au mur, coin de rue — on le
+  // rend translucide puis on l'efface, au lieu de lui laisser boucher la vue.
+  fadePlayer(dt) {
+    // On se fie à la taille apparente, pas à la distance : en visée le champ
+    // se resserre à 48°, donc à distance égale le corps paraît bien plus gros.
+    // `apparent` vaut ~0,25 en jeu normal et grimpe au-delà de 0,7 quand la
+    // caméra est coincée — c'est là qu'il faut effacer le personnage.
+    const d = Math.max(0.1, this.camera.position.distanceTo(this.player.pos));
+    const apparent = 1 / (d * Math.tan((this.camera.fov * Math.PI) / 360));
+    // Deux seuils : en visée on est bien plus strict, parce que c'est là que
+    // le corps masque le viseur et rend le tir impossible. À pied on ne
+    // l'efface que si la caméra est vraiment coincée, dans un angle.
+    const [plein, vide] = this.weapons.aiming ? [0.45, 0.72] : [0.70, 1.05];
+    const wanted = THREE.MathUtils.clamp((vide - apparent) / (vide - plein), 0, 1);
+    this.playerFade = THREE.MathUtils.lerp(this.playerFade ?? 1, wanted, 1 - Math.exp(-12 * dt));
+    fadeCharacter(this.player.mesh, this.playerFade);
   }
 
   mapState() {
