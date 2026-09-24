@@ -49,7 +49,7 @@ Statut « À faire » sauf mention contraire.
 |---|---|---|---|---|---|---|
 | Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À propos) + réinitialiser | — | — | — | ✅ Fait v0.27 | — | 5 onglets cliquables, chacun ses réglages ; onglet À propos (version, moteur) avec le bouton « Réinitialiser les options » (confirmation, remet tout aux valeurs par défaut, persisté). |
 | Vérification HUD multi-ratios et tailles | — | — | — | ✅ Fait v0.28 | — | Script `hudresponsivetest` (4 formats × 4 échelles = 16 combinaisons) : a trouvé un vrai chevauchement Objectif/Horloge à 150 % (et dès 100 % en fenêtre étroite). Corrigé en passant les 6 panneaux d'une position absolue à une grille à 3 colonnes — le contenu déborde dans sa colonne, jamais sur sa voisine. |
-| Remappage des touches | P1 | M | `input.js`, `menu.js` | À faire | Sonnet | Action → touche, conflits signalés, persisté. |
+| Remappage des touches | — | — | — | ✅ Fait v0.29 | — | 5 actions remappables (sauter/frein à main, monter/sortir, klaxon, recharger, pause) depuis Commandes ; conflits et touches réservées refusés avec un message ; persisté ; bouton de réinitialisation ; l'invite F/H à l'écran suit la touche réelle. Déplacement (multi-touches AZERTY/QWERTY), Maj/Ctrl et la console restent fixes par choix. |
 | Texte d'accueil « huit quartiers » | — | — | — | ✅ Fait v0.28 | — | Corrigé dans `index.html`, `README.md` (×2) et `PROGRESS.md`. Les mentions dans `CHANGELOG.md` restent inchangées (ce sont des entrées historiques). |
 | Écran de chargement avec progression | P2 | S | `main.js`, `index.html` | À faire | Sonnet | — |
 | Flèche 3D « suivez le point » (style GPS) | P2 | M | `hud.js`, `missions.js` | À faire | Sonnet | Quand l'objectif est loin ou masqué. |

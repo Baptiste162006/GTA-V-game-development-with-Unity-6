@@ -19,7 +19,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 | 0 | Stabilisation du prototype | ✅ faite, à valider (4 bugs corrigés) | Sonnet |
 | 1 | Audit et documentation | ✅ faite — à valider | Opus |
 | 2 | Système de missions | ✅ faite (v0.22) — écarts listés, à valider | Opus |
-| 3 | UI / HUD / mini-carte / menus | 🟡 largement faite | Sonnet |
+| 3 | UI / HUD / mini-carte / menus | 🟡 reste l'écran de chargement | Sonnet |
 | 4 | Audio de base | ❌ architecture écrite, rien codé | Opus puis Sonnet |
 | 5 | Direction artistique environnement | 🟡 façades 3 styles, mobilier de base | Sonnet |
 | 6 | Personnage et caméra | 🟡 largement faite | Sonnet |
@@ -118,10 +118,15 @@ une grille à 3 colonnes, qui rend le chevauchement structurellement
 impossible. Texte d'accueil « huit quartiers » corrigé (`index.html`,
 `README.md`, `PROGRESS.md`).
 
-**Reste.** Remappage des touches ; écran de chargement.
+**Fait depuis (v0.29)** : remappage des touches. 5 actions remappables
+(sauter/frein à main, monter/sortir, klaxon, recharger, pause) depuis
+Commandes, conflits et touches réservées refusés, persisté,
+réinitialisable. L'invite F/H à l'écran suit la touche réelle.
 
-**Condition de passage.** Remplie pour les points traités ; le
-remappage peut suivre en parallèle de l'étape 4.
+**Reste.** Écran de chargement.
+
+**Condition de passage.** Remplie — reste l'écran de chargement, non
+bloquant pour l'étape 4.
 
 ## 4. Audio de base — ❌ ARCHITECTURE ÉCRITE (Opus, puis Sonnet)
 

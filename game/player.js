@@ -190,7 +190,7 @@ export class Player {
       this.speed = THREE.MathUtils.lerp(this.speed, 0, 1 - Math.exp(-14 * dt));
     }
 
-    if (input.justPressed('Space') && this.onGround) {
+    if (input.justPressedAction('jump') && this.onGround) {
       this.vy = JUMP;
       this.onGround = false;
     }

@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.29 — 2026-09-24
+
+### Ajouté — remappage des touches
+- 5 actions remappables depuis le menu pause → Commandes : **Sauter /
+  frein à main**, **Monter / sortir du véhicule**, **Klaxon**,
+  **Recharger**, **Pause**. Le déplacement (Z Q S D / W A S D, multi-
+  touches pour AZERTY et QWERTY à la fois), Maj/Ctrl (course/marche) et
+  la console de triche restent fixes — les remapper ajouterait de
+  l'ambiguïté sans gain réel.
+- Clic sur la touche affichée → « Appuie sur une touche… » → la
+  prochaine touche est capturée en priorité (avant le jeu et la
+  navigation du menu, pour qu'un Klaxon ou une Pause en attente de
+  remappage ne se déclenche pas pendant qu'on choisit sa nouvelle
+  touche). Échap annule sans rien changer.
+- **Conflits signalés** : une touche déjà prise par une autre action
+  remappable, ou réservée (déplacement, Maj, Ctrl, Échap, console), est
+  refusée avec un message clair — rien n'est modifié.
+- Persisté (`san-felipe-keybinds-v1`) ; bouton **Réinitialiser les
+  touches** (avec confirmation).
+- L'invite à l'écran (« F : monter », « H : klaxon ») suit maintenant la
+  touche réellement assignée plutôt que d'afficher F/H en dur.
+- Fermer le menu pendant qu'une touche est en attente de capture annule
+  proprement l'écoute — sans ce nettoyage, la touche suivante pressée en
+  jeu aurait été volée silencieusement par une capture fantôme.
+- Vérifié par `keybindtest` (11 contrôles : affichage par défaut,
+  remappage réel avec effet en jeu, conflit refusé, touche réservée
+  refusée, Échap annule sans fermer la pause, fermeture du menu nettoie
+  l'écoute en attente, réinitialisation) et `promptbindtest` (l'invite
+  F/H suit le remappage) — plus les 14 autres scripts de régression.
+  Zéro erreur console réelle.
+
+
 ## v0.28 — 2026-09-24
 
 ### Corrigé — panneaux du HUD qui pouvaient se chevaucher

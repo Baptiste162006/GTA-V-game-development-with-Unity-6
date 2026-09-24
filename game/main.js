@@ -14,7 +14,7 @@ import { Settings, GAME_VERSION } from './settings.js';
 import { PauseMenu } from './menu.js';
 import { Performance, applyPreset } from './performance.js';
 import { HUD } from './hud.js';
-import { Input } from './input.js';
+import { Input, codeLabel } from './input.js';
 import { AudioEngine } from './audio.js';
 import { GameEvents, EVENTS } from './events.js';
 import { DebugConsole } from './debug.js';
@@ -567,7 +567,7 @@ class Game {
   update(dt) {
     const input = this.input;
 
-    if (input.justPressed('KeyP') || input.justPressed('Escape')) {
+    if (input.justPressedAction('pause') || input.justPressed('Escape')) {
       this.state === 'playing' ? this.pause() : this.resume();
       return;
     }
@@ -590,14 +590,14 @@ class Game {
 
     const vehicle = this.player.inVehicle;
 
-    if (input.justPressed('KeyF')) {
+    if (input.justPressedAction('enterVehicle')) {
       if (vehicle) this.exitVehicle();
       else {
         const near = this.traffic.nearestVehicle(this.player.pos, 2.5);
         if (near) this.enterVehicle(near);
       }
     }
-    if (vehicle && input.justPressed('KeyH')) this.audio.blip(330, 0.35, 'square', 0.1);
+    if (vehicle && input.justPressedAction('horn')) this.audio.blip(330, 0.35, 'square', 0.1);
 
     if (vehicle) {
       vehicle.gripMul = this.weather.grip;
@@ -687,7 +687,7 @@ class Game {
     const w = this.weapons;
     w.aiming = input.aiming && !w.spec.melee;
 
-    if (input.justPressed('KeyR')) w.reload();
+    if (input.justPressedAction('reload')) w.reload();
     if (input.mouse.wheel && !w.aiming) w.cycle(Math.sign(input.mouse.wheel));
     for (let slot = 0; slot < 6; slot++) {
       if (input.justPressed(`Digit${slot + 1}`)) w.select(slot);
@@ -786,14 +786,16 @@ class Game {
   }
 
   updatePrompt() {
+    const keyF = codeLabel(this.input.code('enterVehicle'));
     if (this.player.inVehicle) {
-      this.hud.setPrompt('F : sortir du véhicule   ·   H : klaxon');
+      const keyH = codeLabel(this.input.code('horn'));
+      this.hud.setPrompt(`${keyF} : sortir du véhicule   ·   ${keyH} : klaxon`);
       return;
     }
     const near = this.traffic.nearestVehicle(this.player.pos, 2.5);
     if (near) {
       const occupied = this.traffic.isOccupied(near);
-      this.hud.setPrompt(`F : ${occupied ? 'éjecter le conducteur' : 'monter'} — ${near.spec.label}`);
+      this.hud.setPrompt(`${keyF} : ${occupied ? 'éjecter le conducteur' : 'monter'} — ${near.spec.label}`);
     } else {
       this.hud.setPrompt('');
     }

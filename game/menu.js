@@ -1,4 +1,5 @@
 import { DEFINITIONS, SETTINGS_GROUPS, GAME_VERSION } from './settings.js';
+import { REBINDABLE, codeLabel } from './input.js';
 
 const SECTIONS = [
   { id: 'resume', label: 'Reprendre', action: 'resume' },
@@ -61,6 +62,17 @@ export class PauseMenu {
   close() {
     this.root.hidden = true;
     this.confirmBox.hidden = true;
+    // Sans ça, une écoute de remappage laissée en attente (menu fermé sans
+    // appuyer sur une touche) resterait armée en capture sur `window` et
+    // volerait silencieusement la prochaine touche pressée en jeu.
+    this.stopListening();
+  }
+
+  stopListening() {
+    if (this._cancelListen) {
+      this._cancelListen();
+      this._cancelListen = null;
+    }
   }
 
   onKey(e) {
@@ -137,6 +149,7 @@ export class PauseMenu {
   }
 
   show(id) {
+    if (id !== 'controls') this.stopListening();
     this.section = id;
     const g = this.game;
     this.title.textContent = SECTIONS.find((s) => s.id === id)?.label ?? '';
@@ -182,19 +195,89 @@ export class PauseMenu {
   }
 
   renderControls() {
-    const lines = [
-      ['Se déplacer', 'Z Q S D / W A S D'],
-      ['Courir · marcher', 'Maj · Ctrl'],
-      ['Sauter · frein à main', 'Espace'],
-      ['Monter / sortir', 'F'],
-      ['Klaxon', 'H'],
-      ['Tirer · viser', 'Clic gauche · clic droit'],
-      ['Recharger', 'R'],
-      ['Changer d’arme', 'Molette ou 1-6'],
-      ['Pause', 'P ou Échap'],
-      ['Console', '² ou `'],
-    ];
-    this.panel.innerHTML = lines.map(([a, b]) => this.row(a, b)).join('');
+    this.panel.innerHTML = '';
+    const staticRow = (label, value) => {
+      const div = document.createElement('div');
+      div.className = 'stat';
+      div.innerHTML = `<span>${label}</span><b>${value}</b>`;
+      this.panel.appendChild(div);
+    };
+
+    staticRow('Se déplacer', 'Z Q S D / W A S D');
+    staticRow('Courir · marcher', 'Maj · Ctrl');
+    this.bindRow('jump', 'Sauter / frein à main');
+    this.bindRow('enterVehicle', 'Monter / sortir du véhicule');
+    this.bindRow('horn', 'Klaxon');
+    staticRow('Tirer · viser', 'Clic gauche · clic droit');
+    this.bindRow('reload', 'Recharger');
+    staticRow('Changer d’arme', 'Molette ou 1-6');
+    this.bindRow('pause', 'Pause', '(+ Échap, fixe)');
+    staticRow('Console', '² ou ` (fixe)');
+
+    const reset = document.createElement('button');
+    reset.className = 'ghost';
+    reset.textContent = 'Réinitialiser les touches';
+    reset.style.marginTop = '14px';
+    reset.addEventListener('click', () => {
+      this.askConfirm('Remettre les touches remappées (sauter, monter/sortir, klaxon, recharger, pause) à leur valeur par défaut ?', () => {
+        this.game.input.resetBinds();
+        this.show('controls');
+      });
+    });
+    this.panel.appendChild(reset);
+  }
+
+  // Une ligne « action → touche » avec un bouton pour la remapper. Le clic
+  // arme une écoute unique et prioritaire (capture + stopPropagation) : la
+  // touche suivante ne doit atteindre ni le jeu (pause, klaxon…) ni la
+  // navigation du menu, seulement ce remappage.
+  bindRow(action, label, suffix = '') {
+    const input = this.game.input;
+    const line = document.createElement('label');
+    line.className = 'option';
+    const name = document.createElement('span');
+    name.textContent = label;
+    line.appendChild(name);
+
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    const display = () => codeLabel(input.code(action)) + (suffix ? ` ${suffix}` : '');
+    btn.textContent = display();
+    const note = document.createElement('span');
+    note.className = 'note';
+    note.style.marginLeft = '8px';
+    note.hidden = true;
+
+    btn.addEventListener('click', () => {
+      this.stopListening();
+      btn.textContent = 'Appuie sur une touche…';
+      note.hidden = true;
+      const listen = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.stopListening();
+        if (e.code === 'Escape') {
+          btn.textContent = display();
+          return;
+        }
+        const res = input.rebind(action, e.code);
+        btn.textContent = display();
+        if (res.ok) {
+          note.hidden = true;
+        } else {
+          note.textContent = res.reason;
+          note.hidden = false;
+        }
+      };
+      addEventListener('keydown', listen, true);
+      this._cancelListen = () => {
+        removeEventListener('keydown', listen, true);
+        btn.textContent = display();
+      };
+    });
+
+    line.append(btn, note);
+    this.panel.appendChild(line);
   }
 
   renderMap() {
