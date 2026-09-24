@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## Documentation — 2026-09-24 (aucun fichier de jeu modifié)
+
+- `MILESTONES.md` et `BACKLOG.md` réorganisés selon l'ordre de travail V1
+  (étapes 0 à 12), avec la règle « pas d'étape N+1 avant validation de
+  N ». L'étape 0 (stabilisation) est rouverte : trois bugs vérifiés dans
+  le code (on traverse les voitures à pied, tirs partant de la caméra,
+  sauvegarde corrompue écrasée en silence).
+- `MISSIONS.md` (nouveau) : le système de missions réel comparé point
+  par point au cahier des charges ; écarts classés (confirmation au
+  contact, missions verrouillées affichées, réessayer, types d'étape
+  manquants, checkpoints reportés en V1.1 avec la raison).
+- `AUDIO_SYSTEM.md` (nouveau) : bus, limiteur, pool de voix, sons par
+  catégorie, périmètre V1/V1.1/V2. Relève un risque de saturation réel
+  (chaque tir branché sans limite sur la sortie).
+- `CUSTOMIZATION.md` (nouveau) : catalogue, application en place (sans
+  reconstruire le personnage), menu Garde-robe, économie, périmètre.
+- `V1_SCOPE.md`, `PROJECT_STATUS.md`, `VERTICAL_SLICE.md` alignés.
+
 ## v0.22 — 2026-09-24
 
 ### Ajouté — l'histoire : 6 missions scénarisées

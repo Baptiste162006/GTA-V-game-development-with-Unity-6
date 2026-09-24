@@ -45,7 +45,8 @@ Contenu de la zone, ce qui existe déjà vs. ce qui manque :
 9. Il revient en exploration libre.
 
 **Mise à jour v0.22 : le système de missions scénarisées existe** (`story.js`,
-six missions). Paragraphe d'origine conservé ci-dessous pour l'historique.
+six missions ; fonctionnement, écarts et règles : `MISSIONS.md`). La
+mission dédiée à cette zone est l'étape 10 de `MILESTONES.md`. Paragraphe d'origine conservé ci-dessous pour l'historique.
 
 **Ce qui manquait pour que cette boucle soit une vraie mission** plutôt qu'une
 suite d'actions libres déjà possibles aujourd'hui : un enchaînement avec

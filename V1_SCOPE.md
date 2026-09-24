@@ -16,8 +16,8 @@ corrigées ci-dessous, élément par élément.
 
 | Affirmation | Réalité dans le code |
 |---|---|
-| Lance-roquettes parmi les armes | N'existe pas. 6 armes : poings, pistolet, UZI, pompe, fusil d'assaut, sniper (`weapons.js`). |
-| Quartier « banlieue » | N'existe pas. 6 quartiers : Downtown, Little Tokyo, Mirador Hills, Zone Industrielle, Beachside, Vieille Ville (`world.js`). La page d'accueil dit « huit quartiers » — faux, à corriger (BACKLOG). |
+| Lance-roquettes parmi les armes | N'existe pas. 6 armes : poings, pistolet, UZI, pompe, fusil d'assaut, sniper (`weapons.js`). Le cahier des charges audio du 24/09 le cite encore (« pistolet, shotgun, rifle, rocket ») : ce serait une **nouvelle arme**, classée V2 ci-dessous. |
+| Quartier « banlieue » / « Suburbs » | N'existe pas (cité à nouveau dans le cahier audio du 24/09). 6 quartiers : Downtown, Little Tokyo, Mirador Hills, Zone Industrielle, Beachside, Vieille Ville (`world.js`). La page d'accueil dit « huit quartiers » — faux, à corriger (BACKLOG). |
 | Saisons/neige « à faire » | Déjà faites (v0.10) : 4 saisons, neige qui s'accumule et réduit l'adhérence. |
 | Sauvegarde complète | **Corrigé en v0.19** : garde maintenant position, véhicule, armes/munitions, météo, saison, missions, en plus de l'argent/stats/heure ; entrées « Sauvegarder », « Réinitialiser la sauvegarde » et « Quitter » ajoutées au menu. |
 | Menu pause complet | **Corrigé en v0.19** : Sauvegarder, Réinitialiser la sauvegarde et Quitter ajoutés (10 entrées). Reste en une seule liste sans onglets — voir Options ci-dessous, toujours ❌. |
@@ -36,7 +36,8 @@ corrigées ci-dessous, élément par élément.
 - ✅ Personnage procédural (le rendu final de la V1 : aucun `.glb`
   disponible ici), caméra, visée, arme visible, réaction aux dégâts.
 - ✅ 5 véhicules jouables propres parmi les 16 (citadine, berline, sportive,
-  taxi, police) ; 🟡 jantes et vitres encore basiques.
+  taxi, police — le cahier des charges du 24/09 cite le camion à la place
+  du taxi : à décider, `MILESTONES.md` étape 7) ; 🟡 jantes et vitres encore basiques.
 - ✅ 6 armes. 🟡 1 seul profil d'ennemi → 3 à 5 profils.
 - ✅ 6 missions scénarisées (v0.22) : tutoriel + 5 missions enchaînées, avec
   contacts dans la ville, prérequis, échec/réessai, récompenses et
@@ -127,6 +128,28 @@ quartier). Deux corrections d'audit au passage : le nom de quartier
 - ❌ Build web partageable (hébergement, page de présentation).
 - ✅ Zéro erreur console sur les scripts de régression.
 
+### Personnalisation du personnage (`CUSTOMIZATION.md`)
+- **MUST HAVE** : architecture (catalogue, `applyAppearance` en place,
+  sauvegarde de l'apparence), menu Garde-robe dans la pause, contenus
+  V1 : 4 coiffures × 6 couleurs, 6 hauts, 4 bas, 3 chaussures,
+  lunettes / casquette / sac.
+- **SHOULD HAVE** : prix et récompenses de mission ; variété des PNJ
+  tirée du même catalogue.
+- **COULD HAVE (V1.1)** : magasins dans la ville, miroir en planque,
+  barbe, formes de tête, bonnet / masque / bijoux.
+- **V2** : tatouages, éditeur de visage, effets de jeu des vêtements,
+  deuxième silhouette, modèle GLB.
+
+### Audio — classement (`AUDIO_SYSTEM.md`)
+- **MUST HAVE** : bus + limiteur + pool de voix, curseurs par bus,
+  fondu en pause/mort, rechargement, variation de tir, impacts chair et
+  béton, 3 profils de moteur avec démarrage/arrêt/roulement/bosse,
+  ambiance ville + vent, pas asphalte/trottoir.
+- **SHOULD HAVE** : sons d'interface, relance au retour sur l'onglet.
+- **COULD HAVE (V1.1)** : impacts métal, moteurs des PNJ proches,
+  5 profils de moteur, boucle musicale de menu, pas sur herbe.
+- **V2** : impacts bois/verre, explosions de lance-roquettes, radios.
+
 ## SHOULD HAVE — améliore la V1 sans la bloquer
 
 - ✅ Saisons (dépasse la demande).
@@ -146,5 +169,5 @@ quartier). Deux corrections d'audit au passage : le nom de quartier
 | Musique composée (plusieurs pistes/radios) | En V1 : une boucle d'ambiance synthétisée. Les radios demandent du contenu musical que ce projet ne produit pas. |
 | Congères, neige sur les toits | Décoratif ; la mécanique de neige existe. |
 | Économie/propriétés, personnage alternatif | Systèmes entiers sans lien avec la boucle V1. |
-| Couvertures pour l'IA ennemie | Nouveau système d'IA ; 3-5 profils suffisent à varier les combats en V1. |
+| Lance-roquettes | Nouvelle arme + explosions + dégâts de zone ; aucune source d'explosion n'existe aujourd'hui. |
 | Intérieurs visitables, multijoueur, ville de 4 km², 69 missions, 100 véhicules, 35 armes, 30 radios, photoréalisme | Incompatibles avec un projet Three.js sans pipeline d'assets mené par une personne. |

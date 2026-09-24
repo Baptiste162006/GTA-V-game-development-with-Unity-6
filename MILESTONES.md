@@ -1,265 +1,178 @@
 # MILESTONES
 
-Réécrit le 2026-09-23 à partir de `PROJECT_STATUS.md`. Remplace l'ancien
-découpage par étapes numérotées 0-10, qui mélangeait des étapes déjà
-terminées avec des étapes jamais commencées sans dire clairement lesquelles.
-Chaque jalon liste : objectif, fichiers concernés, critères d'acceptation,
-risques, modèle conseillé, test à effectuer, condition de passage au
-suivant.
+Réorganisé le 2026-09-24 selon l'**ordre de travail V1** que tu as fixé
+(étapes 0 à 12). Règle : **on ne passe pas à l'étape N+1 tant que
+l'étape N n'est pas validée par toi.** Chaque étape indique son état réel
+(vérifié dans le code), ce qui reste, les critères d'acceptation, le
+modèle conseillé et la condition de passage.
+
+Plusieurs étapes ont déjà été faites avant cet ordre (0, 1, 2, une bonne
+partie de 3). Elles sont marquées « faite — à valider » : c'est à toi de
+les accepter pour débloquer la suite.
+
+Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
+`CUSTOMIZATION.md`, `VERTICAL_SLICE.md`, `ART_DIRECTION.md`. Tâches :
+`BACKLOG.md` (mêmes numéros d'étape).
+
+| Étape | Sujet | État | Modèle |
+|---|---|---|---|
+| 0 | Stabilisation du prototype | 🟡 3 bugs ouverts | Opus |
+| 1 | Audit et documentation | ✅ faite — à valider | Opus |
+| 2 | Système de missions | ✅ faite (v0.22) — écarts listés, à valider | Opus |
+| 3 | UI / HUD / mini-carte / menus | 🟡 largement faite | Sonnet |
+| 4 | Audio de base | ❌ architecture écrite, rien codé | Opus puis Sonnet |
+| 5 | Direction artistique environnement | 🟡 façades 3 styles, mobilier de base | Sonnet |
+| 6 | Personnage et caméra | 🟡 largement faite | Sonnet |
+| 7 | Véhicules et conduite | 🟡 largement faite | Sonnet |
+| 8 | Combat et ennemis | 🟡 1 seul profil d'ennemi | Sonnet |
+| 9 | Personnalisation du personnage | ❌ architecture écrite, rien codé | Opus puis Sonnet |
+| 10 | Vertical slice — mission complète | ❌ dépend de 5 | Opus |
+| 11 | Optimisation et tests amis | 🟡 mesuré en rendu logiciel seulement | Sonnet |
+| 12 | V1 release | ❌ | Sonnet |
+
+---
+
+## 0. Stabilisation du prototype — 🟡 3 BUGS OUVERTS (Opus)
+
+**Objectif.** Aucun bug bloquant : contrôles, caméra, arme/visée,
+collisions, sauvegarde.
+
+**Fait.** Caméra à hauteur d'épaule et anti-mur par ratio (v0.12) ;
+visée face à la cible, arme visible (v0.13) ; assiette des véhicules
+(v0.14) ; oscillation du menu pause (post-v0.9) ; job Livraison qui
+plantait, voiture garée impossible à reprendre, tutoriel rejoué à chaque
+lancement (v0.22). Checklist de tests manuels : `BACKLOG.md` ; 11 scripts
+de régression automatiques lancés avant chaque push.
+
+**Reste — vérifié dans le code le 2026-09-24 :**
+1. **Collisions joueur/véhicules** : à pied, le joueur ne collisionne
+   qu'avec les bâtiments (`world.collideCircle`) — on traverse les
+   voitures.
+2. **Origine du tir** : la balle part de la caméra
+   (`camera.position + 1,2 m`), pas de l'arme — dos à un angle de mur,
+   elle peut passer à travers.
+3. **Sauvegarde corrompue** : une sauvegarde illisible est ignorée en
+   silence, et la sauvegarde automatique suivante l'écrase (perte de
+   données).
+
+**Critères d'acceptation.** On ne traverse plus une voiture à l'arrêt ni
+en mouvement ; un tir contre un mur à bout portant ne le traverse pas ;
+une sauvegarde volontairement corrompue affiche un message, est mise de
+côté et n'est pas écrasée ; les 11 scripts passent.
+
+**Test.** Scripts dédiés pour chacun des 3 points + régression complète.
+
+**Condition de passage.** Les 3 bugs corrigés et testés, puis ta
+validation.
+
+## 1. Audit complet et documentation — ✅ FAITE, À VALIDER (Opus)
+
+`PROJECT_STATUS.md`, `V1_SCOPE.md`, `VERTICAL_SLICE.md`,
+`MILESTONES.md`, `BACKLOG.md` écrits le 2026-09-23 et tenus à jour
+depuis ; `MISSIONS.md`, `AUDIO_SYSTEM.md`, `CUSTOMIZATION.md` ajoutés le
+2026-09-24. **Condition de passage :** ta validation.
+
+## 2. Système de missions — ✅ FAITE (v0.22), À VALIDER (Opus)
+
+**Fait.** Six missions (le cahier des charges en demandait une) :
+prérequis, points de départ (contacts), étapes, échecs, nettoyage,
+réessai, progression sauvegardée. Détail et comparaison point par point
+avec ton cahier des charges : `MISSIONS.md`.
+
+**Écarts (BACKLOG étape 2).** Confirmation « Appuie sur E » au contact
+(P1) ; missions verrouillées affichées grisées avec la raison (P1) ;
+bouton « Réessayer » sur l'écran d'échec (P2) ; types d'étape
+`survivre` / `proteger` / `dialogue` (P2-P3) ; échec par détection
+police (P2) ; checkpoints et reprise en pleine mission (V1.1 — choix
+assumé, voir `MISSIONS.md` §6) ; 2 missions de plus (P2).
+
+**Condition de passage.** Ta validation (avec ou sans les deux P1).
+
+## 3. UI / HUD / mini-carte / menus — 🟡 LARGEMENT FAITE (Sonnet)
+
+**Fait.** HUD complet (objectif + distance + chrono, heure, quartier,
+boussole, météo, argent, vie/armure chiffrées, arme + munitions + barre
+de rechargement, étoiles, mini-carte) ; menu pause (Reprendre, Carte,
+Missions, Statistiques, Options, Commandes, Sauvegarder, Réinitialiser,
+Recommencer, Quitter) ; 20 réglages ; mini-carte nord fixe ou « suit le
+cap », contacts d'histoire en étoile.
+
+**Reste.** Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À
+propos) + réinitialiser les options ; remappage des touches ;
+vérification HUD sur 4 ratios et aux tailles min/max ; écran de
+chargement ; texte d'accueil « huit quartiers » (il y en a 6).
 
-## 0. Stabilisation du prototype — ✅ TERMINÉE
+**Condition de passage.** Options en sections et vérification
+multi-ratios faites ; le remappage peut suivre en parallèle de l'étape 4.
 
-**Objectif.** Aucun bug de contrôle, caméra, arme ou collision ne devait
-rester avant d'ajouter du contenu.
+## 4. Audio de base — ❌ ARCHITECTURE ÉCRITE (Opus, puis Sonnet)
 
-**Ce qui a été fait**, avec la version où c'est arrivé : caméra rapprochée
-et abaissée à hauteur d'épaule (v0.12) ; régression du mécanisme anti-mur
-trouvée en testant ce même changement, puis corrigée avec un ratio
-géométrique indépendant des réglages (v0.12) ; personnage qui visait dos à
-la cible au lieu de face (v0.13) ; arme invisible en visée, corrigée par le
-contraste et non la taille (v0.13) ; assiette des véhicules inversée par
-rapport à la physique, corrigée (v0.14) ; menu pause qui oscillait entre
-deux entrées au survol (correctif post-v0.9).
+`AUDIO_SYSTEM.md`. Ordre : bus + limiteur + pool de voix (Opus, c'est la
+fondation) → curseurs par bus → armes (variation, rechargement, impacts
+chair/béton) → véhicules (3 profils, démarrage/arrêt, roulement, bosse)
+→ ambiance (ville, vent) → pas → interface.
 
-**Condition de passage** (remplie) : six scripts de régression automatisés
-passent sans erreur console à chaque version.
+**Critères.** Une rafale d'UZI de 5 s ne dépasse pas le plafond de voix ;
+aucun son en pause/après la mort hors interface ; chaque curseur à 0
+coupe son bus ; script `audiotest`.
 
-## 1. Direction artistique — environnement — EN COURS
+## 5. Direction artistique environnement — 🟡 (Sonnet)
 
-**Objectif.** Arbres variés, façades variées, mobilier, une zone vitrine,
-éclairage — dans cet ordre de rentabilité (`ART_DIRECTION.md`).
+**Fait.** 3 styles de façade, bancs, poubelles (v0.15), fusion par îlot.
+**Reste.** Arbres (4 silhouettes, tailles, teintes, buissons, herbe,
+vent), façades 6-8 styles + vitrines/enseignes, mobilier (panneaux,
+abribus, bornes, lampadaires variés), zone vitrine 200 × 200 m avec
+garage/station-service. Draw calls mesurés, < 500.
+Détail : `ART_DIRECTION.md`, `VERTICAL_SLICE.md`.
 
-**Fichiers concernés.** `game/world.js` essentiellement ; `game/seasons.js`
-pour la compatibilité des teintes saisonnières avec toute nouvelle matière
-première (feuillage, tronc).
+## 6. Personnage et caméra — 🟡 LARGEMENT FAITE (Sonnet)
 
-**Fait.** 3 styles de façade, bancs, poubelles (v0.15), fusionnés par style
-pour ne pas dégrader les draw calls (mesuré 226-301, budget 500).
+**Fait.** Proportions, marche/course/respiration/saut/mort, visée alignée,
+arme visible, réaction aux dégâts (v0.18), caméra épaule anti-mur, FOV par
+contexte. **Reste (à vérifier pièce par pièce avant d'affirmer quoi que
+ce soit) :** pose d'atterrissage, geste de rechargement, pose
+d'entrée/sortie de véhicule, accroupissement.
 
-**Pas fait.** Variété d'arbres (une seule forme dans tout le jeu — le
-travail préparé ce cycle a été abandonné avant d'être branché, aucune
-régression n'a donc pu en venir, mais rien n'a atterri) ; façades 3→6-8 ;
-vitrines/enseignes ; garage/station-service fonctionnels pour la zone
-vitrine.
+## 7. Véhicules et conduite — 🟡 LARGEMENT FAITE (Sonnet)
 
-**Critères d'acceptation.** Au moins 3 silhouettes d'arbre distinctes,
-choisies selon le quartier ; draw calls mesurés avant/après, toujours sous
-500 ; zéro erreur console sur les six scripts de régression existants plus
-un nouveau script dédié à la végétation.
+**Fait.** 16 modèles, physique arcade, roues asservies, feux, dégâts +
+fumée, suspension. **Reste.** Jantes distinctes, vitres, véhicule
+détruit (feu puis explosion). Le cahier des charges cite le **camion**
+parmi les 5 véhicules de la démo, `V1_SCOPE.md` citait le **taxi** : à
+trancher (les deux existent).
 
-**Risques.** Refaire une passe de matériaux/instancing qui redéfait le
-travail de fusion par îlot de la v0.9/v0.15 — chaque ajout doit être
-mesuré, pas supposé neutre.
+## 8. Combat et ennemis — 🟡 (Sonnet)
 
-**Modèle conseillé.** Sonnet — un seul fichier à la fois, pas de système
-à faire tenir avec un autre.
+**Fait.** 6 armes, dégâts par zone, gangs qui tirent, police armée.
+**Reste.** 3-5 profils d'ennemis (P1) ; couvertures simples (P2 — était
+classé V2, remonté ici par ton ordre de travail) ; ramassage d'arme (P2).
 
-**Test.** Script Playwright qui compte les draw calls/géométries avant et
-après, sur au moins trois quartiers différents, plus une capture visuelle
-par quartier.
+## 9. Personnalisation du personnage — ❌ ARCHITECTURE ÉCRITE (Opus, puis Sonnet)
 
-**Condition de passage au jalon 2.** Au moins 3 formes d'arbre visibles en
-jeu, façades étendues à 5 styles minimum, zéro régression de performance
-mesurée.
+`CUSTOMIZATION.md`. Ordre : 5ᵉ matériau (chaussures) + catalogue +
+`applyAppearance` en place (Opus) → menu Garde-robe dans la pause →
+contenus (coiffures, hauts, bas, chaussures, accessoires) → prix et
+récompenses → variété des PNJ.
 
-## 2. Personnage et caméra — PARTIELLEMENT FAITE (réaction aux dégâts livrée en v0.18)
+## 10. Vertical slice — mission complète — ❌ (Opus)
 
-**Objectif.** Proportions, animations, visée, arme visible, réactions à la
-mort/aux chutes.
+Boucle de 9 étapes dans la zone vitrine (`VERTICAL_SLICE.md`). Le moteur
+de missions est prêt ; il manque la zone vitrine (étape 5). Une mission
+dédiée « vitrine » sera écrite dans `story.js` une fois la zone en place.
 
-**Fait** (v0.12, v0.13) : caméra à hauteur d'épaule, animation de
-respiration à l'arrêt, marche/course par oscillation, visée alignée à 3,8°
-de l'axe réel, arme visible et contrastée.
+## 11. Optimisation et tests amis — 🟡 (Sonnet)
 
-**Fait depuis (v0.18)** : flash + écart directionnel du buste sur les
-dégâts encaissés, symétrique à celui des ennemis.
+**Fait.** Presets, panneau de mesures, instancing, fusion par îlot.
+**Reste.** Déploiement statique, mesure sur GPU réel (sur ta machine),
+test par 2-3 personnes extérieures.
 
-**Pas fait.** Accroupissement. Pose d'entrée/sortie de véhicule.
+## 12. V1 release — ❌ (Sonnet)
 
-**Critères d'acceptation.** Le joueur qui encaisse un tir a une réaction
-visible (flash et/ou recul), symétrique à celle des ennemis. Aucune
-régression sur la visée ni la caméra (scripts existants).
-
-**Risques.** Faible — ajout localisé à `player.js`/`main.js`, ne touche
-pas les systèmes déjà stabilisés.
-
-**Modèle conseillé.** Sonnet.
-
-**Test.** Script dédié : dégâts encaissés → vérifier un changement d'état
-visuel mesurable (matériau, rotation) dans les N images suivantes.
-
-**Condition de passage au jalon 3.** Réaction aux dégâts en place et
-testée. Le remplacement du personnage procédural par un modèle GLB n'est
-**pas** une condition de passage — il dépend d'un asset externe qui n'est
-pas disponible dans cet environnement, et reste un jalon à part (voir
-« Hors séquence » en bas de ce document).
-
-## 3. Véhicules — PARTIELLEMENT FAITE
-
-**Objectif.** Pneus, roues, feux, sons, dégâts, entrée/sortie, IA trafic.
-
-**Fait.** Roues asservies à la vitesse réelle, direction par pivot, feux
-stop/phares/gyrophares, dégâts visibles (carrosserie qui ternit) et fumée
-moteur, suspension ressort-amortisseur avec assiette physiquement correcte
-(v0.14, après avoir trouvé et corrigé le signe inversé).
-
-**Pas fait.** Jantes distinctes du pneu (aujourd'hui un disque plein).
-Vitres avec un matériau qui réfléchit. Déformation de carrosserie après un
-choc.
-
-**Critères d'acceptation.** Un véhicule vu de près a une jante visuellement
-distincte de son pneu ; les vitres ne sont plus un simple aplat sombre.
-
-**Risques.** Faible — travail de matériau/géométrie, isolé à
-`vehicle.js`.
-
-**Modèle conseillé.** Sonnet.
-
-**Test.** Capture rapprochée avant/après sur au moins deux modèles de
-gabarits différents (citadine, camion).
-
-**Condition de passage au jalon 4.** Non bloquant pour la suite — peut se
-faire en parallèle du jalon 4.
-
-## 4. Combat et ennemis — LARGEMENT FAITE
-
-**Fait.** 6 armes, visée épaule, dégâts par zone (tête ×3, vérifié 78
-contre 26), impacts, flash, recul, gangs avec IA de tir, flash + recul +
-barre de vie au coup touché, butin en argent, riposte armée de la police
-dès 3 étoiles.
-
-**Pas fait.** Ramassage d'arme au sol. Tir depuis un véhicule. Couvertures
-pour l'IA ennemie. Variété de profils d'ennemis (un seul aujourd'hui).
-
-**Critères d'acceptation pour clore ce jalon.** Au moins 3 profils
-d'ennemis distincts (portée, arme, agressivité) — un travail de données
-dans `enemies.js`, pas un nouveau système.
-
-**Modèle conseillé.** Sonnet.
-
-**Condition de passage au jalon 5.** Non bloquant — la mission
-scénarisée du jalon 7 peut se construire avec un seul profil d'ennemi.
-
-## 5. Audio et game feel — PARTIELLE
-
-**Fait.** Moteur, sirène, klaxon, chocs, crissement, pluie, tir par arme,
-clic à vide, tonnerre retardé par la distance, jingles de réussite/échec.
-
-**Pas fait** (détail dans `V1_SCOPE.md` § Audio) : bus Master/Musique/
-Effets/Ambiance/UI, pool de voix, rechargement, impacts par matériau, pas,
-démarrage/arrêt/roulement moteur, ambiance de ville, sons d'interface,
-boucle musicale, explosion.
-
-**Fichiers.** `audio.js`, `settings.js`, `menu.js` (curseurs), points
-d'appel dans `weapons.js`, `player.js`, `vehicle.js`.
-
-**Critères d'acceptation.** Chaque bus a son curseur et le volume 0 est
-muet ; aucun son ne continue en pause ; une rafale d'UZI de 5 s ne dépasse
-pas la limite de voix ; chaque action de la checklist audio (`BACKLOG.md`)
-produit un son.
-
-**Risques.** Saturation/clipping, sons qui fuient en pause, coût CPU de la
-synthèse — mesurer le nombre de nœuds actifs.
-
-**Modèle conseillé.** Sonnet (un fichier central + appels ponctuels).
-
-**Test.** Script qui compte les nœuds audio actifs pendant une fusillade,
-en pause et après mort.
-
-**Condition de passage.** Non bloquant pour le jalon 7, bloquant pour la
-V1 (jalon 10).
-
-## 6. HUD, pause, options, sauvegarde — PARTIELLE
-
-**Fait.** Thème centralisé + 3 variantes, menu pause navigable (Reprendre,
-Carte, Missions, Statistiques, Options, Commandes, Recommencer), 19
-réglages persistés et appliqués en direct, FOV par contexte.
-
-**Fait depuis (v0.19)** : sauvegarde complète (position, orientation, vie,
-armure, véhicule courant, arme et munitions, météo, saison, avancement des
-missions) ; entrées de menu Sauvegarder (avec notification), Réinitialiser
-la sauvegarde (avec confirmation) et Quitter.
-
-**Pas fait.** Options en sections Vidéo/Audio/Contrôles/Accessibilité/
-À propos + réinitialisation des options ; remappage des touches ; écran
-de chargement ; vérification HUD multi-ratios.
-
-**Fichiers.** `main.js` (`save`/`loadSave`), `menu.js`, `settings.js`,
-`input.js`, `index.html`, `hud.js`.
-
-**Critères d'acceptation.** Sauvegarder → recharger la page → même
-position, armes, munitions, argent, heure, météo, saison ; réinitialiser
-→ partie neuve après confirmation, annuler ne change rien ; ancienne
-sauvegarde (format actuel) toujours lue sans erreur.
-
-**Risques.** Casser les sauvegardes existantes ; restaurer un état
-incohérent (joueur dans un mur, véhicule disparu) ; régression de la
-navigation du menu (déjà eu un bug d'oscillation).
-
-**Modèle conseillé.** Sonnet.
-
-**Test.** Script aller-retour sauvegarde/rechargement + script de menu
-existant (`menutest`).
-
-**Condition de passage au jalon 7.** Remplie depuis v0.19 — la sauvegarde
-complète est en place, la progression des missions scénarisées ne sera
-donc plus perdue au rechargement.
-
-## 7. Missions scénarisées — ✅ SYSTÈME ET HISTOIRE FAITS (v0.22)
-
-**Fait.** `story.js` : six missions enchaînées (tutoriel, Premier contrat,
-Dette impayée, Le mouchard, Contre la montre, Le grand coup) avec deux
-contacts dans la ville (Rosa, Vieille Ville ; Kenji, Little Tokyo).
-Prérequis entre missions, contact bloqué tant qu'on a des étoiles, échec
-(mort, arrestation, voiture abîmée ou abandonnée, zone quittée, chrono)
-avec nettoyage et réessai au contact, marqueur qui suit une cible mobile,
-progression sauvegardée et relue (y compris depuis une sauvegarde v1).
-
-**Vérifié.** Script de bout en bout : les six missions jouées, deux échecs
-provoqués puis réussis au second essai, sauvegarde/rechargement, zéro
-erreur console.
-
-**Reste.** Deux missions de plus pour atteindre 8 (contenu seul, Sonnet).
-La boucle de `VERTICAL_SLICE.md` (zone vitrine) dépend surtout du jalon 1
-(arbres, façades), plus du système de missions.
-
-**Condition de passage au jalon 8.** Remplie côté missions.
-
-## 8. Optimisation et test avec des amis — PARTIELLEMENT FAITE
-
-**Fait.** Presets graphiques (faible/moyen/élevé/auto), panneau de mesures
-en direct, InstancedMesh pour tout élément répété, fusion par îlot,
-formes de personnage/véhicule partagées (v0.9, v0.15).
-
-**Pas fait.** Aucune mesure sur GPU réel (tout a été testé en rendu
-logiciel). Aucun build/déploiement statique choisi. Aucun retour de tiers
-recueilli.
-
-**Modèle conseillé.** Sonnet pour le déploiement (une page statique,
-GitHub Pages ou équivalent, ne demande pas d'architecture nouvelle).
-
-**Condition de passage au jalon 9.** Un lien fonctionnel, testé par au
-moins une personne extérieure à cette session.
-
-## 9. Extension V1 — NON COMMENCÉE
-
-Missions supplémentaires, plus de véhicules dans la boucle de jeu,
-téléphone limité, économie légère — voir `V1_SCOPE.md` (SHOULD HAVE).
-Ne commence qu'après le jalon 7.
-
-## 10. V1 release — NON COMMENCÉE
-
-Page de présentation, instructions, contrôles, changelog, bugs connus,
-build stable. Dépend entièrement des jalons 7 et 8.
+Build stable, page de présentation (contrôles, objectifs, bugs connus,
+changelog), sauvegarde fiable, aucun bug bloquant.
 
 ## Hors séquence — dépend d'une ressource externe
 
-**Architecture de personnage GLB/glTF.** Peut être construite
-(`GLTFLoader`, `AnimationMixer`, secours procédural) à tout moment sans
-dépendre des jalons ci-dessus, mais **ne changera rien à l'écran tant
-qu'aucun fichier `.glb` n'est fourni** — cet environnement n'a accès à
-aucun asset externe. Modèle conseillé : Opus (plusieurs fichiers à faire
-tenir ensemble : loader, animator, factory, fallback). À ne lancer que si
-tu peux toi-même fournir un modèle avec une licence claire, ou que tu
-acceptes que le résultat immédiat soit uniquement l'architecture, pas le
-rendu.
+**Personnage GLB/glTF** : ne change rien à l'écran sans fichier `.glb`
+sous licence claire, indisponible ici. Opus, uniquement si tu fournis un
+modèle.

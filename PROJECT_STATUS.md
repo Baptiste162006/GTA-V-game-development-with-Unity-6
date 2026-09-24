@@ -65,6 +65,7 @@ primitives), **NON COMMENCÉ**.
 | Pause / options | PARTIEL | `menu.js`, `settings.js` | 7 entrées (Reprendre, Carte, Missions, Statistiques, Options, Commandes, Recommencer), 19 réglages appliqués en direct et persistés, navigation clavier sans oscillation | Pas de Sauvegarder / Réinitialiser / Quitter ; options en une liste sans sections ; pas de remappage ; pas de réinitialisation des options ; pas d'écran de chargement | Aucun bloquant | — | Sonnet | P0 (sauvegarde) / P1 (reste) |
 | Sauvegarde | PARTIEL | `main.js` | Automatique, un emplacement localStorage : argent, stats, heure **seulement** | Position, véhicule, armes/munitions, missions, météo, saison non sauvegardés ; aucune entrée manuelle ni réinitialisation | Best-effort si localStorage bloqué (documenté) | — | Sonnet | P0 |
 | Audio | PARTIEL | `audio.js` | Synthétisé (WebAudio) : moteur, sirène, klaxon, chocs, crissement, pluie, tir par arme, clic à vide, tonnerre, jingles | Pas de bus Musique/Effets/Ambiance/UI, pas de pool de voix, pas de rechargement, pas de pas, pas d'impacts par matériau, pas d'ambiance de ville, pas de musique, sons UI génériques | Aucun | — | Sonnet | P1 |
+| Personnalisation | NON COMMENCÉ | `player.js` (futur `appearance.js`) | 4 couleurs par personnage (haut, bas, peau, cheveux) ; les chaussures prennent la couleur des cheveux | Tout : catalogue, menu Garde-robe, sauvegarde de l'apparence — architecture dans `CUSTOMIZATION.md` | — | — | Opus puis Sonnet | Étape 9 |
 | Missions | FONCTIONNEL | `missions.js`, `story.js` | Histoire de 6 missions (v0.22) : contacts dans la ville, prérequis, échec/réessai, cibles mobiles, progression sauvegardée ; + 2 jobs répétables | 2 missions de plus possibles pour atteindre 8 | Aucun | — | Sonnet (contenu) | P2 |
 | Économie | PROVISOIRE | `main.js`, `missions.js` | Argent, primes de job, frais d'hôpital/amende d'arrestation | Pas de business, propriété, revenu passif | — | — | Sonnet | P3 |
 | Téléphone | NON COMMENCÉ | — | — | Carte plein écran, contacts, messages, banque — rien n'existe | — | — | — | P2 (si retenu en V1) |
@@ -74,6 +75,14 @@ primitives), **NON COMMENCÉ**.
 | Partage / déploiement | NON COMMENCÉ | — | — | Pas de page de présentation, pas d'hébergement statique choisi, pas d'instructions pour un tiers | — | — | Sonnet | P1 (avant tout partage à des amis) |
 
 ## 3. Bugs bloquants
+
+**Mise à jour 2026-09-24 — trois bugs réels de l'étape 0 (stabilisation),
+vérifiés dans le code :** on traverse les voitures à pied (le joueur ne
+collisionne qu'avec les bâtiments) ; les tirs partent de la caméra et
+peuvent traverser un angle de mur ; une sauvegarde corrompue est ignorée
+puis écrasée. Détail et critères : `MILESTONES.md` étape 0. Le texte
+ci-dessous date du 23/09.
+
 
 Aucun bug ne rend le jeu injouable ou fait planter la boucle : les six
 scripts de régression (jeu, météo, menu, mort, visée, combat) passent sans
