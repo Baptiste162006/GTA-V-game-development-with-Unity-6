@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## v0.25 — 2026-09-24
+
+### Corrigé — sauvegarde corrompue mise de côté, jamais écrasée (étape 0, bug 3/3)
+- Vérifié dans le code : une sauvegarde illisible (JSON invalide, ou un
+  JSON valide qui n'est pas un objet) était ignorée en silence — le jeu
+  démarrait une partie neuve sans le dire, et la toute prochaine
+  sauvegarde automatique écrasait les octets d'origine pour toujours.
+- `Game.loadSave()` met maintenant la sauvegarde illisible de côté sous
+  `san-felipe-save-v1-corrompue` avant de repartir sur une partie neuve —
+  elle n'est plus jamais écrasée par erreur. Un message apparaît sur
+  l'écran d'accueil : « Ta sauvegarde précédente était illisible et a
+  été mise de côté (pas effacée) : cette partie repart de zéro. »
+  « Réinitialiser la sauvegarde » (menu pause) purge aussi cette
+  quarantaine.
+- Vérifié par `corruptsavetest` (JSON invalide, JSON valide mais pas un
+  objet, sauvegarde correcte sans avertissement, sauvegarde ultérieure
+  qui s'écrit normalement, réinitialisation qui purge tout) et les 10
+  autres scripts de régression — zéro erreur console réelle.
+
+### Repéré en jouant (pas encore corrigé)
+- Personnage collé à un mur pendant le tutoriel, capture d'écran à
+  l'appui : le marqueur de l'étape 1 et le point d'apparition de la
+  voiture de l'étape 2 sont des décalages fixes sans vérifier la présence
+  d'un bâtiment (`story.js`, mission `intro`). Ajouté à `BACKLOG.md`
+  (étape 0, 4ᵉ bug) et `MILESTONES.md`.
+
+
 ## v0.24 — 2026-09-24
 
 ### Corrigé — le tir part du canon, plus de la caméra (étape 0, bug 2/3)

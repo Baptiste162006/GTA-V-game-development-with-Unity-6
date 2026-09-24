@@ -13,7 +13,7 @@ Statut « À faire » sauf mention contraire.
 |---|---|---|---|---|---|---|
 | Collision joueur/véhicules à pied | — | — | — | ✅ Fait v0.23 | — | Rectangle au sol orienté pour chaque voiture (garée, en circulation, police) ; deuxième passe après le déplacement du trafic ; on monte en mesurant depuis la carrosserie (bus par l'avant possible). |
 | Origine du tir | — | — | — | ✅ Fait v0.24 | — | Le tir part maintenant du canon (position réelle du repère lumineux de l'arme tenue en main), plus de la caméra. Corrige aussi `wallDistance` qui ne testait jamais le premier 1,6 m devant l'origine. |
-| Sauvegarde corrompue | **P0** | S | `main.js`, `index.html` | À faire (vérifié : ignorée puis écrasée) | Sonnet | Message clair, sauvegarde illisible mise de côté (pas écrasée), choix de repartir à zéro. |
+| Sauvegarde corrompue | — | — | — | ✅ Fait v0.25 | — | Sauvegarde illisible mise de côté sous une clé `-corrompue` (jamais écrasée ni perdue), message sur l'écran d'accueil, nouvelle partie jouable normalement. Un JSON valide mais pas un objet (nombre, tableau…) est traité pareil. |
 | Voitures de police coincées | P3 | S | `police.js` | Ouvert | Sonnet | Se débloquent seules en 2,5 s. |
 | Voitures PNJ qui se chevauchent aux carrefours | P3 | M | `traffic.js` | Ouvert (V2 avec les feux) | Sonnet | Cosmétique. |
 | `storytest` intermittent sur la mission finale | P2 | S | `storytest.mjs`, `enemies.js` | Ouvert (repéré en v0.24, pas causé par v0.24) | Sonnet | L'entrepôt du « grand coup » est en Zone Industrielle, une zone de gang : des ennemis ambiants s'ajoutent aux 5 de la mission pendant que le script tourne en temps réel. Isoler le décompte à l'escouade de mission, ou déplacer le script hors zone de gang. |

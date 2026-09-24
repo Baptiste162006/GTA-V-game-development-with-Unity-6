@@ -84,6 +84,7 @@ class Game {
     if (this.settings.get('quality') !== 'auto') applyPreset(this, this.settings.get('quality'));
 
     this.applyRestored(restored);
+    if (restored.corrupted) this.showSaveWarning();
 
     this.wireEvents();
     this.wireUI();
@@ -471,18 +472,47 @@ class Game {
   static loadSave() {
     try {
       const raw = localStorage.getItem(SAVE_KEY);
-      return raw ? JSON.parse(raw) : {};
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        throw new Error('format de sauvegarde inattendu');
+      }
+      return parsed;
     } catch {
-      return {};
+      // Une sauvegarde illisible ne doit ni bloquer le jeu ni disparaître en
+      // silence : on la met de côté (au cas où on veuille l'inspecter plus
+      // tard) plutôt que de la laisser sur SAVE_KEY, où la toute prochaine
+      // sauvegarde automatique l'aurait écrasée sans que personne ne le sache.
+      Game.quarantineSave();
+      return { corrupted: true };
+    }
+  }
+
+  static quarantineSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) localStorage.setItem(`${SAVE_KEY}-corrompue`, raw);
+      localStorage.removeItem(SAVE_KEY);
+    } catch {
+      /* stockage indisponible */
     }
   }
 
   static clearSave() {
     try {
       localStorage.removeItem(SAVE_KEY);
+      localStorage.removeItem(`${SAVE_KEY}-corrompue`);
     } catch {
       /* stockage indisponible */
     }
+  }
+
+  showSaveWarning() {
+    const el = document.getElementById('save-warning');
+    if (!el) return;
+    el.textContent =
+      'Ta sauvegarde précédente était illisible et a été mise de côté (pas effacée) : cette partie repart de zéro.';
+    el.hidden = false;
   }
 
   snapshot() {

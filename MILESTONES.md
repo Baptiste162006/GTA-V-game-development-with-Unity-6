@@ -16,7 +16,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 
 | Étape | Sujet | État | Modèle |
 |---|---|---|---|
-| 0 | Stabilisation du prototype | 🟡 1 bug ouvert (2/3 corrigés) | Sonnet |
+| 0 | Stabilisation du prototype | 🟡 1 bug ouvert (personnage collé à un mur au tutoriel, repéré en jeu le 24/09) | Sonnet |
 | 1 | Audit et documentation | ✅ faite — à valider | Opus |
 | 2 | Système de missions | ✅ faite (v0.22) — écarts listés, à valider | Opus |
 | 3 | UI / HUD / mini-carte / menus | 🟡 largement faite | Sonnet |
@@ -32,7 +32,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 
 ---
 
-## 0. Stabilisation du prototype — 🟡 1 BUG OUVERT (Sonnet)
+## 0. Stabilisation du prototype — 🟡 1 BUG OUVERT (repéré en jeu, Sonnet)
 
 **Objectif.** Aucun bug bloquant : contrôles, caméra, arme/visée,
 collisions, sauvegarde.
@@ -50,9 +50,14 @@ de régression automatiques lancés avant chaque push.
    carrosserie). Script `collisiontest`.
 2. ~~**Origine du tir**~~ — ✅ corrigé en v0.24 (origine au canon,
    `wallDistance` testé dès d=0). Script `muzzletest`.
-3. **Sauvegarde corrompue** : une sauvegarde illisible est ignorée en
-   silence, et la sauvegarde automatique suivante l'écrase (perte de
-   données).
+3. ~~**Sauvegarde corrompue**~~ — ✅ corrigée en v0.25 (mise de côté,
+   message, jamais écrasée). Script `corruptsavetest`.
+4. **Personnage collé à un mur pendant le tutoriel** — repéré en jouant
+   le 24/09 (capture d'écran) : le marqueur de l'étape 1 et le point
+   d'apparition de la voiture de l'étape 2 (`story.js`, mission `intro`)
+   sont des décalages fixes depuis la position du joueur, sans vérifier
+   qu'un bâtiment ne s'y trouve pas — contrairement aux missions
+   suivantes, qui utilisent `roadPointAround()`. Pas encore corrigé.
 
 **Critères d'acceptation.** On ne traverse plus une voiture à l'arrêt ni
 en mouvement ; un tir contre un mur à bout portant ne le traverse pas ;

@@ -272,6 +272,10 @@
   .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
   .note { font-size: 14px; color: var(--ink-dim); margin-top: 18px; }
+  #save-warning {
+    color: var(--gold); border: 1px solid var(--gold); border-radius: 8px;
+    padding: 10px 14px; background: rgba(232, 198, 106, 0.08);
+  }
   label.check { display: flex; gap: 8px; align-items: center; font-size: 15px; cursor: pointer; }
 
   #death-screen { background:
@@ -440,6 +444,8 @@
       <div><span>Pause et stats</span><b><kbd>P</kbd> / <kbd>Échap</kbd></b></div>
       <div><span>Console de triche</span><b><kbd>²</kbd> ou <kbd>`</kbd></b></div>
     </div>
+
+    <p class="note" id="save-warning" hidden></p>
 
     <div class="row">
       <button id="start-button">Jouer</button>
