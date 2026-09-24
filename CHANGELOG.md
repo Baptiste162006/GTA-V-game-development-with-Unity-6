@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## v0.26 — 2026-09-24
+
+### Corrigé — le tutoriel ne colle plus le joueur à un mur
+- Repéré en jouant (capture d'écran) : le marqueur de la première étape
+  du tutoriel et le point d'apparition de la voiture de la deuxième
+  étape (`story.js`, mission `intro`) étaient des décalages fixes depuis
+  la position du joueur (`p.x+26,p.z+18` et `p.x+9,p.z+4`), sans jamais
+  vérifier la présence d'un bâtiment — contrairement à toutes les
+  missions ajoutées ensuite, qui cherchent un point de rue valide.
+- Le marqueur de l'étape 1 est maintenant un point de rue proche
+  (`roadPointAround`, 20 à 35 m). La voiture de l'étape 2 apparaît à la
+  place de stationnement la plus proche (`nearestParkedSpot`, nouvelle
+  fonction — cherche dans `world.parkedSpots`, les mêmes places que
+  celles utilisées pour garer les voitures ambiantes), orientée comme
+  un vrai stationnement plutôt qu'à un angle fixe.
+- Vérifié par `tutowalltest` : au point de spawn réel (celui de la
+  capture), et sur 49 points de départ différents couvrant toute la
+  ville dont les quartiers denses (Downtown, Little Tokyo) — le marqueur
+  et la voiture ne tombent jamais dans un bâtiment. Capture d'écran de
+  contrôle prise après le correctif. Plus les 12 autres scripts de
+  régression — zéro erreur console réelle.
+- **Étape 0 (stabilisation) terminée** : les 4 bugs trouvés (3 à l'audit
+  du 23/09, celui-ci trouvé en jouant) sont corrigés. Reste la
+  validation de l'utilisateur pour passer à l'étape suivante.
+
+
 ## v0.25 — 2026-09-24
 
 ### Corrigé — sauvegarde corrompue mise de côté, jamais écrasée (étape 0, bug 3/3)

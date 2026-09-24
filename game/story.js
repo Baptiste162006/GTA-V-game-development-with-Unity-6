@@ -30,6 +30,22 @@ function roadPointAround(world, origin, min, max) {
   return best;
 }
 
+// La place de stationnement (trottoir, jamais dans un bâtiment) la plus
+// proche d'une origine — pour poser une voiture de mission à un endroit
+// crédible, plutôt qu'à un simple décalage qui peut tomber dans un mur.
+function nearestParkedSpot(world, origin) {
+  let best = null;
+  let bestD = Infinity;
+  for (const spot of world.parkedSpots) {
+    const d = flat(spot, origin);
+    if (d < bestD) {
+      best = spot;
+      bestD = d;
+    }
+  }
+  return best || { x: origin.x, z: origin.z, rot: 0 };
+}
+
 // Véhicule de mission : rangé avec les voitures garées pour qu'on puisse y
 // monter, mais marqué `keep` pour ne pas être recyclé quand on s'éloigne.
 function missionCar(mm, ctx, spec, pos, yaw, color) {
@@ -125,18 +141,18 @@ export const STORY = [
         {
           text: 'Rejoins le marqueur bleu à pied — ZQSD pour marcher, Maj pour courir',
           color: 'goto',
-          marker: () => {
-            const p = mm.playerPos();
-            return new THREE.Vector3(p.x + 26, 0, p.z + 18);
-          },
+          // Un point de rue, jamais un simple décalage : ce dernier pouvait
+          // tomber dans un bâtiment selon l'endroit où le joueur démarrait
+          // (repéré en jeu le 24/09 — personnage collé à un mur).
+          marker: () => roadPointAround(ctx.world, mm.playerPos(), 20, 35),
           check: () => mm.reachedMarker(5) && !ctx.player.inVehicle,
         },
         {
           text: 'Monte dans la voiture — approche-toi et appuie sur F',
           color: 'vehicle',
           enter: () => {
-            const p = mm.playerPos();
-            car = missionCar(mm, ctx, 'berline', new THREE.Vector3(p.x + 9, 0, p.z + 4), Math.PI / 2, 0x9c2f2f);
+            const spot = nearestParkedSpot(ctx.world, mm.playerPos());
+            car = missionCar(mm, ctx, 'berline', new THREE.Vector3(spot.x, 0, spot.z), spot.rot, 0x9c2f2f);
           },
           marker: () => car.pos,
           check: () => ctx.player.inVehicle === car,

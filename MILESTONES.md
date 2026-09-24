@@ -16,7 +16,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 
 | Étape | Sujet | État | Modèle |
 |---|---|---|---|
-| 0 | Stabilisation du prototype | 🟡 1 bug ouvert (personnage collé à un mur au tutoriel, repéré en jeu le 24/09) | Sonnet |
+| 0 | Stabilisation du prototype | ✅ faite, à valider (4 bugs corrigés) | Sonnet |
 | 1 | Audit et documentation | ✅ faite — à valider | Opus |
 | 2 | Système de missions | ✅ faite (v0.22) — écarts listés, à valider | Opus |
 | 3 | UI / HUD / mini-carte / menus | 🟡 largement faite | Sonnet |
@@ -32,7 +32,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 
 ---
 
-## 0. Stabilisation du prototype — 🟡 1 BUG OUVERT (repéré en jeu, Sonnet)
+## 0. Stabilisation du prototype — ✅ FAITE, À VALIDER (Sonnet)
 
 **Objectif.** Aucun bug bloquant : contrôles, caméra, arme/visée,
 collisions, sauvegarde.
@@ -41,10 +41,10 @@ collisions, sauvegarde.
 visée face à la cible, arme visible (v0.13) ; assiette des véhicules
 (v0.14) ; oscillation du menu pause (post-v0.9) ; job Livraison qui
 plantait, voiture garée impossible à reprendre, tutoriel rejoué à chaque
-lancement (v0.22). Checklist de tests manuels : `BACKLOG.md` ; 11 scripts
+lancement (v0.22). Checklist de tests manuels : `BACKLOG.md` ; 13 scripts
 de régression automatiques lancés avant chaque push.
 
-**Reste — vérifié dans le code le 2026-09-24 :**
+**Les 4 bugs trouvés (3 à l'audit, 1 en jouant), tous corrigés :**
 1. ~~**Collisions joueur/véhicules**~~ — ✅ corrigé en v0.23 (rectangle au
    sol orienté, deuxième passe après le trafic, entrée mesurée depuis la
    carrosserie). Script `collisiontest`.
@@ -52,21 +52,25 @@ de régression automatiques lancés avant chaque push.
    `wallDistance` testé dès d=0). Script `muzzletest`.
 3. ~~**Sauvegarde corrompue**~~ — ✅ corrigée en v0.25 (mise de côté,
    message, jamais écrasée). Script `corruptsavetest`.
-4. **Personnage collé à un mur pendant le tutoriel** — repéré en jouant
-   le 24/09 (capture d'écran) : le marqueur de l'étape 1 et le point
-   d'apparition de la voiture de l'étape 2 (`story.js`, mission `intro`)
-   sont des décalages fixes depuis la position du joueur, sans vérifier
-   qu'un bâtiment ne s'y trouve pas — contrairement aux missions
-   suivantes, qui utilisent `roadPointAround()`. Pas encore corrigé.
+4. ~~**Personnage collé à un mur pendant le tutoriel**~~ — repéré en
+   jouant le 24/09 (capture d'écran) : le marqueur de l'étape 1 et le
+   point d'apparition de la voiture de l'étape 2 (`story.js`, mission
+   `intro`) étaient des décalages fixes depuis la position du joueur,
+   sans vérifier qu'un bâtiment ne s'y trouve pas — contrairement aux
+   missions suivantes, qui utilisent `roadPointAround()`. ✅ Corrigé en
+   v0.26 (point de rue pour le marqueur, place de stationnement la plus
+   proche pour la voiture). Script `tutowalltest`, 49 points de départ
+   différents vérifiés.
 
 **Critères d'acceptation.** On ne traverse plus une voiture à l'arrêt ni
 en mouvement ; un tir contre un mur à bout portant ne le traverse pas ;
 une sauvegarde volontairement corrompue affiche un message, est mise de
-côté et n'est pas écrasée ; les 11 scripts passent.
+côté et n'est pas écrasée ; le tutoriel ne place plus jamais son marqueur
+ou sa voiture dans un bâtiment ; les 13 scripts passent.
 
-**Test.** Scripts dédiés pour chacun des 3 points + régression complète.
+**Test.** Un script dédié par bug + régression complète.
 
-**Condition de passage.** Les 3 bugs corrigés et testés, puis ta
+**Condition de passage.** Les 4 bugs corrigés et testés — reste ta
 validation.
 
 ## 1. Audit complet et documentation — ✅ FAITE, À VALIDER (Opus)
