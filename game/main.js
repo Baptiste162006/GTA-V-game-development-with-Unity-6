@@ -606,6 +606,7 @@ class Game {
       missions: this.missions,
       weather: this.weather,
       weapons: this.weapons,
+      settings: this.settings,
       vehicle,
     });
   }

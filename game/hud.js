@@ -4,6 +4,21 @@ import { color, healthColor } from './uiTheme.js';
 
 const MAP_SCALE = 1.45; // pixels par mètre
 
+const CARDINALS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
+
+// Angle de cap (0-2π, sens horaire depuis le nord = haut de la mini-carte
+// nord fixe) à partir du yaw du jeu. C'est exactement l'angle déjà utilisé
+// pour orienter le triangle du joueur sur la mini-carte (`c.rotate(heading)`
+// fait pointer un repère "haut" vers l'avant réel) — on le réutilise ici
+// pour la boussole et pour faire tourner la carte en mode « suit le cap ».
+export function compassHeading(yaw) {
+  const twoPi = Math.PI * 2;
+  const rad = (((-yaw + Math.PI) % twoPi) + twoPi) % twoPi;
+  const deg = Math.round((rad * 180) / Math.PI);
+  const cardinal = CARDINALS[Math.round(deg / 45) % 8];
+  return { rad, deg, cardinal };
+}
+
 // Polygone régulier : sert à donner une forme propre à chaque marqueur de la
 // carte — hexagone pour un objectif, losange pour la police.
 function polygon(c, x, y, r, sides, rotation = 0) {
@@ -30,6 +45,7 @@ export class HUD {
       stars: document.getElementById('stars'),
       clock: document.getElementById('clock'),
       district: document.getElementById('district'),
+      compass: document.getElementById('compass'),
       weather: document.getElementById('weather'),
       weaponBox: document.getElementById('weapon-box'),
       weaponName: document.getElementById('weapon-name'),
@@ -137,7 +153,7 @@ export class HUD {
   }
 
   update(dt, state) {
-    const { player, world, police, vehicle, weather, weapons } = state;
+    const { player, world, police, vehicle, weather, weapons, settings } = state;
 
     // La jauge dit trois choses à la fois : longueur, couleur par palier et
     // valeur chiffrée. Qui ne distingue pas la teinte lit le nombre.
@@ -152,6 +168,13 @@ export class HUD {
     this.el.clock.textContent = world.clock;
     this.el.district.textContent = world.districtName(player.pos.x, player.pos.z);
     if (weather) this.el.weather.textContent = weather.label;
+
+    const yaw = vehicle ? vehicle.yaw : player.yaw;
+    const heading = compassHeading(yaw);
+    if (this.el.compass) {
+      this.el.compass.textContent = `${heading.cardinal} ${String(heading.deg).padStart(3, '0')}°`;
+    }
+    this.minimapFollow = settings ? !!settings.get('minimapFollow') : false;
 
     if (this.stars !== police.wanted) {
       this.stars = police.wanted;
@@ -286,6 +309,19 @@ export class HUD {
     c.fillStyle = color('map-bg');
     c.fillRect(0, 0, size, size);
 
+    // Mode « suit le cap » : tout le contenu (îlots, véhicules, objectif,
+    // bord de carte) tourne pour que l'avant du joueur pointe vers le haut ;
+    // seul le triangle du joueur compense cette rotation pour rester vertical.
+    // Le cercle de découpe ci-dessus n'a pas besoin d'être dans ce bloc : il
+    // est symétrique par rotation, donc inchangé quel que soit le mode.
+    const yaw = player.inVehicle ? player.inVehicle.yaw : player.yaw;
+    const heading = compassHeading(yaw).rad;
+    const mapRotation = this.minimapFollow ? -heading : 0;
+    c.save();
+    c.translate(half, half);
+    c.rotate(mapRotation);
+    c.translate(-half, -half);
+
     // Îlots (donc les rues restent en négatif).
     c.fillStyle = color('map-road');
     const range = Math.ceil(half / MAP_SCALE / CITY.CELL) + 1;
@@ -365,11 +401,20 @@ export class HUD {
       }
     }
 
-    // Joueur : triangle orienté.
-    const yaw = player.inVehicle ? player.inVehicle.yaw : player.yaw;
+    // Bord de carte.
+    const [bx0, by0] = toMap(-MAX_LINE - CITY.CELL / 2, -MAX_LINE - CITY.CELL / 2);
+    const span = (MAX_LINE * 2 + CITY.CELL) * MAP_SCALE;
+    c.strokeStyle = color('map-edge');
+    c.lineWidth = 1;
+    c.strokeRect(bx0, by0, span, span);
+
+    c.restore(); // fin du bloc tourné (mapRotation)
+
+    // Joueur : triangle orienté. En mode « suit le cap », `heading` et
+    // `mapRotation` s'annulent : le triangle pointe toujours vers le haut.
     c.save();
     c.translate(half, half);
-    c.rotate(-yaw + Math.PI);
+    c.rotate(heading + mapRotation);
     c.fillStyle = color('accent');
     c.beginPath();
     c.moveTo(0, -7);
@@ -380,13 +425,19 @@ export class HUD {
     c.fill();
     c.restore();
 
-    // Bord de carte.
-    const [bx0, by0] = toMap(-MAX_LINE - CITY.CELL / 2, -MAX_LINE - CITY.CELL / 2);
-    const span = (MAX_LINE * 2 + CITY.CELL) * MAP_SCALE;
-    c.strokeStyle = color('map-edge');
-    c.lineWidth = 1;
-    c.strokeRect(bx0, by0, span, span);
+    // Repère de nord, utile seulement quand la carte tourne : en mode nord
+    // fixe, « en haut » veut déjà dire nord, pas besoin de le répéter.
+    if (this.minimapFollow) {
+      const r = half - 10;
+      const nx = half + r * Math.sin(mapRotation);
+      const ny = half - r * Math.cos(mapRotation);
+      c.fillStyle = color('ink-dim');
+      c.font = 'bold 11px sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText('N', nx, ny);
+    }
 
-    c.restore();
+    c.restore(); // fin du cercle de découpe
   }
 }

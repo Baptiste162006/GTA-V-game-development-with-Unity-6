@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.21 — 2026-09-24
+
+### Ajouté — mini-carte « suit le cap » et boussole
+- Réglage **Mini-carte suit le cap** (Options → Affichage, off par
+  défaut) : en mode suivi, l'avant du joueur pointe toujours vers le haut
+  de la mini-carte (tout le contenu tourne, sauf le triangle du joueur
+  qui se stabilise) ; un repère « N » apparaît uniquement dans ce mode,
+  puisqu'en mode nord fixe le haut signifie déjà nord.
+- **Boussole** : cardinal + degrés (« NE 047° ») affichés sous le nom de
+  quartier, recalculés chaque frame depuis le cap réel (à pied ou en
+  véhicule). Fonction pure `compassHeading()` exportée de `hud.js`,
+  réutilisée à la fois pour l'affichage et pour la rotation de la
+  mini-carte — une seule formule, testée directement.
+- Corrige deux erreurs de l'audit UI du 23/09 dans `BACKLOG.md` : le nom
+  de quartier était déjà affiché en continu en jeu (pas seulement dans le
+  menu Carte), et un réglage masquait déjà la mini-carte — aucun des deux
+  n'était réellement manquant.
+- Vérifié par un script dédié (cohérence de `compassHeading` à 0/90/180/
+  270°, mise à jour en direct du texte, réglage persisté, case à cocher
+  dans Options, mini-carte redessinée sans erreur sur un tour complet de
+  cap en mode suivi) et les 8 autres scripts de régression — zéro erreur
+  console réelle.
+
+
 ## v0.20 — 2026-09-24
 
 ### Ajouté — distance à l'objectif et barre de rechargement

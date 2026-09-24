@@ -61,13 +61,13 @@ l'objectif (sous le texte d'objectif, « 240 m » / « 1.2 km ») et barre de
 progression pour le rechargement (sous les munitions, largeur
 proportionnelle au temps restant).
 
-**SHOULD HAVE (V1, si le temps le permet après les MUST HAVE)** :
-- Rotation de la mini-carte façon « suivant le joueur » (avec réglage,
-  nord fixe restant le défaut) — l'idée la plus demandée pour ce genre de
-  jeu, mais un effort M, pas un simple réglage.
-- Boussole/indicateur de cap en haut du HUD.
-- Nom de rue/quartier affiché en continu en jeu.
-- Raccourci pour masquer/afficher la mini-carte.
+**SHOULD HAVE (V1)** — ✅ **faites en v0.21** : rotation de la
+mini-carte façon « suivant le joueur » (réglage dans Options, nord fixe
+restant le défaut) et boussole (cardinal + degrés, sous le nom de
+quartier). Deux corrections d'audit au passage : le nom de quartier
+était **déjà** affiché en continu en jeu avant cette liste (erreur du
+23/09), et un réglage pour masquer la mini-carte existait **déjà** aussi
+— ni l'un ni l'autre n'avait besoin d'être « fait ».
 
 **COULD HAVE (v1.1)** :
 - Flèche 3D « suivez le point » façon GPS.

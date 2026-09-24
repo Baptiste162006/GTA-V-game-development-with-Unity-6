@@ -13,6 +13,7 @@ export const DEFINITIONS = {
   renderScale: { label: 'Résolution de rendu', group: 'Affichage', type: 'range', min: 60, max: 100, step: 5, unit: '%', def: 100 },
   shadows: { label: 'Ombres', group: 'Affichage', type: 'toggle', def: true },
   minimap: { label: 'Mini-carte', group: 'Affichage', type: 'toggle', def: true },
+  minimapFollow: { label: 'Mini-carte suit le cap', group: 'Affichage', type: 'toggle', def: false },
 
   // Un seul champ de vision ne peut pas convenir aux quatre situations : large
   // en voiture pour la sensation de vitesse, resserré en visée pour la
