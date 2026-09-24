@@ -38,8 +38,9 @@ corrigées ci-dessous, élément par élément.
 - ✅ 5 véhicules jouables propres parmi les 16 (citadine, berline, sportive,
   taxi, police) ; 🟡 jantes et vitres encore basiques.
 - ✅ 6 armes. 🟡 1 seul profil d'ennemi → 3 à 5 profils.
-- ❌ 5 à 8 missions scénarisées (prérequis, échec, récompense). Le
-  tutoriel et les 2 jobs ne comptent pas.
+- ✅ 6 missions scénarisées (v0.22) : tutoriel + 5 missions enchaînées, avec
+  contacts dans la ville, prérequis, échec/réessai, récompenses et
+  progression sauvegardée. Les 2 jobs répétables restent en plus.
 - ✅ Météo 5 états + saisons.
 
 ### HUD (règles de mise en page)

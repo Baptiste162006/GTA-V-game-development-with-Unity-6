@@ -20,7 +20,8 @@ vérification dans le code (voir `V1_SCOPE.md`, « Corrections »).
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
 |---|---|---|---|---|---|---|
 | Sauvegarde complète + menu Sauvegarder / Réinitialiser | — | — | — | ✅ Fait v0.19 | — | Position, véhicule, armes/munitions, missions, météo, saison ; message « Partie sauvegardée » ; réinitialisation avec confirmation ; entrée Quitter ajoutée aussi. |
-| Missions scénarisées (5-8) | **P0** | L | Sauvegarde complète | Non commencé | Opus pour le système de prérequis, Sonnet par mission ensuite | Le plus gros manque de contenu. |
+| Missions scénarisées (5-8) | — | — | — | ✅ Fait v0.22 (6 missions) | — | Tutoriel + Premier contrat, Dette impayée, Le mouchard, Contre la montre, Le grand coup. Contacts dans la ville, prérequis, échec/réessai, progression sauvegardée. Ajouter une mission = une entrée dans `story.js` (Sonnet). |
+| 2 missions d'histoire de plus (vers 8) | P2 | M | `story.js` | À faire | Sonnet | Le système est en place : c'est du contenu, pas du code moteur. |
 | 3-5 profils d'ennemis | P1 | S | `enemies.js` | Non commencé | Sonnet | Données (portée, arme, agressivité, vie). |
 | Ramassage d'arme au sol | P2 | M | `weapons.js`, `enemies.js` | Non commencé | Sonnet | — |
 | Véhicule détruit (feu puis explosion) | P2 | M | `vehicle.js`, `main.js`, audio | Non commencé | Sonnet | Aujourd'hui les dégâts plafonnent à fumée + teinte ; aucune explosion n'existe. |

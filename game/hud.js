@@ -33,6 +33,30 @@ function polygon(c, x, y, r, sides, rotation = 0) {
   c.closePath();
 }
 
+// Étoile à cinq branches : contacts de l'histoire, une forme qu'aucun autre
+// repère de la carte n'utilise.
+function star(c, x, y, r) {
+  c.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const rr = i % 2 ? r * 0.45 : r;
+    const px = x + Math.cos(a) * rr;
+    const py = y + Math.sin(a) * rr;
+    if (i === 0) c.moveTo(px, py);
+    else c.lineTo(px, py);
+  }
+  c.closePath();
+}
+
+function drawContact(c, x, y, r) {
+  c.fillStyle = color('money');
+  star(c, x, y, r);
+  c.fill();
+  c.strokeStyle = color('ground');
+  c.lineWidth = 1;
+  c.stroke();
+}
+
 export class HUD {
   constructor() {
     this.el = {
@@ -264,6 +288,11 @@ export class HUD {
       c.fillRect(x - 1, y - 1, 2, 2);
     }
 
+    for (const contact of missions.contacts || []) {
+      const [cx, cy] = toMap(contact.pos.x, contact.pos.z);
+      drawContact(c, cx, cy, 8);
+    }
+
     if (missions.markerPos) {
       const [mx, my] = toMap(missions.markerPos.x, missions.markerPos.z);
       c.fillStyle = color('objective');
@@ -366,6 +395,19 @@ export class HUD {
       c.fillStyle = Math.sin(performance.now() / 120) > 0 ? color('police') : color('danger');
       polygon(c, x, y, 4, 4, 0);
       c.fill();
+    }
+
+    // Contacts de l'histoire : épinglés au bord quand ils sont hors champ,
+    // pour qu'on sache toujours dans quelle direction chercher.
+    for (const contact of missions.contacts || []) {
+      let [cx, cy] = toMap(contact.pos.x, contact.pos.z);
+      const d = Math.hypot(cx - half, cy - half);
+      const edge = half - 10;
+      if (d > edge) {
+        cx = half + ((cx - half) * edge) / d;
+        cy = half + ((cy - half) * edge) / d;
+      }
+      drawContact(c, cx, cy, d > edge ? 5 : 6.5);
     }
 
     // Objectif : point plein si à l'écran, flèche au bord sinon.

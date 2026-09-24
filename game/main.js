@@ -68,6 +68,7 @@ class Game {
       world: this.world,
       scene: this.scene,
       audio: this.audio,
+      enemies: this.enemies,
     });
     this.debug = new DebugConsole(this);
     this.settings = new Settings();
@@ -212,7 +213,7 @@ class Game {
     this.audio.start();
     this.state = 'playing';
     this.renderer.domElement.requestPointerLock();
-    this.missions.startTutorial();
+    this.missions.begin();
     GameEvents.emit(EVENTS.NOTIFY, { text: 'Bienvenue à San Felipe' });
   }
 
@@ -288,6 +289,11 @@ class Game {
     this.player.setVisible(true);
     v.onCrash = null;
     v.fx = null;
+    // Sans ça, une voiture prise sur un parking n'appartenait plus à aucune
+    // liste une fois quittée : impossible d'y remonter.
+    v.claimed = false;
+    const inTraffic = this.traffic.cars.some((c) => c.vehicle === v);
+    if (!inTraffic && !this.traffic.parked.includes(v)) this.traffic.parked.push(v);
     this.camera3p.targetDistance = 6.5;
     GameEvents.emit(EVENTS.EXIT_VEHICLE, v);
   }
@@ -397,7 +403,11 @@ class Game {
       hour: this.world.hour,
       weather: this.weather.current,
       season: this.seasons.name,
-      missions: { tutorialDone: this.missions.tutorialDone, completed: this.missions.completed },
+      missions: {
+        tutorialDone: this.missions.tutorialDone,
+        completed: this.missions.completed,
+        story: [...this.missions.storyDone],
+      },
       weapons: {
         owned: { ...this.weapons.owned },
         ammo: JSON.parse(JSON.stringify(this.weapons.ammo)),
@@ -474,6 +484,7 @@ class Game {
     if (restored.missions) {
       this.missions.tutorialDone = !!restored.missions.tutorialDone;
       this.missions.completed = restored.missions.completed || 0;
+      for (const id of restored.missions.story || []) this.missions.storyDone.add(id);
     }
 
     if (restored.weapons) {

@@ -126,6 +126,14 @@ export class Enemies {
     if (this.onKill) this.onKill(enemy);
   }
 
+  // Retire un ennemi sans le tuer (mission échouée : la planque repart à zéro).
+  despawn(enemy) {
+    const k = this.list.indexOf(enemy);
+    if (k < 0) return;
+    this.scene.remove(enemy.mesh);
+    this.list.splice(k, 1);
+  }
+
   alive() {
     return this.list.filter((e) => e.dead <= 0);
   }

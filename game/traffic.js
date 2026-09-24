@@ -348,7 +348,8 @@ export class Traffic {
         this.parked.splice(k, 1); // passée sous contrôle du joueur
         continue;
       }
-      if (v.pos.distanceTo(playerPos) > 260) {
+      // `keep` : voiture de mission, jamais recyclée tant que la mission court.
+      if (!v.keep && v.pos.distanceTo(playerPos) > 260) {
         v.dispose();
         this.parked.splice(k, 1);
       }

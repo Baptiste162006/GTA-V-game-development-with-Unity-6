@@ -170,9 +170,14 @@ export class PauseMenu {
     const objectif = g.missions.objective || 'Aucune mission en cours';
     this.panel.innerHTML =
       this.row('Objectif', objectif) +
+      this.row('Histoire', `${g.missions.storyProgress.done} / ${g.missions.storyProgress.total}`) +
+      g.missions
+        .available()
+        .map((d) => this.row(`★ ${d.title}`, `Voir ${d.contact}`))
+        .join('') +
       this.row('Missions terminées', g.stats.missionsCompleted) +
       this.row('Argent gagné', `${g.stats.moneyEarned.toLocaleString('fr-FR')} $`) +
-      '<p class="note">Les jobs réapparaissent tout seuls. Tape <b>job</b> dans la console pour en relancer un.</p>';
+      '<p class="note">Les étoiles jaunes de la carte sont les contacts de l’histoire : rejoins-en un, sans étoile de police, pour lancer la mission. Les jobs réapparaissent tout seuls.</p>';
   }
 
   renderControls() {

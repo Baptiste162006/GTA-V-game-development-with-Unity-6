@@ -96,6 +96,16 @@ export class DebugConsole {
         game.missions.offerJob();
         return 'Nouveau job proposé';
       },
+      // Lance directement une mission de l'histoire (tests, reprise rapide).
+      story: (id) => {
+        const m = game.missions;
+        const list = m.available().map((d) => d.id).join(', ') || 'aucune';
+        const def = m.available().find((d) => d.id === id);
+        if (!def) return `Missions disponibles : ${list}`;
+        if (m.current) return `Déjà en mission : ${m.current.title}`;
+        m.startStory(def);
+        return `Mission lancée : ${def.title}`;
+      },
       fps: () => {
         const el = document.getElementById('fps');
         el.hidden = !el.hidden;

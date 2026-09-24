@@ -205,24 +205,25 @@ existant (`menutest`).
 complète est en place, la progression des missions scénarisées ne sera
 donc plus perdue au rechargement.
 
-## 7. Mission de la tranche verticale — NON COMMENCÉE
+## 7. Missions scénarisées — ✅ SYSTÈME ET HISTOIRE FAITS (v0.22)
 
-**Objectif.** Voir `VERTICAL_SLICE.md` en détail — 5 à 10 minutes, la
-boucle en 9 étapes y est décrite précisément.
+**Fait.** `story.js` : six missions enchaînées (tutoriel, Premier contrat,
+Dette impayée, Le mouchard, Contre la montre, Le grand coup) avec deux
+contacts dans la ville (Rosa, Vieille Ville ; Kenji, Little Tokyo).
+Prérequis entre missions, contact bloqué tant qu'on a des étoiles, échec
+(mort, arrestation, voiture abîmée ou abandonnée, zone quittée, chrono)
+avec nettoyage et réessai au contact, marqueur qui suit une cible mobile,
+progression sauvegardée et relue (y compris depuis une sauvegarde v1).
 
-**Dépend de** la sauvegarde complète (jalon 6).
+**Vérifié.** Script de bout en bout : les six missions jouées, deux échecs
+provoqués puis réussis au second essai, sauvegarde/rechargement, zéro
+erreur console.
 
-**Ce qui manque réellement** : un système de missions scénarisées avec
-prérequis et échec possible. Le tutoriel et les jobs actuels
-(`missions.js`) n'ont ni l'un ni l'autre.
+**Reste.** Deux missions de plus pour atteindre 8 (contenu seul, Sonnet).
+La boucle de `VERTICAL_SLICE.md` (zone vitrine) dépend surtout du jalon 1
+(arbres, façades), plus du système de missions.
 
-**Modèle conseillé.** Sonnet pour une seule mission scriptée sur le moteur
-d'étapes existant (`start(nom, étapes)` déjà dans `missions.js`) ; Opus si
-le système de prérequis/enchaînement lui-même doit être conçu, pas
-seulement utilisé.
-
-**Condition de passage au jalon 8.** La boucle en 9 étapes se termine sans
-blocage, une fois, en une seule prise, zéro erreur console.
+**Condition de passage au jalon 8.** Remplie côté missions.
 
 ## 8. Optimisation et test avec des amis — PARTIELLEMENT FAITE
 

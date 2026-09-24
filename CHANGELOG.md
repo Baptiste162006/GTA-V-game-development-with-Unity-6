@@ -1,5 +1,53 @@
 # CHANGELOG
 
+## v0.22 — 2026-09-24
+
+### Ajouté — l'histoire : 6 missions scénarisées
+- Nouveau fichier `game/story.js` : tutoriel + cinq missions enchaînées,
+  données par deux contacts placés dans la ville (Rosa en Vieille Ville,
+  Kenji à Little Tokyo) :
+  1. **Premier contrat** — livrer une berline au garage, sous chrono, sans
+     l'abîmer ;
+  2. **Dette impayée** — assaut d'une planque (3 hommes de main), butin,
+     fuite à 2 étoiles ;
+  3. **Le mouchard** — rattraper une voiture en circulation (le marqueur la
+     suit), éjecter le conducteur, la livrer à la casse ;
+  4. **Contre la montre** — 5 points de passage chronométrés ;
+  5. **Le grand coup** — entrepôt (5 ennemis), magot, fuite à 3 étoiles,
+     retour chez Rosa → « HISTOIRE TERMINÉE ».
+- Contacts : étoile jaune sur la mini-carte (épinglée au bord hors champ)
+  et la grande carte, colonne lumineuse dans le monde. Refusés tant
+  qu'on a des étoiles de police (avec un message). Un job en cours est
+  abandonné si on lance une mission d'histoire.
+- Échec (mort, arrestation, voiture abîmée ou abandonnée, zone quittée,
+  chrono) : les ennemis et voitures de la mission sont retirés, le
+  contact réapparaît, « Retourne voir … pour réessayer ».
+- Progression sauvegardée (`missions.story`), relue au chargement ; une
+  sauvegarde v1 reste lisible. Menu pause → Missions : « Histoire x / 6 »
+  et la liste des contacts disponibles. Console : `story <id>`.
+
+### Corrigé
+- **Job « Livraison express »** : appelait `drop.distance()`, qui n'existe
+  pas sur `Vector3` — le job plantait à chaque tirage et plus aucun job
+  n'était proposé ensuite.
+- **Voiture prise sur un parking** : une fois quittée, elle n'appartenait
+  plus à aucune liste — impossible d'y remonter, et jamais recyclée.
+  Elle redevient maintenant une voiture garée.
+- **Tutoriel** : marqué « fait » dès son lancement ; un échec le perdait
+  définitivement. Il n'est plus marqué fait qu'à la fin, et son contact
+  permet de le relancer.
+- **Tutoriel rejoué à chaque lancement** : `startGame()` le relançait
+  toujours, même avec une sauvegarde où il était fini. Il n'est plus
+  lancé que s'il n'est pas terminé ; sinon les jobs démarrent après 20 s.
+
+### Vérifié
+- Script de bout en bout (`storytest`, 23 contrôles) : les six missions
+  jouées, deux échecs provoqués puis réussis, contact bloqué avec
+  étoiles, marqueur mobile, remontée dans une voiture quittée, job
+  Livraison, sauvegarde/rechargement, sauvegarde v1 — zéro erreur
+  console. Plus les 9 scripts de régression existants.
+
+
 ## v0.21 — 2026-09-24
 
 ### Ajouté — mini-carte « suit le cap » et boussole

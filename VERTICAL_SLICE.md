@@ -44,7 +44,10 @@ Contenu de la zone, ce qui existe déjà vs. ce qui manque :
    sauvegarde est automatique et ne garde qu'argent, statistiques et heure.
 9. Il revient en exploration libre.
 
-**Ce qui manque pour que cette boucle soit une vraie mission** plutôt qu'une
+**Mise à jour v0.22 : le système de missions scénarisées existe** (`story.js`,
+six missions). Paragraphe d'origine conservé ci-dessous pour l'historique.
+
+**Ce qui manquait pour que cette boucle soit une vraie mission** plutôt qu'une
 suite d'actions libres déjà possibles aujourd'hui : un enchaînement avec
 étapes, prérequis et échec possible — c'est exactement le travail de
 « missions scénarisées » identifié comme P0 dans `BACKLOG.md`. Sans

@@ -15,7 +15,8 @@ game/
   police.js         niveau de recherche, poursuite, agents à pied, arrestation
   weapons.js        armes, visée, dégâts par zone, impacts
   enemies.js        gangs de quartier, IA de tir, réactions aux coups
-  missions.js       machine à étapes, tutoriel, jobs répétables, marqueurs
+  missions.js       machine à étapes, contacts d'histoire, jobs répétables, marqueurs
+  story.js          les 6 missions de l'histoire : contacts, prérequis, étapes
   weather.js        météo (clair/nuageux/pluie/brouillard/orage), éclairs, vent
   seasons.js        4 saisons, neige, accumulation et adhérence
   particles.js      champ de particules partagé (pluie, neige, feuilles)
@@ -82,6 +83,13 @@ masse, couleurs, dimensions). Il apparaîtra dans la circulation et au stationne
 
 **Un quartier** — une entrée dans `DISTRICTS` (couleur, hauteurs min/max, proportion de parcs) et
 une règle dans `districtAt()`.
+
+**Une mission d'histoire** — une entrée dans `STORY` (`story.js`) : `id`, `title`, `contact`,
+`where` (point de rue où se trouve le contact), `requires` (ids des missions à finir avant),
+`reward`, `steps(mm, ctx)`. Le contact apparaît tout seul (étoile jaune) dès que les prérequis
+sont remplis ; un échec le fait réapparaître. `mm.onCleanup(fn)` retire ce que la mission a créé
+(ennemis, voiture) si elle échoue. Une étape peut aussi avoir `track` : un marqueur qui suit une
+cible mobile.
 
 **Un job** — un appel à `start(nom, étapes)` dans `missions.js`. Une étape = `{ text, marker,
 check, time?, failIf? }`. `check` est évalué à chaque frame, `marker` pose le cylindre lumineux
