@@ -375,19 +375,20 @@ export class Traffic {
     this.updateParked(dt, playerPos);
   }
 
-  // Véhicule volable le plus proche (garé ou en circulation).
-  nearestVehicle(pos, maxDist = 4) {
+  // Véhicule volable le plus proche (garé ou en circulation). `maxDist` se
+  // mesure depuis la carrosserie, pas depuis le centre.
+  nearestVehicle(pos, maxDist = 2.5) {
     let best = null;
     let bestD = maxDist;
     for (const v of this.parked) {
-      const d = v.pos.distanceTo(pos);
+      const d = v.distanceTo(pos);
       if (d < bestD) {
         best = v;
         bestD = d;
       }
     }
     for (const car of this.cars) {
-      const d = car.vehicle.pos.distanceTo(pos);
+      const d = car.vehicle.distanceTo(pos);
       if (d < bestD) {
         best = car.vehicle;
         bestD = d;

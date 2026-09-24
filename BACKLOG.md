@@ -11,7 +11,7 @@ Statut « À faire » sauf mention contraire.
 
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
 |---|---|---|---|---|---|---|
-| Collision joueur/véhicules à pied | **P0** | M | `player.js`, `traffic.js`, `main.js` | À faire (vérifié : bug réel) | Opus | Le joueur ne collisionne qu'avec les bâtiments : on traverse les voitures. Le repousser hors des boîtes des véhicules garés, en circulation et de police. |
+| Collision joueur/véhicules à pied | — | — | — | ✅ Fait v0.23 | — | Rectangle au sol orienté pour chaque voiture (garée, en circulation, police) ; deuxième passe après le déplacement du trafic ; on monte en mesurant depuis la carrosserie (bus par l'avant possible). |
 | Origine du tir | **P0** | M | `weapons.js` | À faire (vérifié : `camera.position + 1,2 m`) | Sonnet | Viser depuis la caméra, mais vérifier le trajet réel depuis l'arme : dos à un angle de mur, la balle ne doit plus passer. |
 | Sauvegarde corrompue | **P0** | S | `main.js`, `index.html` | À faire (vérifié : ignorée puis écrasée) | Sonnet | Message clair, sauvegarde illisible mise de côté (pas écrasée), choix de repartir à zéro. |
 | Voitures de police coincées | P3 | S | `police.js` | Ouvert | Sonnet | Se débloquent seules en 2,5 s. |

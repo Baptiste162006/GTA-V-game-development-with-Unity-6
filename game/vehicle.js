@@ -402,6 +402,61 @@ export class Vehicle {
       .add(new THREE.Vector3(0, windowLine - headHeight, 0));
   }
 
+  // Position d'un point dans le repère de la caisse (x vers la droite, z vers
+  // l'avant) et point le plus proche du rectangle au sol.
+  footprint(p) {
+    const s = Math.sin(this.yaw);
+    const c = Math.cos(this.yaw);
+    const dx = p.x - this.pos.x;
+    const dz = p.z - this.pos.z;
+    const lx = dx * c - dz * s;
+    const lz = dx * s + dz * c;
+    const hw = this.spec.size[0] / 2;
+    const hl = this.spec.size[2] / 2;
+    return { s, c, lx, lz, hw, hl, cx: THREE.MathUtils.clamp(lx, -hw, hw), cz: THREE.MathUtils.clamp(lz, -hl, hl) };
+  }
+
+  // Distance au bord de la carrosserie (0 si le point est dessus). Mesurer au
+  // centre empêchait de monter dans un bus par l'avant : 4,8 m de demi-longueur.
+  distanceTo(p) {
+    const f = this.footprint(p);
+    return Math.hypot(f.lx - f.cx, f.lz - f.cz);
+  }
+
+  // Repousse un cercle (le joueur) hors du rectangle au sol. Renvoie la
+  // profondeur corrigée, 0 si pas de contact.
+  pushOutCircle(p, radius) {
+    const f = this.footprint(p);
+    const ox = f.lx - f.cx;
+    const oz = f.lz - f.cz;
+    const d = Math.hypot(ox, oz);
+    if (d >= radius) return 0;
+    let nx;
+    let nz;
+    let push;
+    if (d > 1e-6) {
+      nx = ox / d;
+      nz = oz / d;
+      push = radius - d;
+    } else {
+      // Centre du cercle sur la caisse : on sort par le côté le plus proche.
+      const px = f.hw - Math.abs(f.lx);
+      const pz = f.hl - Math.abs(f.lz);
+      if (px < pz) {
+        nx = Math.sign(f.lx) || 1;
+        nz = 0;
+        push = px + radius;
+      } else {
+        nx = 0;
+        nz = Math.sign(f.lz) || 1;
+        push = pz + radius;
+      }
+    }
+    p.x += (nx * f.c + nz * f.s) * push;
+    p.z += (-nx * f.s + nz * f.c) * push;
+    return push;
+  }
+
   exitPosition() {
     const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
     return this.pos.clone().addScaledVector(right, -(this.spec.size[0] / 2 + 0.9));

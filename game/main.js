@@ -258,6 +258,24 @@ class Game {
   // `counted` est à false uniquement quand on replace le joueur dans son
   // propre véhicule après une sauvegarde : ce n'est ni un vol, ni un
   // nouveau véhicule volé pour les statistiques.
+  // À pied, le joueur ne traversait que les bâtiments de façon réaliste : les
+  // voitures (garées, en circulation, de police) le laissaient passer. On le
+  // repousse hors de leur rectangle au sol, puis on refait la collision avec
+  // les bâtiments pour qu'une voiture ne puisse pas le pousser dans un mur.
+  collidePlayerWithVehicles() {
+    const p = this.player.pos;
+    const r = this.player.radius;
+    let touched = false;
+    const test = (v) => {
+      if (Math.abs(v.pos.x - p.x) > 7 || Math.abs(v.pos.z - p.z) > 7) return;
+      if (v.pushOutCircle(p, r) > 0) touched = true;
+    };
+    for (const v of this.traffic.parked) test(v);
+    for (const car of this.traffic.cars) test(car.vehicle);
+    for (const unit of this.police.units) test(unit.vehicle);
+    if (touched) this.world.collideCircle(p, r);
+  }
+
   enterVehicle(vehicle, { counted = true } = {}) {
     const occupied = counted && this.traffic.isOccupied(vehicle);
     if (occupied) {
@@ -545,7 +563,7 @@ class Game {
     if (input.justPressed('KeyF')) {
       if (vehicle) this.exitVehicle();
       else {
-        const near = this.traffic.nearestVehicle(this.player.pos, 4.2);
+        const near = this.traffic.nearestVehicle(this.player.pos, 2.5);
         if (near) this.enterVehicle(near);
       }
     }
@@ -563,6 +581,7 @@ class Game {
       this.audio.updateEngine(true, Math.min(1, Math.abs(vehicle.speed) / vehicle.spec.top), Math.max(0, input.axisY));
     } else {
       this.player.update(dt, input, this.camera3p.yaw);
+      this.collidePlayerWithVehicles();
       this.combat(dt, input);
       // Visée : caméra épaule, champ resserré, et le joueur regarde où on vise.
       const aiming = this.weapons.aiming;
@@ -591,6 +610,9 @@ class Game {
 
     this.traffic.update(dt, this.playerPos(), vehicle, this.playerPos());
     this.police.update(dt, this.player);
+    // Deuxième passe : les voitures viennent de bouger et peuvent avoir roulé
+    // sur le joueur à pied pendant cette image.
+    if (!this.player.inVehicle && this.player.alive) this.collidePlayerWithVehicles();
     this.enemies.update(dt, this.player, this.playerPos(), this.camera);
     this.missions.update(dt);
     this.world.update(dt, this.playerPos());
@@ -738,7 +760,7 @@ class Game {
       this.hud.setPrompt('F : sortir du véhicule   ·   H : klaxon');
       return;
     }
-    const near = this.traffic.nearestVehicle(this.player.pos, 4.2);
+    const near = this.traffic.nearestVehicle(this.player.pos, 2.5);
     if (near) {
       const occupied = this.traffic.isOccupied(near);
       this.hud.setPrompt(`F : ${occupied ? 'éjecter le conducteur' : 'monter'} — ${near.spec.label}`);

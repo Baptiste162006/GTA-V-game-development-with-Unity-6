@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.23 — 2026-09-24
+
+### Corrigé — on ne traverse plus les voitures à pied (étape 0, bug 1/3)
+- Vérifié dans le code : à pied, le joueur ne collisionnait qu'avec les
+  bâtiments ; il passait à travers toutes les voitures.
+- Chaque véhicule a maintenant un rectangle au sol orienté (dimensions de
+  `VEHICLE_SPECS`) ; le joueur en est repoussé — voitures garées, en
+  circulation, de police et de mission. Deuxième passe après le
+  déplacement du trafic et de la police : une voiture qui roule pousse le
+  joueur au lieu de le traverser. La collision avec les bâtiments est
+  refaite ensuite, pour qu'une voiture ne le pousse jamais dans un mur.
+- Risque évité avant qu'il n'arrive : on montait en voiture si son
+  **centre** était à moins de 4,2 m. Avec la collision, impossible
+  d'approcher le centre d'un bus (9,6 m) ou d'un camion par l'avant. La
+  distance se mesure maintenant depuis la carrosserie (2,5 m) : on monte
+  dans un bus par l'avant, dans une voiture par la portière.
+- Vérifié par `collisiontest` (sortie du centre d'une voiture, marche
+  droit sur une berline → bloqué devant, entrée citadine et bus, touche F
+  réelle, 300 images au milieu de la circulation sans jamais être dans un
+  véhicule) et les 11 scripts de régression — zéro erreur console réelle.
+
+
 ## Documentation — 2026-09-24 (aucun fichier de jeu modifié)
 
 - `MILESTONES.md` et `BACKLOG.md` réorganisés selon l'ordre de travail V1

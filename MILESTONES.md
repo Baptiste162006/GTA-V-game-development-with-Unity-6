@@ -16,7 +16,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 
 | Étape | Sujet | État | Modèle |
 |---|---|---|---|
-| 0 | Stabilisation du prototype | 🟡 3 bugs ouverts | Opus |
+| 0 | Stabilisation du prototype | 🟡 2 bugs ouverts (1/3 corrigé en v0.23) | Sonnet |
 | 1 | Audit et documentation | ✅ faite — à valider | Opus |
 | 2 | Système de missions | ✅ faite (v0.22) — écarts listés, à valider | Opus |
 | 3 | UI / HUD / mini-carte / menus | 🟡 largement faite | Sonnet |
@@ -32,7 +32,7 @@ Détails par système : `MISSIONS.md`, `AUDIO_SYSTEM.md`,
 
 ---
 
-## 0. Stabilisation du prototype — 🟡 3 BUGS OUVERTS (Opus)
+## 0. Stabilisation du prototype — 🟡 2 BUGS OUVERTS (Sonnet pour la suite)
 
 **Objectif.** Aucun bug bloquant : contrôles, caméra, arme/visée,
 collisions, sauvegarde.
@@ -45,9 +45,9 @@ lancement (v0.22). Checklist de tests manuels : `BACKLOG.md` ; 11 scripts
 de régression automatiques lancés avant chaque push.
 
 **Reste — vérifié dans le code le 2026-09-24 :**
-1. **Collisions joueur/véhicules** : à pied, le joueur ne collisionne
-   qu'avec les bâtiments (`world.collideCircle`) — on traverse les
-   voitures.
+1. ~~**Collisions joueur/véhicules**~~ — ✅ corrigé en v0.23 (rectangle au
+   sol orienté, deuxième passe après le trafic, entrée mesurée depuis la
+   carrosserie). Script `collisiontest`.
 2. **Origine du tir** : la balle part de la caméra
    (`camera.position + 1,2 m`), pas de l'arme — dos à un angle de mur,
    elle peut passer à travers.
