@@ -76,6 +76,9 @@
     font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
   }
   #objective-text { font-size: 18px; line-height: 1.15; font-weight: 500; }
+  #objective-distance {
+    font-size: 13px; letter-spacing: 0.04em; color: var(--ink-dim); font-variant-numeric: tabular-nums;
+  }
   #objective-timer {
     font-size: 22px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums;
   }
@@ -123,6 +126,8 @@
   /* Un signe, pas seulement une teinte. */
   #ammo.low::before { content: '\26A0 '; }
   #ammo.reloading { color: var(--gold); }
+  #reload-bar { width: 90px; height: 5px; margin: 5px auto 0; }
+  #reload-fill { background: var(--gold); }
   @keyframes blink { 50% { opacity: 0.35; } }
 
   /* Réticule : quatre traits, qui se resserrent en visée. */
@@ -363,6 +368,7 @@
     <div id="objective" class="plate" hidden>
       <div id="objective-label">Objectif</div>
       <div id="objective-text"></div>
+      <div id="objective-distance" hidden></div>
       <div id="objective-timer" hidden></div>
     </div>
   </div>
@@ -392,6 +398,7 @@
     <div id="weapon-box" class="plate">
       <div id="weapon-name">Pistolet 9 mm</div>
       <div id="ammo">12 / 48</div>
+      <div class="bar" id="reload-bar" hidden><i id="reload-fill" style="width:0%"></i></div>
     </div>
     <div id="speed-box" class="plate" hidden>
       <span id="speed">0</span><span id="speed-unit">KM/H</span><span id="gear">1</span>

@@ -42,7 +42,10 @@ export class HUD {
       gear: document.getElementById('gear'),
       objective: document.getElementById('objective'),
       objectiveText: document.getElementById('objective-text'),
+      objectiveDistance: document.getElementById('objective-distance'),
       objectiveTimer: document.getElementById('objective-timer'),
+      reloadBar: document.getElementById('reload-bar'),
+      reloadFill: document.getElementById('reload-fill'),
       prompt: document.getElementById('prompt'),
       notifications: document.getElementById('notifications'),
       big: document.getElementById('big-message'),
@@ -177,6 +180,19 @@ export class HUD {
       this.el.ammo.textContent = empty ? 'RECHARGER' : weapons.hudAmmo;
       this.el.ammo.classList.toggle('low', !weapons.spec.melee && weapons.magazine <= 3);
       this.el.ammo.classList.toggle('reloading', weapons.reloading > 0);
+      const reloadRatio = weapons.reloading > 0 ? 1 - weapons.reloading / weapons.spec.reload : 0;
+      this.el.reloadBar.hidden = weapons.reloading <= 0;
+      this.el.reloadFill.style.width = `${Math.round(reloadRatio * 100)}%`;
+    }
+
+    const marker = state.missions?.markerPos;
+    if (marker && !this.el.objective.hidden) {
+      const from = vehicle ? vehicle.pos : player.pos;
+      const dist = Math.hypot(marker.x - from.x, marker.z - from.z);
+      this.el.objectiveDistance.hidden = false;
+      this.el.objectiveDistance.textContent = dist < 1000 ? `${Math.round(dist)} m` : `${(dist / 1000).toFixed(1)} km`;
+    } else {
+      this.el.objectiveDistance.hidden = true;
     }
 
     const hurt = 1 - player.health / 100;

@@ -56,12 +56,10 @@ Liste complète avec description, priorité, effort et modèle dans
 `BACKLOG.md` § « Mini-carte et HUD ». Rien n'est codé, à valider avant de
 lancer le travail.
 
-**MUST HAVE (V1)** — sans ça la mini-carte reste correcte mais moins
-utile qu'elle ne pourrait l'être pour une démo qu'on envoie à des amis :
-- Distance chiffrée jusqu'à l'objectif — un ajout minime (S) à fort effet
-  de lisibilité.
-- Barre de progression pour le rechargement — remplace un simple
-  changement de couleur peu explicite.
+**MUST HAVE (V1)** — ✅ **faites en v0.20** : distance chiffrée jusqu'à
+l'objectif (sous le texte d'objectif, « 240 m » / « 1.2 km ») et barre de
+progression pour le rechargement (sous les munitions, largeur
+proportionnelle au temps restant).
 
 **SHOULD HAVE (V1, si le temps le permet après les MUST HAVE)** :
 - Rotation de la mini-carte façon « suivant le joueur » (avec réglage,

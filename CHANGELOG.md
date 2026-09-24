@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## v0.20 — 2026-09-24
+
+### Ajouté — distance à l'objectif et barre de rechargement
+- Audit UI/mini-carte demandé par l'utilisateur : `hud.js` ne donnait
+  aucune indication chiffrée de distance jusqu'au marqueur d'objectif, et
+  le rechargement ne se signalait que par un changement de couleur du
+  texte de munitions (`#ammo.reloading`), sans indication du temps
+  restant. Deux des points classés MUST HAVE dans `V1_SCOPE.md`.
+- Distance à l'objectif : affichée sous le texte d'objectif dès qu'une
+  mission a un marqueur (« 240 m », ou « 1.2 km » au-delà de 1000 m),
+  recalculée chaque frame depuis la position réelle du joueur (à pied ou
+  en véhicule).
+- Barre de progression de rechargement : sous les munitions, visible
+  uniquement pendant un rechargement, largeur proportionnelle au temps
+  écoulé (`weapons.reloading` / `spec.reload`).
+- Vérifié par un script dédié (distance au bon format, diminue en
+  avançant vers le marqueur ; barre visible à mi-parcours avec une
+  largeur entre 0 et 100 %, cachée une fois le chargeur plein) et les 6
+  scripts de régression existants — zéro erreur console réelle.
+
+
 ## v0.19 — 2026-09-23
 
 ### Ajouté — sauvegarde complète et menu Sauvegarder / Réinitialiser
