@@ -105,10 +105,14 @@ Missions, Statistiques, Options, Commandes, Sauvegarder, Réinitialiser,
 Recommencer, Quitter) ; 20 réglages ; mini-carte nord fixe ou « suit le
 cap », contacts d'histoire en étoile.
 
-**Reste.** Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À
-propos) + réinitialiser les options ; remappage des touches ;
-vérification HUD sur 4 ratios et aux tailles min/max ; écran de
-chargement ; texte d'accueil « huit quartiers » (il y en a 6).
+**Fait depuis (v0.27)** : options réorganisées en 5 onglets (Vidéo,
+Contrôles, Accessibilité, Audio, À propos), avec réinitialisation des
+réglages. Version affichée (« À propos » + écran d'accueil) reprise
+d'une seule source, `GAME_VERSION` — elle restait figée à « v0.1 ».
+
+**Reste.** Remappage des touches ; vérification HUD sur 4 ratios et aux
+tailles min/max ; écran de chargement ; texte d'accueil « huit
+quartiers » (il y en a 6).
 
 **Condition de passage.** Options en sections et vérification
 multi-ratios faites ; le remappage peut suivre en parallèle de l'étape 4.

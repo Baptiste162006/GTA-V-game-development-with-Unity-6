@@ -10,7 +10,7 @@ import { SeasonSystem } from './seasons.js';
 import { WeaponSystem, WEAPONS } from './weapons.js';
 import { Enemies } from './enemies.js';
 import { VehicleEffects } from './vehicleEffects.js';
-import { Settings } from './settings.js';
+import { Settings, GAME_VERSION } from './settings.js';
 import { PauseMenu } from './menu.js';
 import { Performance, applyPreset } from './performance.js';
 import { HUD } from './hud.js';
@@ -825,6 +825,11 @@ class Game {
 }
 
 function boot(restored) {
+  // Le texte HTML statique restait figé à « v0.1 » ; une seule source de
+  // vérité (`GAME_VERSION`), reprise aussi dans Options → À propos.
+  const eyebrow = document.querySelector('#start-screen .eyebrow');
+  if (eyebrow) eyebrow.textContent = `Prototype jouable · ${GAME_VERSION}`;
+
   const game = new Game(restored || Game.loadSave());
   window.game = game; // pratique pour la console de debug
   window.claude?.hot?.snapshot?.(() => game.snapshot());

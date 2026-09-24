@@ -2,28 +2,34 @@ import { applyTheme } from './uiTheme.js';
 
 const KEY = 'san-felipe-settings-v1';
 
-// Chaque réglage déclare ses bornes et la façon de l'appliquer au jeu : le menu
-// se construit tout seul à partir de cette table.
-export const DEFINITIONS = {
-  theme: { label: 'Thème', group: 'Interface', type: 'choice', options: ['nocturne', 'contraste', 'daltonisme'], def: 'nocturne' },
-  hudScale: { label: 'Taille du HUD', group: 'Interface', type: 'range', min: 75, max: 150, step: 25, unit: '%', def: 100 },
-  hudOpacity: { label: 'Opacité du HUD', group: 'Interface', type: 'range', min: 40, max: 100, step: 10, unit: '%', def: 100 },
+// Affiché dans le menu Options → À propos, et sur l'écran d'accueil.
+// Un seul endroit à mettre à jour à chaque version.
+export const GAME_VERSION = 'v0.27';
 
-  quality: { label: 'Qualité', group: 'Affichage', type: 'choice', options: ['faible', 'moyen', 'eleve', 'auto'], def: 'eleve' },
-  renderScale: { label: 'Résolution de rendu', group: 'Affichage', type: 'range', min: 60, max: 100, step: 5, unit: '%', def: 100 },
-  shadows: { label: 'Ombres', group: 'Affichage', type: 'toggle', def: true },
-  minimap: { label: 'Mini-carte', group: 'Affichage', type: 'toggle', def: true },
-  minimapFollow: { label: 'Mini-carte suit le cap', group: 'Affichage', type: 'toggle', def: false },
+// Chaque réglage déclare ses bornes, son groupe (l'onglet où il apparaît dans
+// Options : Vidéo, Contrôles, Accessibilité, Audio) et la façon de
+// l'appliquer au jeu : le menu se construit tout seul à partir de cette
+// table.
+export const DEFINITIONS = {
+  theme: { label: 'Thème', group: 'Accessibilité', type: 'choice', options: ['nocturne', 'contraste', 'daltonisme'], def: 'nocturne' },
+  hudScale: { label: 'Taille du HUD', group: 'Accessibilité', type: 'range', min: 75, max: 150, step: 25, unit: '%', def: 100 },
+  hudOpacity: { label: 'Opacité du HUD', group: 'Accessibilité', type: 'range', min: 40, max: 100, step: 10, unit: '%', def: 100 },
+
+  quality: { label: 'Qualité', group: 'Vidéo', type: 'choice', options: ['faible', 'moyen', 'eleve', 'auto'], def: 'eleve' },
+  renderScale: { label: 'Résolution de rendu', group: 'Vidéo', type: 'range', min: 60, max: 100, step: 5, unit: '%', def: 100 },
+  shadows: { label: 'Ombres', group: 'Vidéo', type: 'toggle', def: true },
+  minimap: { label: 'Mini-carte', group: 'Vidéo', type: 'toggle', def: true },
+  minimapFollow: { label: 'Mini-carte suit le cap', group: 'Vidéo', type: 'toggle', def: false },
 
   // Un seul champ de vision ne peut pas convenir aux quatre situations : large
   // en voiture pour la sensation de vitesse, resserré en visée pour la
   // précision. Valeurs en degrés verticaux, comme les attend Three.js.
-  fovFoot: { label: 'Champ — à pied', group: 'Caméra', type: 'range', min: 70, max: 90, step: 1, unit: '°', def: 80 },
-  fovVehicle: { label: 'Champ — véhicule', group: 'Caméra', type: 'range', min: 75, max: 100, step: 1, unit: '°', def: 88 },
-  fovAim: { label: 'Champ — visée', group: 'Caméra', type: 'range', min: 50, max: 70, step: 1, unit: '°', def: 60 },
-  fovSniper: { label: 'Champ — lunette', group: 'Caméra', type: 'range', min: 20, max: 45, step: 1, unit: '°', def: 35 },
-  camDistance: { label: 'Distance caméra', group: 'Caméra', type: 'range', min: 40, max: 90, step: 2, unit: ' dm', def: 46 },
-  camHeight: { label: 'Hauteur caméra', group: 'Caméra', type: 'range', min: 120, max: 200, step: 5, unit: ' cm', def: 155 },
+  fovFoot: { label: 'Champ — à pied', group: 'Vidéo', type: 'range', min: 70, max: 90, step: 1, unit: '°', def: 80 },
+  fovVehicle: { label: 'Champ — véhicule', group: 'Vidéo', type: 'range', min: 75, max: 100, step: 1, unit: '°', def: 88 },
+  fovAim: { label: 'Champ — visée', group: 'Vidéo', type: 'range', min: 50, max: 70, step: 1, unit: '°', def: 60 },
+  fovSniper: { label: 'Champ — lunette', group: 'Vidéo', type: 'range', min: 20, max: 45, step: 1, unit: '°', def: 35 },
+  camDistance: { label: 'Distance caméra', group: 'Vidéo', type: 'range', min: 40, max: 90, step: 2, unit: ' dm', def: 46 },
+  camHeight: { label: 'Hauteur caméra', group: 'Vidéo', type: 'range', min: 120, max: 200, step: 5, unit: ' cm', def: 155 },
 
   sensitivity: { label: 'Sensibilité souris', group: 'Contrôles', type: 'range', min: 10, max: 300, step: 5, unit: '%', def: 100 },
   invertY: { label: 'Inverser l’axe Y', group: 'Contrôles', type: 'toggle', def: false },
@@ -33,6 +39,10 @@ export const DEFINITIONS = {
   engineVolume: { label: 'Moteurs', group: 'Audio', type: 'range', min: 0, max: 100, step: 5, unit: '%', def: 100 },
   sirenVolume: { label: 'Sirènes', group: 'Audio', type: 'range', min: 0, max: 100, step: 5, unit: '%', def: 100 },
 };
+
+// Ordre d'affichage des onglets dans Options ; « À propos » n'a pas de
+// réglages, il est ajouté à part dans le menu.
+export const SETTINGS_GROUPS = ['Vidéo', 'Contrôles', 'Accessibilité', 'Audio'];
 
 export class Settings {
   constructor() {
@@ -53,6 +63,16 @@ export class Settings {
     else this.values[key] = Math.min(def.max, Math.max(def.min, value));
     this.save();
     if (this.onChange) this.onChange(key, this.values[key]);
+  }
+
+  // Remet tous les réglages à leur valeur par défaut (bouton « Réinitialiser
+  // les options » du menu). `onChange(null, null)` réapplique tout au jeu
+  // sans déclencher le cas particulier de la qualité graphique dans
+  // `main.js` (`if (key === 'quality')`, faux ici puisque `key` est `null`).
+  resetToDefaults() {
+    for (const [key, def] of Object.entries(DEFINITIONS)) this.values[key] = def.def;
+    this.save();
+    if (this.onChange) this.onChange(null, null);
   }
 
   load() {

@@ -47,7 +47,7 @@ Statut « À faire » sauf mention contraire.
 
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
 |---|---|---|---|---|---|---|
-| Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À propos) + réinitialiser | P1 | M | `menu.js`, `settings.js` | À faire | Sonnet | Les 20 réglages existent, seule l'organisation manque. |
+| Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À propos) + réinitialiser | — | — | — | ✅ Fait v0.27 | — | 5 onglets cliquables, chacun ses réglages ; onglet À propos (version, moteur) avec le bouton « Réinitialiser les options » (confirmation, remet tout aux valeurs par défaut, persisté). |
 | Vérification HUD multi-ratios et tailles | P1 | S | `hud.js` | À faire | Sonnet | Script 16:9 / 16:10 / 21:9 / étroit, `hudScale` 75 et 150 %, aucune valeur NaN. |
 | Remappage des touches | P1 | M | `input.js`, `menu.js` | À faire | Sonnet | Action → touche, conflits signalés, persisté. |
 | Texte d'accueil « huit quartiers » | P1 | S | `index.html` | À faire | Sonnet | Il y en a 6. |

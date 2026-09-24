@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## v0.27 — 2026-09-24
+
+### Ajouté — options en 5 onglets, réinitialisation, version à jour
+- Le menu Options passe d'une longue liste défilante à 5 onglets
+  cliquables : **Vidéo** (qualité, résolution, ombres, mini-carte, champs
+  de vision, caméra), **Contrôles** (sensibilité, inversion Y, secousses),
+  **Accessibilité** (thème, taille et opacité du HUD), **Audio** (volumes)
+  et **À propos**. Les 20 réglages existants n'ont pas changé de
+  comportement, seule leur organisation change (`SETTINGS_GROUPS` dans
+  `settings.js`).
+- **À propos** affiche la version du jeu, le moteur (Three.js r160, MIT)
+  et un bouton **Réinitialiser les options** (avec confirmation) qui
+  remet les 20 réglages à leur valeur par défaut, les réapplique
+  immédiatement au jeu et les persiste.
+- Corrige au passage : le texte de l'écran d'accueil restait figé à
+  « Prototype jouable · v0.1 » depuis le tout début du projet — repris
+  d'une constante unique (`GAME_VERSION`, `settings.js`) partagée avec
+  l'écran À propos.
+- Vérifié par `optionstest` (5 onglets, contenu de chaque onglet, version
+  affichée, réinitialisation avec confirmation — effet réel et
+  sauvegardé, non-régression du réglage direct) et les 13 autres scripts
+  de régression. `storytest` a de nouveau montré son intermittence déjà
+  connue sur la mission finale (sans rapport, cf. v0.24) — repassé, vert
+  au second essai.
+
+
 ## v0.26 — 2026-09-24
 
 ### Corrigé — le tutoriel ne colle plus le joueur à un mur

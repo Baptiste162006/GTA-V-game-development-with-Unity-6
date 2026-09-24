@@ -1,4 +1,4 @@
-import { DEFINITIONS } from './settings.js';
+import { DEFINITIONS, SETTINGS_GROUPS, GAME_VERSION } from './settings.js';
 
 const SECTIONS = [
   { id: 'resume', label: 'Reprendre', action: 'resume' },
@@ -25,6 +25,7 @@ export class PauseMenu {
     this.game = game;
     this.index = 0;
     this.section = 'stats';
+    this.optionsTab = SETTINGS_GROUPS[0]; // Vidéo par défaut
 
     this.root = document.getElementById('pause-screen');
     this.nav = document.getElementById('pause-nav');
@@ -209,66 +210,100 @@ export class PauseMenu {
     this.panel.appendChild(note);
   }
 
+  // Onglets Vidéo / Contrôles / Accessibilité / Audio + À propos, plutôt
+  // qu'une seule longue liste : les 20 réglages existaient déjà, seule
+  // l'organisation manquait.
   renderOptions() {
+    const tabs = [...SETTINGS_GROUPS, 'À propos'];
+    const bar = document.createElement('div');
+    bar.className = 'choices opt-tabs';
+    for (const group of tabs) {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.textContent = group;
+      b.classList.toggle('on', this.optionsTab === group);
+      b.addEventListener('click', () => {
+        this.optionsTab = group;
+        this.show('options');
+      });
+      bar.appendChild(b);
+    }
+    this.panel.appendChild(bar);
+
+    if (this.optionsTab === 'À propos') {
+      this.renderAbout();
+      return;
+    }
+
     const settings = this.game.settings;
-    const groups = {};
     for (const [key, def] of Object.entries(DEFINITIONS)) {
-      (groups[def.group] ||= []).push([key, def]);
-    }
+      if (def.group !== this.optionsTab) continue;
+      const line = document.createElement('label');
+      line.className = 'option';
+      const name = document.createElement('span');
+      name.textContent = def.label;
+      line.appendChild(name);
 
-    for (const [group, entries] of Object.entries(groups)) {
-      const h = document.createElement('p');
-      h.className = 'eyebrow';
-      h.textContent = group;
-      this.panel.appendChild(h);
-
-      for (const [key, def] of entries) {
-        const line = document.createElement('label');
-        line.className = 'option';
-        const name = document.createElement('span');
-        name.textContent = def.label;
-        line.appendChild(name);
-
-        if (def.type === 'choice') {
-          const box = document.createElement('span');
-          box.className = 'choices';
-          for (const option of def.options) {
-            const b = document.createElement('button');
-            b.className = 'chip';
-            b.textContent = option;
-            b.classList.toggle('on', settings.get(key) === option);
-            b.addEventListener('click', () => {
-              settings.set(key, option);
-              this.show('options');
-            });
-            box.appendChild(b);
-          }
-          line.appendChild(box);
-        } else if (def.type === 'toggle') {
-          const input = document.createElement('input');
-          input.type = 'checkbox';
-          input.id = `opt-${key}`;
-          input.checked = settings.get(key);
-          input.addEventListener('change', () => settings.set(key, input.checked));
-          line.appendChild(input);
-        } else {
-          const input = document.createElement('input');
-          input.type = 'range';
-          input.id = `opt-${key}`;
-          input.min = def.min;
-          input.max = def.max;
-          input.step = def.step;
-          input.value = settings.get(key);
-          const out = document.createElement('b');
-          out.textContent = `${settings.get(key)}${def.unit || ''}`;
-          input.addEventListener('input', () => {
-            settings.set(key, Number(input.value));
-            out.textContent = `${input.value}${def.unit || ''}`;
+      if (def.type === 'choice') {
+        const box = document.createElement('span');
+        box.className = 'choices';
+        for (const option of def.options) {
+          const b = document.createElement('button');
+          b.className = 'chip';
+          b.textContent = option;
+          b.classList.toggle('on', settings.get(key) === option);
+          b.addEventListener('click', () => {
+            settings.set(key, option);
+            this.show('options');
           });
-          line.append(input, out);
+          box.appendChild(b);
         }
-        this.panel.appendChild(line);
+        line.appendChild(box);
+      } else if (def.type === 'toggle') {
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = `opt-${key}`;
+        input.checked = settings.get(key);
+        input.addEventListener('change', () => settings.set(key, input.checked));
+        line.appendChild(input);
+      } else {
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.id = `opt-${key}`;
+        input.min = def.min;
+        input.max = def.max;
+        input.step = def.step;
+        input.value = settings.get(key);
+        const out = document.createElement('b');
+        out.textContent = `${settings.get(key)}${def.unit || ''}`;
+        input.addEventListener('input', () => {
+          settings.set(key, Number(input.value));
+          out.textContent = `${input.value}${def.unit || ''}`;
+        });
+        line.append(input, out);
       }
+      this.panel.appendChild(line);
     }
+  }
+
+  renderAbout() {
+    const info = document.createElement('div');
+    info.innerHTML =
+      this.row('Version', GAME_VERSION) +
+      this.row('Moteur', 'Three.js r160 (MIT)') +
+      this.row('Rendu', 'Entièrement généré — aucun fichier téléchargé') +
+      '<p class="note">San Felipe City — projet solo assisté d’un modèle de langage. Voir le dépôt pour la licence complète.</p>';
+    this.panel.appendChild(info);
+
+    const reset = document.createElement('button');
+    reset.className = 'ghost';
+    reset.textContent = 'Réinitialiser les options';
+    reset.addEventListener('click', () => {
+      this.askConfirm('Remettre tous les réglages (vidéo, contrôles, accessibilité, audio) à leur valeur par défaut ?', () => {
+        this.game.settings.resetToDefaults();
+        this.show('options');
+      });
+    });
+    this.panel.appendChild(reset);
   }
 }
