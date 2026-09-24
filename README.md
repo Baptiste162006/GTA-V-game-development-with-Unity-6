@@ -1,6 +1,6 @@
 # San Felipe City
 
-Prototype de jeu open-world 3D jouable dans le navigateur. Une ville de 0,5 km² en huit quartiers,
+Prototype de jeu open-world 3D jouable dans le navigateur. Une ville de 0,5 km² en six quartiers,
 de la circulation, des piétons, un cycle jour/nuit, du vol de voiture et une police à cinq étoiles.
 
 > **Pourquoi pas Unity 6 ?** Le nom du dépôt vient du plan initial. Unity ne peut pas tourner dans
@@ -40,7 +40,7 @@ Liste complète : [CONTROLS.md](CONTROLS.md).
 
 ## Ce qui est jouable aujourd'hui
 
-- **Ville** — 8 quartiers (Downtown, Little Tokyo, Mirador Hills, Zone Industrielle, Beachside,
+- **Ville** — 6 quartiers (Downtown, Little Tokyo, Mirador Hills, Zone Industrielle, Beachside,
   Vieille Ville), ~100 immeubles, trottoirs, parcs, lampadaires, marquage au sol.
 - **Cycle jour/nuit** — 24 h en 12 min : ciel dégradé, étoiles, fenêtres qui s'allument,
   halos de lampadaires, phares automatiques.

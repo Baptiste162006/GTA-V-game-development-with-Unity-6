@@ -54,13 +54,29 @@
   /* --- HUD --- */
   #hud { position: fixed; inset: 0; pointer-events: none; font-size: 16px; }
 
-  .corner { position: absolute; display: flex; flex-direction: column; gap: 8px; }
-  .tl { top: calc(14px + env(safe-area-inset-top, 0px)); left: 16px; max-width: min(46vw, 380px); }
-  .tc { top: calc(14px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); align-items: center; }
-  .tr { top: calc(14px + env(safe-area-inset-top, 0px)); right: 16px; align-items: flex-end; }
-  .bl { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; }
-  .bc { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); align-items: center; }
-  .br { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px; }
+  /* Grille à trois colonnes (gauche/centre/droite) plutôt que trois panneaux
+     positionnés en absolu chacun de son côté : ces derniers pouvaient se
+     chevaucher dès que leur contenu grossissait (échelle du HUD à 150 %,
+     fenêtre étroite) — repéré par un script dédié testant 4 formats d'écran
+     × 4 échelles. Une grille réserve la place de chaque colonne, donc le
+     contenu déborde dans sa propre colonne plutôt que sur sa voisine.
+     `minmax(0, 1fr)` sur les colonnes extérieures : elles peuvent rétrécir
+     sous leur largeur naturelle sans jamais empiéter sur le centre. */
+  .hud-row {
+    position: absolute; left: 0; right: 0; z-index: 1;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+    align-items: start; gap: 10px; padding: 0 16px;
+  }
+  .hud-top { top: calc(14px + env(safe-area-inset-top, 0px)); }
+  .hud-bottom { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); align-items: end; }
+
+  .corner { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .tl { grid-column: 1; justify-self: start; max-width: min(46vw, 380px); }
+  .tc { grid-column: 2; justify-self: center; align-items: center; }
+  .tr { grid-column: 3; justify-self: end; align-items: flex-end; }
+  .bl { grid-column: 1; justify-self: start; }
+  .bc { grid-column: 2; justify-self: center; align-items: center; }
+  .br { grid-column: 3; justify-self: end; }
 
   .plate {
     background: var(--panel);
@@ -371,49 +387,53 @@
 <div id="stage"></div>
 
 <div id="hud">
-  <div class="corner tl">
-    <div id="objective" class="plate" hidden>
-      <div id="objective-label">Objectif</div>
-      <div id="objective-text"></div>
-      <div id="objective-distance" hidden></div>
-      <div id="objective-timer" hidden></div>
+  <div class="hud-row hud-top">
+    <div class="corner tl">
+      <div id="objective" class="plate" hidden>
+        <div id="objective-label">Objectif</div>
+        <div id="objective-text"></div>
+        <div id="objective-distance" hidden></div>
+        <div id="objective-timer" hidden></div>
+      </div>
+    </div>
+
+    <div class="corner tc">
+      <div class="plate" style="text-align:center">
+        <div id="clock">08:30</div>
+        <div id="district">San Felipe</div>
+        <div id="compass">N 000°</div>
+        <div id="weather">Clair</div>
+      </div>
+    </div>
+
+    <div class="corner tr">
+      <div class="plate"><div id="money">$ 0</div></div>
+      <div id="stars"></div>
     </div>
   </div>
 
-  <div class="corner tc">
-    <div class="plate" style="text-align:center">
-      <div id="clock">08:30</div>
-      <div id="district">San Felipe</div>
-      <div id="compass">N 000°</div>
-      <div id="weather">Clair</div>
+  <div class="hud-row hud-bottom">
+    <div class="corner bl">
+      <div class="bar-label" id="health-label"><span>&#9829; Vie</span><b id="health-value">100</b></div>
+      <div class="bar"><i id="health-fill" style="width:100%"></i></div>
+      <div class="bar-label" id="armor-label"><span>&#9670; Armure</span><b id="armor-value">0</b></div>
+      <div class="bar"><i id="armor-fill" style="width:0%"></i></div>
     </div>
-  </div>
 
-  <div class="corner tr">
-    <div class="plate"><div id="money">$ 0</div></div>
-    <div id="stars"></div>
-  </div>
-
-  <div class="corner bl">
-    <div class="bar-label" id="health-label"><span>&#9829; Vie</span><b id="health-value">100</b></div>
-    <div class="bar"><i id="health-fill" style="width:100%"></i></div>
-    <div class="bar-label" id="armor-label"><span>&#9670; Armure</span><b id="armor-value">0</b></div>
-    <div class="bar"><i id="armor-fill" style="width:0%"></i></div>
-  </div>
-
-  <div class="corner bc">
-    <div id="prompt" class="plate" hidden></div>
-    <div id="weapon-box" class="plate">
-      <div id="weapon-name">Pistolet 9 mm</div>
-      <div id="ammo">12 / 48</div>
-      <div class="bar" id="reload-bar" hidden><i id="reload-fill" style="width:0%"></i></div>
+    <div class="corner bc">
+      <div id="prompt" class="plate" hidden></div>
+      <div id="weapon-box" class="plate">
+        <div id="weapon-name">Pistolet 9 mm</div>
+        <div id="ammo">12 / 48</div>
+        <div class="bar" id="reload-bar" hidden><i id="reload-fill" style="width:0%"></i></div>
+      </div>
+      <div id="speed-box" class="plate" hidden>
+        <span id="speed">0</span><span id="speed-unit">KM/H</span><span id="gear">1</span>
+      </div>
     </div>
-    <div id="speed-box" class="plate" hidden>
-      <span id="speed">0</span><span id="speed-unit">KM/H</span><span id="gear">1</span>
-    </div>
-  </div>
 
-  <div class="corner br"><canvas id="minimap" width="190" height="190"></canvas></div>
+    <div class="corner br"><canvas id="minimap" width="190" height="190"></canvas></div>
+  </div>
 
   <div id="crosshair" data-aim="off" hidden></div>
   <div id="hitmarker" hidden></div>
@@ -431,9 +451,9 @@
     <p class="eyebrow">Prototype jouable · v0.1</p>
     <h1>San Felipe City</h1>
     <p class="tagline">
-      Une ville de 0,5 km² en huit quartiers, ouverte et sans temps de chargement : circulation,
+      Une ville de 0,5 km² en six quartiers, ouverte et sans temps de chargement : circulation,
       piétons, cycle jour/nuit de 12 minutes, vol de voitures et police à cinq étoiles.
-      Commence par le tutoriel, puis enchaîne les jobs.
+      Commence par le tutoriel, puis suis l'histoire ou enchaîne les jobs.
     </p>
 
     <div class="keys">

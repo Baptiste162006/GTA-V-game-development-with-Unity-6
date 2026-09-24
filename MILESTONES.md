@@ -110,12 +110,18 @@ Contrôles, Accessibilité, Audio, À propos), avec réinitialisation des
 réglages. Version affichée (« À propos » + écran d'accueil) reprise
 d'une seule source, `GAME_VERSION` — elle restait figée à « v0.1 ».
 
-**Reste.** Remappage des touches ; vérification HUD sur 4 ratios et aux
-tailles min/max ; écran de chargement ; texte d'accueil « huit
-quartiers » (il y en a 6).
+**Fait depuis (v0.28)** : vérification HUD sur 4 formats × 4 échelles
+(`hudresponsivetest`) — a trouvé un vrai chevauchement entre les
+panneaux Objectif et Horloge à 150 % (et dès 100 % en fenêtre étroite).
+Corrigé : les 6 panneaux passent d'une position absolue individuelle à
+une grille à 3 colonnes, qui rend le chevauchement structurellement
+impossible. Texte d'accueil « huit quartiers » corrigé (`index.html`,
+`README.md`, `PROGRESS.md`).
 
-**Condition de passage.** Options en sections et vérification
-multi-ratios faites ; le remappage peut suivre en parallèle de l'étape 4.
+**Reste.** Remappage des touches ; écran de chargement.
+
+**Condition de passage.** Remplie pour les points traités ; le
+remappage peut suivre en parallèle de l'étape 4.
 
 ## 4. Audio de base — ❌ ARCHITECTURE ÉCRITE (Opus, puis Sonnet)
 

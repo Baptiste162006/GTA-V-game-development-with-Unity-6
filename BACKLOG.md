@@ -48,15 +48,16 @@ Statut « À faire » sauf mention contraire.
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
 |---|---|---|---|---|---|---|
 | Options en sections (Vidéo/Audio/Contrôles/Accessibilité/À propos) + réinitialiser | — | — | — | ✅ Fait v0.27 | — | 5 onglets cliquables, chacun ses réglages ; onglet À propos (version, moteur) avec le bouton « Réinitialiser les options » (confirmation, remet tout aux valeurs par défaut, persisté). |
-| Vérification HUD multi-ratios et tailles | P1 | S | `hud.js` | À faire | Sonnet | Script 16:9 / 16:10 / 21:9 / étroit, `hudScale` 75 et 150 %, aucune valeur NaN. |
+| Vérification HUD multi-ratios et tailles | — | — | — | ✅ Fait v0.28 | — | Script `hudresponsivetest` (4 formats × 4 échelles = 16 combinaisons) : a trouvé un vrai chevauchement Objectif/Horloge à 150 % (et dès 100 % en fenêtre étroite). Corrigé en passant les 6 panneaux d'une position absolue à une grille à 3 colonnes — le contenu déborde dans sa colonne, jamais sur sa voisine. |
 | Remappage des touches | P1 | M | `input.js`, `menu.js` | À faire | Sonnet | Action → touche, conflits signalés, persisté. |
-| Texte d'accueil « huit quartiers » | P1 | S | `index.html` | À faire | Sonnet | Il y en a 6. |
+| Texte d'accueil « huit quartiers » | — | — | — | ✅ Fait v0.28 | — | Corrigé dans `index.html`, `README.md` (×2) et `PROGRESS.md`. Les mentions dans `CHANGELOG.md` restent inchangées (ce sont des entrées historiques). |
 | Écran de chargement avec progression | P2 | S | `main.js`, `index.html` | À faire | Sonnet | — |
 | Flèche 3D « suivez le point » (style GPS) | P2 | M | `hud.js`, `missions.js` | À faire | Sonnet | Quand l'objectif est loin ou masqué. |
 | Lisibilité des icônes à `hudScale` 75 % | P2 | S | `hud.js` | À faire | Sonnet | — |
 | Zoom mini-carte | P3 | S | `hud.js` | À faire | Sonnet | Échelle fixe aujourd'hui. |
 | Icônes par type de véhicule sur la mini-carte | P3 | M | `hud.js`, `traffic.js` | À faire | Sonnet | Seule la police a une forme dédiée. |
 | Raccourci pour rappeler l'objectif | P3 | S | `input.js`, `hud.js` | À faire | Sonnet | — |
+| Notification centrée qui peut effleurer le panneau Objectif (150 %, fenêtre étroite) | P3 | S | `index.html`, `hud.js` | Ouvert (repéré en v0.28) | Sonnet | Cosmétique, transitoire (~2,6 s) — sans rapport avec le chevauchement des panneaux, déjà corrigé. |
 | Distinguer « recherché » et « poursuite active » | P3 | S | `hud.js`, `police.js` | À faire | Sonnet | — |
 | Menu pause complet (Sauvegarder, Réinitialiser, Quitter), sauvegarde complète | — | — | — | ✅ Fait v0.19 | — | — |
 | Distance à l'objectif, barre de rechargement | — | — | — | ✅ Fait v0.20 | — | — |

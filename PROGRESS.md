@@ -1,6 +1,6 @@
 # PROGRESS
 
-Dernière mise à jour : 2026-09-23 · Version : **v0.27** · Jalon en cours : **6 (sauvegarde complète,
+Dernière mise à jour : 2026-09-23 · Version : **v0.28** · Jalon en cours : **6 (sauvegarde complète,
 prérequis des missions)** puis 1 (environnement) en parallèle, voir `MILESTONES.md`.
 
 Pour une vue d'ensemble à jour, préférer **`PROJECT_STATUS.md`** (statut système par système,
@@ -11,7 +11,7 @@ Ce fichier garde l'historique détaillé et les mesures.
 
 | Système | Fichier | État |
 |---|---|---|
-| Ville procédurale, 8 quartiers | `game/world.js` | 115 immeubles en 3 styles de façade, trottoirs, bancs, poubelles, parcs, lampadaires, marquage |
+| Ville procédurale, 6 quartiers | `game/world.js` | 115 immeubles en 3 styles de façade, trottoirs, bancs, poubelles, parcs, lampadaires, marquage |
 | Cycle jour/nuit (24 h en 12 min) | `game/world.js` | Ciel dégradé, étoiles, fenêtres allumées, halos |
 | Collisions | `game/world.js` | AABB en grille spatiale, cercle repoussé |
 | Personnage + caméra | `game/player.js` | Marche/course/marche lente/saut, respiration à l'arrêt, caméra épaule anti-mur |

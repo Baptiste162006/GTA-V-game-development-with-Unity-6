@@ -4,7 +4,7 @@ const KEY = 'san-felipe-settings-v1';
 
 // Affiché dans le menu Options → À propos, et sur l'écran d'accueil.
 // Un seul endroit à mettre à jour à chaque version.
-export const GAME_VERSION = 'v0.27';
+export const GAME_VERSION = 'v0.28';
 
 // Chaque réglage déclare ses bornes, son groupe (l'onglet où il apparaît dans
 // Options : Vidéo, Contrôles, Accessibilité, Audio) et la façon de

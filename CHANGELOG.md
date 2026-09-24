@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## v0.28 — 2026-09-24
+
+### Corrigé — panneaux du HUD qui pouvaient se chevaucher
+- Script `hudresponsivetest` (4 formats d'écran × 4 échelles de HUD,
+  16 combinaisons) : a trouvé un vrai chevauchement entre le panneau
+  Objectif et l'horloge/quartier/boussole/météo à 150 % de taille de
+  HUD (sur tous les formats testés), et déjà à 100 % en fenêtre étroite.
+  Les 6 panneaux du HUD (coins) étaient positionnés en absolu, chacun de
+  son côté, avec une largeur maximale ajustée à la main (`max-width:
+  min(46vw, 380px)`) — insuffisant dès que le HUD grossissait.
+- Les 6 panneaux passent d'une position absolue individuelle à une
+  grille à 3 colonnes (une pour la rangée du haut, une pour celle du
+  bas). Chaque colonne réserve sa place : le contenu qui grossit déborde
+  dans sa propre colonne (retour à la ligne), jamais sur sa voisine — le
+  chevauchement devient structurellement impossible plutôt que dépendant
+  d'un réglage de largeur à ajuster à chaque cas.
+- Corrigé au passage : le texte d'accueil disait « huit quartiers »
+  depuis le début du projet, il y en a 6 (`index.html`, `README.md` ×2,
+  `PROGRESS.md` — les mentions historiques du `CHANGELOG` restent
+  inchangées).
+- Vérifié par `hudresponsivetest` (18 contrôles : aucun chevauchement,
+  aucun panneau tronqué, sur les 16 combinaisons) et les 13 autres
+  scripts de régression — zéro erreur console réelle. Capture d'écran de
+  contrôle au cas le plus chargé (150 %, fenêtre étroite).
+- **Repéré, pas corrigé** : la notification centrée (« Bienvenue à San
+  Felipe ») peut effleurer le panneau Objectif dans ce même cas extrême —
+  cosmétique, transitoire (~2,6 s), sans rapport avec le chevauchement
+  ci-dessus. Noté dans `BACKLOG.md`.
+
+
 ## v0.27 — 2026-09-24
 
 ### Ajouté — options en 5 onglets, réinitialisation, version à jour
