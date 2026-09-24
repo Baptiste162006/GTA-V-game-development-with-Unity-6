@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## v0.24 — 2026-09-24
+
+### Corrigé — le tir part du canon, plus de la caméra (étape 0, bug 2/3)
+- Vérifié dans le code : chaque tir partait de `camera.position + 1,2 m`
+  dans la direction visée. En 3e personne, la caméra reste souvent en
+  retrait ou de l'autre côté d'un angle par rapport au personnage — d'où
+  le bug relevé dans `BACKLOG.md` : à bout portant contre un coin de mur,
+  la balle le traversait.
+- L'origine du tir est maintenant la position réelle du repère lumineux
+  au bout de l'arme tenue en main (`this.flash`, déjà attaché au bras
+  droit) — donc là où le personnage tient physiquement son arme, pas à
+  la caméra. La direction reste celle de la caméra (viser au centre de
+  l'écran, inchangé).
+- Deuxième cause du même bug, dans `wallDistance` : la marche le long du
+  rayon commençait à `d = pas` (1,6 m), jamais à `d = 0` — un mur à moins
+  de 1,6 m de l'origine n'était donc jamais testé, quelle que soit
+  l'origine. Corrigé en commençant la marche à `d = 0`.
+- Vérifié par `muzzletest` (origine mesurée proche du joueur et non de la
+  caméra ; `wallDistance` isolé avec un mur collé à l'origine, un mur
+  lointain, aucun mur ; fusillade réelle contre un immeuble du monde à
+  bout portant — bloquée ; tir en terrain dégagé — touche toujours,
+  dégâts torse/tête inchangés) et les 10 autres scripts de régression.
+  Deux scripts de test existants (`combattest`, qui plaçait ses cibles de
+  test depuis la caméra ; `muzzletest` lui-même) ont dû être ajustés pour
+  placer leurs cibles depuis la même origine que le jeu utilise
+  réellement — pas un changement de comportement du jeu.
+- **Note** : `storytest` (mission finale, assaut de l'entrepôt) s'est
+  montré intermittent pendant cette session — squad comptée à 8-13 au
+  lieu de 5. Cause identifiée, sans rapport avec ce correctif : l'entrepôt
+  se trouve en Zone Industrielle, une des deux zones de gang
+  (`enemies.js`, `GANG_DISTRICTS`), et le script laisse la boucle de jeu
+  réelle tourner en fond pendant toute son exécution — des membres de
+  gang ambiants peuvent s'y agréger et fausser le compte. Existait déjà
+  avant cette session ; noté dans `BACKLOG.md`, pas corrigé ici.
+
+
 ## v0.23 — 2026-09-24
 
 ### Corrigé — on ne traverse plus les voitures à pied (étape 0, bug 1/3)

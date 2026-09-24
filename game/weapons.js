@@ -201,7 +201,11 @@ export class WeaponSystem {
     this.reloading = spec.reload;
   }
 
-  // Direction du tir : au centre de l'écran, avec dispersion.
+  // Direction du tir : au centre de l'écran, avec dispersion. L'origine part
+  // du canon (position réelle du repère lumineux au bout de l'arme tenue en
+  // main), pas de la caméra : contre un angle de mur, la caméra en 3e
+  // personne reste souvent en retrait ou de l'autre côté de l'angle par
+  // rapport au personnage, ce qui laissait passer la balle à bout portant.
   aimRay() {
     const dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
@@ -212,7 +216,7 @@ export class WeaponSystem {
       dir.z += (Math.random() - 0.5) * spread;
       dir.normalize();
     }
-    const origin = this.camera.position.clone().addScaledVector(dir, 1.2);
+    const origin = this.flash.getWorldPosition(new THREE.Vector3());
     return { origin, dir };
   }
 
@@ -289,7 +293,10 @@ export class WeaponSystem {
   wallDistance(origin, dir, maxDist, world) {
     if (!world) return Infinity;
     const step = 1.6;
-    for (let d = step; d < maxDist; d += step) {
+    // Commence à 0, pas à `step` : sinon un mur à moins de 1,6 m de l'origine
+    // (typiquement un angle contre lequel le canon est déjà pratiquement
+    // collé) n'était jamais testé — exactement le cas « à bout portant ».
+    for (let d = 0; d < maxDist; d += step) {
       const p = origin.clone().addScaledVector(dir, d);
       if (p.y < 0) return d;
       for (const b of world.nearbyBoxes(p.x, p.z)) {

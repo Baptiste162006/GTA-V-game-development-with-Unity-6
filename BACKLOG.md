@@ -12,10 +12,11 @@ Statut « À faire » sauf mention contraire.
 | Item | P | Effort | Dépendances | Statut | Modèle | Description |
 |---|---|---|---|---|---|---|
 | Collision joueur/véhicules à pied | — | — | — | ✅ Fait v0.23 | — | Rectangle au sol orienté pour chaque voiture (garée, en circulation, police) ; deuxième passe après le déplacement du trafic ; on monte en mesurant depuis la carrosserie (bus par l'avant possible). |
-| Origine du tir | **P0** | M | `weapons.js` | À faire (vérifié : `camera.position + 1,2 m`) | Sonnet | Viser depuis la caméra, mais vérifier le trajet réel depuis l'arme : dos à un angle de mur, la balle ne doit plus passer. |
+| Origine du tir | — | — | — | ✅ Fait v0.24 | — | Le tir part maintenant du canon (position réelle du repère lumineux de l'arme tenue en main), plus de la caméra. Corrige aussi `wallDistance` qui ne testait jamais le premier 1,6 m devant l'origine. |
 | Sauvegarde corrompue | **P0** | S | `main.js`, `index.html` | À faire (vérifié : ignorée puis écrasée) | Sonnet | Message clair, sauvegarde illisible mise de côté (pas écrasée), choix de repartir à zéro. |
 | Voitures de police coincées | P3 | S | `police.js` | Ouvert | Sonnet | Se débloquent seules en 2,5 s. |
 | Voitures PNJ qui se chevauchent aux carrefours | P3 | M | `traffic.js` | Ouvert (V2 avec les feux) | Sonnet | Cosmétique. |
+| `storytest` intermittent sur la mission finale | P2 | S | `storytest.mjs`, `enemies.js` | Ouvert (repéré en v0.24, pas causé par v0.24) | Sonnet | L'entrepôt du « grand coup » est en Zone Industrielle, une zone de gang : des ennemis ambiants s'ajoutent aux 5 de la mission pendant que le script tourne en temps réel. Isoler le décompte à l'escouade de mission, ou déplacer le script hors zone de gang. |
 | Job Livraison qui plantait ; voiture garée impossible à reprendre ; tutoriel rejoué à chaque lancement | — | — | — | ✅ Corrigés v0.22 | — | — |
 
 ## Étape 1 — Audit et documentation
